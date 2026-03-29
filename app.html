@@ -113,105 +113,223 @@
       background: #f9fcff;
       border: 1px solid #d2dde8;
       border-radius: 14px;
-      padding: 12px;
+      padding: 14px 16px;
       margin-bottom: 12px;
       box-shadow: 0 6px 20px rgba(17, 50, 74, 0.06);
     }
 
     .cloud-panel summary {
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       color: #25435b;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+      user-select: none;
     }
 
-    .cloud-panel .row {
+    .cloud-panel summary::-webkit-details-marker { display: none; }
+
+    .cloud-panel summary::before {
+      content: "▸";
+      font-size: 11px;
+      color: var(--muted);
+      transition: transform 0.15s;
+      flex-shrink: 0;
+    }
+
+    .cloud-panel[open] summary::before { transform: rotate(90deg); }
+
+    .cloud-tree-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      background: #edf2f7;
+      padding: 2px 7px;
+      border-radius: 99px;
+      margin-left: auto;
+    }
+
+    .cloud-tree-count.at-limit { background: #fef3c7; color: #b45309; }
+
+    .cloud-save-row {
       display: flex;
       gap: 8px;
+      margin-top: 12px;
       align-items: center;
-      margin: 10px 0 8px;
-      flex-wrap: wrap;
     }
 
-    .cloud-shell {
-      display: grid;
-      grid-template-columns: minmax(220px, 1.2fr) auto minmax(240px, 1fr) auto;
-      gap: 10px;
-      align-items: end;
-      margin-top: 10px;
-    }
-
-    .cloud-field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 12px;
-      color: #3e5b71;
-      letter-spacing: 0.2px;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .cloud-field input,
-    .cloud-field select {
-      text-transform: none;
+    .cloud-save-row input {
+      flex: 1;
       font-size: 14px;
       font-weight: 500;
-      padding: 9px 10px;
+      padding: 8px 12px;
       border: 1px solid #b8cad9;
       border-radius: 10px;
       background: #fff;
       color: #123046;
-      min-height: 40px;
+      min-height: 36px;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: "Segoe UI", Tahoma, sans-serif;
     }
 
-    .cloud-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .cloud-save-row input:focus { border-color: var(--accent); }
 
-    .cloud-panel button {
-      min-height: 40px;
-      padding: 0 14px;
+    .cloud-save-row button {
+      min-height: 36px;
+      padding: 0 16px;
       border: none;
       border-radius: 10px;
+      background: var(--accent);
       color: #fff;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 13px;
       cursor: pointer;
-      transition: background 120ms ease;
+      transition: background 120ms;
+      white-space: nowrap;
+      font-family: "Segoe UI", Tahoma, sans-serif;
     }
 
-    #saveCloudBtn {
-      background: #0f766e;
+    .cloud-save-row button:hover { background: var(--accent-dark); }
+
+    .cloud-tree-list {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-height: 280px;
+      overflow-y: auto;
     }
 
-    #saveCloudBtn:hover {
-      background: #0b5f5d;
+    .cloud-empty-msg {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 14px 0 4px;
+      text-align: center;
     }
 
-    #refreshCloudBtn,
-    #loadCloudBtn {
-      background: #244364;
+    .tree-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      border: 1px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+      cursor: default;
     }
 
-    #refreshCloudBtn:hover,
-    #loadCloudBtn:hover {
-      background: #1d3753;
+    .tree-item:hover { background: #f0f6fa; }
+
+    .tree-item.active {
+      background: #e8f5f4;
+      border-color: #a7d8d3;
     }
 
-    .cloud-select {
-      min-width: 220px;
+    .tree-item-info { flex: 1; min-width: 0; }
+
+    .tree-item-name {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    @media (max-width: 980px) {
-      .cloud-shell {
-        grid-template-columns: 1fr;
-        align-items: stretch;
-      }
+    .tree-item.active .tree-item-name { color: var(--accent); }
 
-      .cloud-actions {
-        flex-wrap: wrap;
-      }
+    .tree-item-meta {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .tree-item-btns {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.12s;
+    }
+
+    .tree-item:hover .tree-item-btns,
+    .tree-item.active .tree-item-btns { opacity: 1; }
+
+    .tree-item-btns button {
+      border: none;
+      border-radius: 6px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.1s;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    .tree-btn-load { background: #244364; color: #fff; }
+    .tree-btn-load:hover { background: #1d3753; }
+
+    .tree-btn-share { background: #e8f0f8; color: #244364; }
+    .tree-btn-share:hover { background: #d4e4f4; }
+
+    .tree-btn-delete { background: #fef2f2; color: #b42318; }
+    .tree-btn-delete:hover { background: #fee2e2; }
+    .tree-btn-delete.confirming { background: #b42318 !important; color: #fff !important; }
+
+    /* ── Toolbar groups ── */
+    .tb-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tb-divider {
+      width: 1px;
+      height: 22px;
+      background: #d2dde8;
+      flex-shrink: 0;
+    }
+
+    .zoom-pill {
+      display: flex;
+      align-items: center;
+      border: 1px solid #d2dde8;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .zoom-pill button {
+      border: none;
+      background: transparent;
+      padding: 5px 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--btn-muted);
+      cursor: pointer;
+      min-height: 0;
+      border-radius: 0;
+      line-height: 1;
+    }
+
+    .zoom-pill button:hover { background: #f0f5fa; }
+
+    .zoom-pill-val {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 0 6px;
+      min-width: 44px;
+      text-align: center;
+      border-left: 1px solid #d2dde8;
+      border-right: 1px solid #d2dde8;
+      user-select: none;
     }
 
     .json-panel summary {
@@ -364,29 +482,39 @@
       background: #f0f5fa;
     }
 
-    /* ── Cloud tree actions ── */
-    .cloud-tree-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
     .share-link-wrap {
       display: flex;
       gap: 6px;
-      margin-top: 6px;
+      margin-top: 8px;
+      align-items: center;
     }
 
     .share-link-wrap input {
       flex: 1;
       font-size: 12px;
-      padding: 6px 8px;
+      padding: 7px 10px;
       border: 1px solid #c8d8e8;
-      border-radius: 6px;
+      border-radius: 8px;
       color: var(--muted);
       background: #f5f9fc;
       font-family: monospace;
+      outline: none;
     }
+
+    .share-link-wrap button {
+      border: none;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #244364;
+      color: #fff;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    .share-link-wrap button:hover { background: #1d3753; }
 
     /* ── View mode banner ── */
     .view-banner {
@@ -451,6 +579,10 @@
 
     body.embed-mode .embed-watermark {
       display: flex;
+    }
+
+    body.embed-mode.paid-plan .embed-watermark {
+      display: none;
     }
 
     /* ── Upgrade modal ── */
@@ -873,22 +1005,35 @@
         </div>
       </div>
       <div class="toolbar-secondary">
-        <button id="expandAllBtn" class="btn-subtle">Expand All</button>
-        <button id="collapseAllBtn" class="btn-subtle">Collapse All</button>
-        <button id="expandLevelBtn" class="btn-subtle">Expand +1</button>
-        <button id="collapseLevelBtn" class="btn-subtle">Collapse -1</button>
-        <button id="zoomOutBtn" class="btn-subtle" title="Zoom out (Ctrl+scroll)">-</button>
-        <button id="zoomInBtn" class="btn-subtle" title="Zoom in (Ctrl+scroll)">+</button>
-        <button id="zoomResetBtn" class="btn-subtle">100%</button>
-        <span id="zoomInfo" class="selected-info">zoom=100%</span>
-        <button id="addChildBtn" class="btn-primary" title="Add child to selected node (Tab)">Add Child</button>
-        <button id="undoBtn" class="btn-subtle" title="Undo (Ctrl+Z)" disabled>&#8617; Undo</button>
-        <button id="redoBtn" class="btn-subtle" title="Redo (Ctrl+Y)" disabled>&#8618; Redo</button>
-        <button id="exportSvgBtn" class="btn-subtle" title="Download as SVG file">Export SVG</button>
-        <button id="exportPngBtn" class="btn-subtle" title="Download as PNG (2× retina)">Export PNG</button>
-        <button id="cleanViewBtn" class="btn-subtle" title="Hide +/× controls for a clean presentation view">Clean View</button>
-        <button id="printBtn" class="btn-subtle" title="Print tree">Print</button>
-        <span id="selectedInfo" class="selected-info"></span>
+        <div class="tb-group">
+          <button id="expandAllBtn" class="btn-subtle" title="Expand all nodes">Expand All</button>
+          <button id="collapseAllBtn" class="btn-subtle" title="Collapse all nodes">Collapse All</button>
+          <button id="expandLevelBtn" class="btn-subtle" title="Expand one more level">+1 Level</button>
+          <button id="collapseLevelBtn" class="btn-subtle" title="Collapse one level">−1 Level</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <div class="zoom-pill">
+            <button id="zoomOutBtn" title="Zoom out (Ctrl+scroll)">−</button>
+            <span id="zoomInfo" class="zoom-pill-val">100%</span>
+            <button id="zoomInBtn" title="Zoom in (Ctrl+scroll)">+</button>
+          </div>
+          <button id="zoomResetBtn" class="btn-subtle" title="Reset zoom to 100%">Reset</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <button id="addChildBtn" class="btn-primary" title="Add child to selected node (Tab)">+ Child</button>
+          <button id="undoBtn" class="btn-subtle" title="Undo (Ctrl+Z)" disabled>↩ Undo</button>
+          <button id="redoBtn" class="btn-subtle" title="Redo (Ctrl+Y)" disabled>↪ Redo</button>
+        </div>
+        <div class="tb-divider"></div>
+        <div class="tb-group">
+          <button id="exportSvgBtn" class="btn-subtle" title="Download as SVG">SVG</button>
+          <button id="exportPngBtn" class="btn-subtle" title="Download as PNG (2× retina)">PNG</button>
+          <button id="cleanViewBtn" class="btn-subtle" title="Clean presentation view">Clean View</button>
+          <button id="printBtn" class="btn-subtle" title="Print tree">Print</button>
+        </div>
+        <span id="selectedInfo" class="selected-info" style="margin-left:auto;"></span>
       </div>
     </div>
 
@@ -897,29 +1042,15 @@
     </div>
 
     <details id="cloudPanel" class="cloud-panel">
-      <summary>My Trees</summary>
-      <div class="cloud-shell">
-        <label class="cloud-field">Tree name
-          <input id="cloudTreeName" type="text" placeholder="my-tree" />
-        </label>
-        <div class="cloud-actions">
-          <button id="saveCloudBtn">Save</button>
-          <button id="refreshCloudBtn">Refresh</button>
-        </div>
-        <label class="cloud-field cloud-select">Saved trees
-          <select id="cloudTreeSelect">
-            <option value="">(none)</option>
-          </select>
-        </label>
-        <div class="cloud-tree-actions">
-          <button id="loadCloudBtn">Load</button>
-          <button id="deleteCloudBtn">Delete</button>
-          <button id="shareCloudBtn">Share link</button>
-        </div>
-        <div id="shareLinkWrap" class="share-link-wrap" style="display:none">
-          <input id="shareLinkInput" type="text" readonly />
-          <button id="copyLinkBtn">Copy</button>
-        </div>
+      <summary>My Trees <span id="cloudTreeCount" class="cloud-tree-count" style="display:none"></span></summary>
+      <div class="cloud-save-row">
+        <input id="cloudTreeName" type="text" placeholder="tree-name" autocomplete="off" spellcheck="false" />
+        <button id="saveCloudBtn">Save</button>
+      </div>
+      <div id="cloudTreeList" class="cloud-tree-list"></div>
+      <div id="shareLinkWrap" class="share-link-wrap" style="display:none">
+        <input id="shareLinkInput" type="text" readonly />
+        <button id="copyLinkBtn">Copy link</button>
       </div>
       <div id="error" class="error"></div>
     </details>
@@ -1542,7 +1673,7 @@
     }
 
     function updateZoomInfo() {
-      document.getElementById("zoomInfo").textContent = `zoom=${Math.round(zoomScale * 100)}%`;
+      document.getElementById("zoomInfo").textContent = `${Math.round(zoomScale * 100)}%`;
     }
 
 
@@ -1999,6 +2130,21 @@
       }, duration);
     }
 
+    let currentLoadedTreeName = null;
+
+    function relativeDate(isoString) {
+      if (!isoString) return "";
+      const diff = Date.now() - new Date(isoString).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 2) return "just now";
+      if (mins < 60) return `${mins}m ago`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      const days = Math.floor(hrs / 24);
+      if (days < 30) return `${days}d ago`;
+      return new Date(isoString).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    }
+
     async function saveTreeToCloud() {
       clearError();
       try {
@@ -2024,6 +2170,7 @@
         }
 
         await parseApiJson(res, "Save");
+        currentLoadedTreeName = name;
         await refreshCloudList();
         toast(`"${name}" saved`);
       } catch (err) {
@@ -2037,47 +2184,130 @@
       try {
         const res = await fetch("/api/trees");
         const payload = await parseApiJson(res, "List");
-        const names = Array.isArray(payload.items)
-          ? payload.items.map((x) => x && x.name).filter((x) => typeof x === "string" && x.length > 0)
-          : [];
+        const items = Array.isArray(payload.items) ? payload.items.filter(x => x && x.name) : [];
 
-        const sel = document.getElementById("cloudTreeSelect");
-        const current = sel.value;
-        sel.innerHTML = "";
-        const empty = document.createElement("option");
-        empty.value = "";
-        empty.textContent = names.length ? "(select tree)" : "(none)";
-        sel.appendChild(empty);
+        const list = document.getElementById("cloudTreeList");
+        list.innerHTML = "";
 
-        names.forEach((name) => {
-          const opt = document.createElement("option");
-          opt.value = name;
-          opt.textContent = name;
-          sel.appendChild(opt);
+        const countEl = document.getElementById("cloudTreeCount");
+        if (currentUser && items.length > 0) {
+          const isPaid = currentPlan === "pro" || currentPlan === "business";
+          countEl.textContent = isPaid ? `${items.length} trees` : `${items.length} / 3`;
+          countEl.className = "cloud-tree-count" + (!isPaid && items.length >= 3 ? " at-limit" : "");
+          countEl.style.display = "";
+        } else {
+          countEl.style.display = "none";
+        }
+
+        if (items.length === 0) {
+          const msg = document.createElement("div");
+          msg.className = "cloud-empty-msg";
+          msg.textContent = "No saved trees yet — type a name above and click Save.";
+          list.appendChild(msg);
+          return;
+        }
+
+        items.forEach(item => {
+          const row = document.createElement("div");
+          row.className = "tree-item" + (item.name === currentLoadedTreeName ? " active" : "");
+          row.dataset.name = item.name;
+
+          const info = document.createElement("div");
+          info.className = "tree-item-info";
+          info.innerHTML = `
+            <span class="tree-item-name" title="${item.name}">${item.name.replace(/\.json$/i, "")}</span>
+            <span class="tree-item-meta">${relativeDate(item.lastModified)}</span>
+          `;
+
+          const btns = document.createElement("div");
+          btns.className = "tree-item-btns";
+          btns.innerHTML = `
+            <button class="tree-btn-load" title="Load this tree">Load</button>
+            <button class="tree-btn-share" title="Get share link">Share</button>
+            <button class="tree-btn-delete" title="Delete this tree">Delete</button>
+          `;
+
+          btns.querySelector(".tree-btn-load").addEventListener("click", (e) => {
+            e.stopPropagation();
+            loadCloudTreeByName(item.name);
+          });
+
+          btns.querySelector(".tree-btn-share").addEventListener("click", (e) => {
+            e.stopPropagation();
+            showShareLink(item.name);
+          });
+
+          btns.querySelector(".tree-btn-delete").addEventListener("click", (e) => {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            if (!btn.classList.contains("confirming")) {
+              btn.classList.add("confirming");
+              btn.textContent = "Sure?";
+              setTimeout(() => { btn.classList.remove("confirming"); btn.textContent = "Delete"; }, 3000);
+            } else {
+              deleteCloudTreeByName(item.name);
+            }
+          });
+
+          row.appendChild(info);
+          row.appendChild(btns);
+          list.appendChild(row);
         });
 
-        if (current && names.includes(current)) {
-          sel.value = current;
+        // Auto-fill name input with active tree
+        if (currentLoadedTreeName) {
+          const nameInput = document.getElementById("cloudTreeName");
+          if (!nameInput.value) nameInput.value = currentLoadedTreeName.replace(/\.json$/i, "");
         }
       } catch (err) {
         setError(err.message || "Cloud list failed.");
       }
     }
 
-    async function loadSelectedCloudTree() {
+    async function loadCloudTreeByName(name) {
       clearError();
       try {
-        const selected = document.getElementById("cloudTreeSelect").value;
-        if (!selected) throw new Error("Select a cloud tree first.");
-        const res = await fetch(`/api/trees/${encodeURIComponent(selected)}`);
+        const res = await fetch(`/api/trees/${encodeURIComponent(name)}`);
         const payload = await parseApiJson(res, "Load");
         const tree = payload && payload.tree ? payload.tree : payload;
         document.getElementById("jsonInput").value = JSON.stringify(tree, null, 2);
         loadJsonTree();
-        toast(`"${selected}" loaded`, "info");
+        currentLoadedTreeName = name;
+        const displayName = name.replace(/\.json$/i, "");
+        document.getElementById("cloudTreeName").value = displayName;
+        await refreshCloudList();
+        toast(`"${displayName}" loaded`, "info");
       } catch (err) {
         setError(err.message || "Cloud load failed.");
+        toast(err.message || "Load failed", "error");
       }
+    }
+
+    async function deleteCloudTreeByName(name) {
+      clearError();
+      try {
+        const res = await fetch(`/api/trees/${encodeURIComponent(name)}`, { method: "DELETE" });
+        await parseApiJson(res, "Delete");
+        if (currentLoadedTreeName === name) currentLoadedTreeName = null;
+        document.getElementById("shareLinkWrap").style.display = "none";
+        await refreshCloudList();
+        const displayName = name.replace(/\.json$/i, "");
+        toast(`"${displayName}" deleted`);
+      } catch (err) {
+        setError(err.message || "Delete failed.");
+        toast(err.message || "Delete failed", "error");
+      }
+    }
+
+    function showShareLink(name) {
+      clearError();
+      if (!currentUser) { setError("Sign in to share trees."); return; }
+      const url = `${location.origin}?view=${encodeURIComponent(currentUser.userId)}/${encodeURIComponent(name)}`;
+      const wrap = document.getElementById("shareLinkWrap");
+      const input = document.getElementById("shareLinkInput");
+      input.value = url;
+      wrap.style.display = "flex";
+      input.select();
     }
 
     function rerenderCurrent() {
@@ -2258,8 +2488,6 @@
     document.getElementById("zoomResetBtn").addEventListener("click", () => setZoom(1));
     document.getElementById("loadJson").addEventListener("click", loadJsonTree);
     document.getElementById("saveCloudBtn").addEventListener("click", saveTreeToCloud);
-    document.getElementById("refreshCloudBtn").addEventListener("click", refreshCloudList);
-    document.getElementById("loadCloudBtn").addEventListener("click", loadSelectedCloudTree);
     document.getElementById("loadSample").addEventListener("click", () => {
       clearError();
       document.getElementById("jsonInput").value = sampleTreeJson();
@@ -2724,40 +2952,7 @@
 
     // ── Auth ─────────────────────────────────────────────────────────────────
 
-    // ── Delete cloud tree ─────────────────────────────────────────────────────
-    async function deleteCloudTree() {
-      clearError();
-      const selected = document.getElementById("cloudTreeSelect").value;
-      if (!selected) { setError("Select a tree to delete."); return; }
-      try {
-        const res = await fetch(`/api/trees/${encodeURIComponent(selected)}`, { method: "DELETE" });
-        await parseApiJson(res, "Delete");
-        document.getElementById("shareLinkWrap").style.display = "none";
-        await refreshCloudList();
-        toast(`"${selected}" deleted`);
-      } catch (err) {
-        setError(err.message || "Delete failed.");
-        toast(err.message || "Delete failed", "error");
-      }
-    }
-
-    document.getElementById("deleteCloudBtn").addEventListener("click", deleteCloudTree);
-
     // ── Share link ────────────────────────────────────────────────────────────
-    function getShareLink() {
-      clearError();
-      const selected = document.getElementById("cloudTreeSelect").value;
-      if (!selected) { setError("Select a tree to share."); return; }
-      if (!currentUser) { setError("Sign in to share trees."); return; }
-      const url = `${location.origin}?view=${encodeURIComponent(currentUser.userId)}/${encodeURIComponent(selected)}`;
-      const wrap = document.getElementById("shareLinkWrap");
-      const input = document.getElementById("shareLinkInput");
-      input.value = url;
-      wrap.style.display = "flex";
-      input.select();
-    }
-
-    document.getElementById("shareCloudBtn").addEventListener("click", getShareLink);
 
     document.getElementById("copyLinkBtn").addEventListener("click", () => {
       const input = document.getElementById("shareLinkInput");
@@ -2881,6 +3076,7 @@
           } catch (_) {}
 
           const isPaid = currentPlan === "pro" || currentPlan === "business";
+          if (isPaid) document.body.classList.add("paid-plan");
 
           authBar.innerHTML = `
             <div class="auth-avatar" id="authAvatar" title="${name}">${initial}</div>
