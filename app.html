@@ -680,13 +680,13 @@
       .canvas-wrap {
         border: none;
         border-radius: 0;
-        height: auto;
-        overflow: visible;
+        height: auto !important;
+        overflow: visible !important;
       }
 
       svg {
-        width: 100%;
-        height: auto;
+        width: 100% !important;
+        height: auto !important;
       }
 
       .node-plus,
@@ -2610,11 +2610,29 @@
     // ── Print ─────────────────────────────────────────────────────────────────
     document.getElementById("printBtn").addEventListener("click", () => {
       const svg = document.getElementById("treeSvg");
+      const viewport = document.getElementById("treeViewport");
       const wasClean = svg.classList.contains("clean-view");
-      // Always print in clean view
+
+      // Save inline styles that zoom sets
+      const savedWidth = svg.style.width;
+      const savedHeight = svg.style.height;
+      const savedVpOverflow = viewport.style.overflow;
+      const savedVpHeight = viewport.style.height;
+
+      // Reset so print CSS can take over
       svg.classList.add("clean-view");
+      svg.style.width = "";
+      svg.style.height = "";
+      viewport.style.overflow = "visible";
+      viewport.style.height = "auto";
+
       window.print();
-      // Restore previous state
+
+      // Restore
+      svg.style.width = savedWidth;
+      svg.style.height = savedHeight;
+      viewport.style.overflow = savedVpOverflow;
+      viewport.style.height = savedVpHeight;
       if (!wasClean) svg.classList.remove("clean-view");
     });
 
