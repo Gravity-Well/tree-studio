@@ -1,1 +1,6 @@
 /.vs
+/bin/
+/obj/
+/TreeApp3.Cli/bin/
+/TreeApp3.Cli/obj/
+*.user
