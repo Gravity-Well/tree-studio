@@ -1,6 +1,9 @@
 {
   "routes": [
     {
+      "route": "/api/share/*"
+    },
+    {
       "route": "/api/*",
       "allowedRoles": ["authenticated"]
     },

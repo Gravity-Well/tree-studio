@@ -323,6 +323,123 @@
       background: #1a1f24;
     }
 
+    /* ── Templates dropdown ── */
+    .templates-wrap {
+      position: relative;
+    }
+
+    .templates-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      background: var(--panel);
+      border: 1px solid #d2dde8;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(17,50,74,0.12);
+      z-index: 50;
+      min-width: 160px;
+      overflow: hidden;
+    }
+
+    .templates-dropdown.open {
+      display: block;
+    }
+
+    .templates-dropdown button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 9px 14px;
+      border: none;
+      background: transparent;
+      color: var(--ink);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    .templates-dropdown button:hover {
+      background: #f0f5fa;
+    }
+
+    /* ── Cloud tree actions ── */
+    .cloud-tree-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .share-link-wrap {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .share-link-wrap input {
+      flex: 1;
+      font-size: 12px;
+      padding: 6px 8px;
+      border: 1px solid #c8d8e8;
+      border-radius: 6px;
+      color: var(--muted);
+      background: #f5f9fc;
+      font-family: monospace;
+    }
+
+    /* ── View mode banner ── */
+    .view-banner {
+      background: #fffbe6;
+      border: 1px solid #e6c84a;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: #6b4f00;
+      margin-bottom: 10px;
+    }
+
+    .view-banner a {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── Embed mode ── */
+    body.embed-mode .layout {
+      margin: 0;
+      padding: 0;
+      max-width: 100%;
+    }
+
+    body.embed-mode .toolbar,
+    body.embed-mode .cloud-panel,
+    body.embed-mode .json-panel,
+    body.embed-mode .meta,
+    body.embed-mode .copyright,
+    body.embed-mode .view-banner {
+      display: none !important;
+    }
+
+    body.embed-mode .canvas-wrap {
+      border-radius: 0;
+      height: 100vh;
+    }
+
+    body.embed-mode {
+      background: #ffffff;
+    }
+
+    /* ── View-only (read-only) mode ── */
+    body.view-mode .toolbar-secondary {
+      display: none;
+    }
+
+    body.view-mode #cloudPanelToggleBtn,
+    body.view-mode #newTreeBtn,
+    body.view-mode #templatesBtn,
+    body.view-mode #importPanelToggleBtn {
+      display: none;
+    }
+
     .auth-bar {
       display: flex;
       align-items: center;
@@ -489,15 +606,19 @@
         <div class="brand">
           <h1>Tree Studio</h1>
           <p>Build and explore logic trees visually.</p>
-          <p class="algorithm-note">Layout: custom Reingold-Tilford/Walker tidy implementation.</p>
         </div>
         <div class="toolbar-actions">
           <button id="newTreeBtn" class="btn-primary">New Tree</button>
-          <button id="loadSample">Load Sample</button>
-          <button id="loadPackedSample">Load Packed</button>
-          <button id="loadTaxonomy" class="btn-subtle">Taxonomy</button>
-          <button id="loadLineage" class="btn-subtle">Human Lineage</button>
-          <button id="cloudPanelToggleBtn" class="btn-cloud">Save/Load</button>
+          <div class="templates-wrap">
+            <button id="templatesBtn" class="btn-subtle">Templates ▾</button>
+            <div class="templates-dropdown" id="templatesDropdown">
+              <button id="loadSample">Sample Tree</button>
+              <button id="loadPackedSample">Deep Tree</button>
+              <button id="loadTaxonomy">Taxonomy</button>
+              <button id="loadLineage">Human Lineage</button>
+            </div>
+          </div>
+          <button id="cloudPanelToggleBtn" class="btn-cloud">My Trees</button>
           <button id="importPanelToggleBtn" class="btn-subtle">Import</button>
         </div>
         <div class="auth-bar" id="authBar">
@@ -518,27 +639,38 @@
         <button id="redoBtn" class="btn-subtle" title="Redo (Ctrl+Y)" disabled>&#8618; Redo</button>
         <button id="exportSvgBtn" class="btn-subtle" title="Download as SVG file">Export SVG</button>
         <button id="exportPngBtn" class="btn-subtle" title="Download as PNG (2× retina)">Export PNG</button>
-        <span id="selectedInfo" class="selected-info">selected=(none)</span>
-        <span id="versionInfo" class="selected-info">version=loading...</span>
+        <span id="selectedInfo" class="selected-info"></span>
       </div>
     </div>
 
+    <div id="viewBanner" class="view-banner" style="display:none">
+      Viewing a shared tree — <a href="/login">Sign in</a> to build and save your own
+    </div>
+
     <details id="cloudPanel" class="cloud-panel">
-      <summary>Cloud Save and Load</summary>
+      <summary>My Trees</summary>
       <div class="cloud-shell">
         <label class="cloud-field">Tree name
           <input id="cloudTreeName" type="text" placeholder="my-tree" />
         </label>
         <div class="cloud-actions">
-          <button id="saveCloudBtn">Save to Cloud</button>
-          <button id="refreshCloudBtn">Refresh List</button>
+          <button id="saveCloudBtn">Save</button>
+          <button id="refreshCloudBtn">Refresh</button>
         </div>
-        <label class="cloud-field cloud-select">Cloud trees
+        <label class="cloud-field cloud-select">Saved trees
           <select id="cloudTreeSelect">
             <option value="">(none)</option>
           </select>
         </label>
-        <button id="loadCloudBtn">Load Selected</button>
+        <div class="cloud-tree-actions">
+          <button id="loadCloudBtn">Load</button>
+          <button id="deleteCloudBtn">Delete</button>
+          <button id="shareCloudBtn">Share link</button>
+        </div>
+        <div id="shareLinkWrap" class="share-link-wrap" style="display:none">
+          <input id="shareLinkInput" type="text" readonly />
+          <button id="copyLinkBtn">Copy</button>
+        </div>
       </div>
       <div id="error" class="error"></div>
     </details>
@@ -1184,23 +1316,6 @@
       document.getElementById("zoomInfo").textContent = `zoom=${Math.round(zoomScale * 100)}%`;
     }
 
-    async function updateVersionInfo() {
-      const versionEl = document.getElementById("versionInfo");
-      try {
-        const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/commits/${deployedBranch}`, {
-          headers: { "Accept": "application/vnd.github+json" }
-        });
-        if (!res.ok) throw new Error("version fetch failed");
-        const data = await res.json();
-        const sha = (data.sha || "").slice(0, 7);
-        const date = data.commit && data.commit.author && data.commit.author.date
-          ? new Date(data.commit.author.date).toISOString().slice(0, 10)
-          : "";
-        versionEl.textContent = `version=${sha}${date ? " (" + date + ")" : ""}`;
-      } catch {
-        versionEl.textContent = "version=unknown";
-      }
-    }
 
     function clampZoom(value) {
       return Math.max(minZoom, Math.min(maxZoom, value));
@@ -1219,7 +1334,7 @@
 
     function updateSelectedInfo() {
       const info = document.getElementById("selectedInfo");
-      info.textContent = selectedNode ? `selected=${selectedNode.label}` : "selected=(none)";
+      info.textContent = selectedNode ? selectedNode.label : "";
     }
 
     function selectNode(node, rerender = true) {
@@ -2190,17 +2305,34 @@
       clearError();
       document.getElementById("jsonInput").value = taxonomyTreeJson();
       loadJsonTree();
+      document.getElementById("templatesDropdown").classList.remove("open");
     });
     document.getElementById("loadLineage").addEventListener("click", () => {
       clearError();
       document.getElementById("jsonInput").value = humanLineageTreeJson();
       loadJsonTree();
+      document.getElementById("templatesDropdown").classList.remove("open");
+    });
+
+    // ── Templates dropdown ────────────────────────────────────────────────────
+    document.getElementById("templatesBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.getElementById("templatesDropdown").classList.toggle("open");
+    });
+    document.addEventListener("click", () => {
+      const d = document.getElementById("templatesDropdown");
+      if (d) d.classList.remove("open");
+    });
+    ["loadSample", "loadPackedSample"].forEach((id) => {
+      const btn = document.getElementById(id);
+      if (btn) btn.addEventListener("click", () => {
+        document.getElementById("templatesDropdown").classList.remove("open");
+      }, true);
     });
 
     syncJsonFromTree();
     updateSelectedInfo();
     updateZoomInfo();
-    updateVersionInfo();
     run(currentRoot, true);
     refreshCloudList();
 
@@ -2438,6 +2570,80 @@
     })();
 
     // ── Auth ─────────────────────────────────────────────────────────────────
+
+    // ── Delete cloud tree ─────────────────────────────────────────────────────
+    async function deleteCloudTree() {
+      clearError();
+      const selected = document.getElementById("cloudTreeSelect").value;
+      if (!selected) { setError("Select a tree to delete."); return; }
+      try {
+        const res = await fetch(`/api/trees/${encodeURIComponent(selected)}`, { method: "DELETE" });
+        await parseApiJson(res, "Delete");
+        document.getElementById("shareLinkWrap").style.display = "none";
+        await refreshCloudList();
+      } catch (err) {
+        setError(err.message || "Delete failed.");
+      }
+    }
+
+    document.getElementById("deleteCloudBtn").addEventListener("click", deleteCloudTree);
+
+    // ── Share link ────────────────────────────────────────────────────────────
+    function getShareLink() {
+      clearError();
+      const selected = document.getElementById("cloudTreeSelect").value;
+      if (!selected) { setError("Select a tree to share."); return; }
+      if (!currentUser) { setError("Sign in to share trees."); return; }
+      const url = `${location.origin}?view=${encodeURIComponent(currentUser.userId)}/${encodeURIComponent(selected)}`;
+      const wrap = document.getElementById("shareLinkWrap");
+      const input = document.getElementById("shareLinkInput");
+      input.value = url;
+      wrap.style.display = "flex";
+      input.select();
+    }
+
+    document.getElementById("shareCloudBtn").addEventListener("click", getShareLink);
+
+    document.getElementById("copyLinkBtn").addEventListener("click", () => {
+      const input = document.getElementById("shareLinkInput");
+      navigator.clipboard.writeText(input.value).then(() => {
+        const btn = document.getElementById("copyLinkBtn");
+        btn.textContent = "Copied!";
+        setTimeout(() => { btn.textContent = "Copy"; }, 2000);
+      });
+    });
+
+    // ── Embed & view mode init ────────────────────────────────────────────────
+    const _params = new URLSearchParams(location.search);
+    const _viewParam = _params.get("view");
+    const _embedMode = _params.get("embed") === "1";
+
+    if (_embedMode) {
+      document.body.classList.add("embed-mode");
+    }
+
+    if (_viewParam) {
+      document.body.classList.add("view-mode");
+      document.getElementById("viewBanner").style.display = "block";
+      (async () => {
+        try {
+          const parts = _viewParam.split("/");
+          const userId = parts[0];
+          const name = parts.slice(1).join("/");
+          const res = await fetch(`/api/share/${encodeURIComponent(userId)}/${encodeURIComponent(name)}`);
+          if (!res.ok) throw new Error("Shared tree not found.");
+          const payload = await res.json();
+          const tree = payload && payload.tree ? payload.tree : payload;
+          currentRoot = buildTreeFromJsonNode(tree, null);
+          selectedNode = currentRoot;
+          updateSelectedInfo();
+          syncJsonFromTree();
+          run(currentRoot, true);
+        } catch (err) {
+          setError(err.message || "Could not load shared tree.");
+        }
+      })();
+    }
 
     let currentUser = null;
 
