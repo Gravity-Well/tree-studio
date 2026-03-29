@@ -323,29 +323,80 @@
       background: #1a1f24;
     }
 
-    .btn-logout {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid #c8d8e8;
-      font-size: 12px;
-      padding: 5px 10px;
-    }
-
-    .btn-logout:hover {
-      background: #f0f4f8;
-      color: var(--ink);
-    }
-
     .auth-bar {
       display: flex;
       align-items: center;
       gap: 8px;
       font-size: 13px;
       color: var(--muted);
+      position: relative;
     }
 
-    .auth-bar strong {
+    .auth-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #2e5f87;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .auth-avatar:hover {
+      border-color: var(--accent);
+    }
+
+    .auth-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--panel);
+      border: 1px solid #d2dde8;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(17,50,74,0.12);
+      min-width: 180px;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .auth-dropdown.open {
+      display: block;
+    }
+
+    .auth-dropdown-header {
+      padding: 12px 14px 8px;
+      font-size: 12px;
+      color: var(--muted);
+      border-bottom: 1px solid #eaf0f6;
+    }
+
+    .auth-dropdown-header strong {
+      display: block;
+      font-size: 14px;
       color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .auth-dropdown a {
+      display: block;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--ink);
+      text-decoration: none;
+      transition: background 0.1s;
+    }
+
+    .auth-dropdown a:hover {
+      background: #f0f5fa;
     }
 
     .btn-subtle {
@@ -450,7 +501,7 @@
           <button id="importPanelToggleBtn" class="btn-subtle">Import</button>
         </div>
         <div class="auth-bar" id="authBar">
-          <span id="authStatus">Checking login…</span>
+          <span id="authStatus"></span>
         </div>
       </div>
       <div class="toolbar-secondary">
@@ -2392,7 +2443,6 @@
 
     async function initAuth() {
       const authBar = document.getElementById("authBar");
-      const authStatus = document.getElementById("authStatus");
       const cloudBtn = document.getElementById("cloudPanelToggleBtn");
 
       try {
@@ -2403,27 +2453,42 @@
         if (principal && principal.userId) {
           currentUser = principal;
           const name = principal.userDetails || principal.userId;
+          const initial = name.charAt(0).toUpperCase();
+
           authBar.innerHTML = `
-            <strong>${name}</strong>
-            <a href="/logout"><button class="btn-logout">Sign out</button></a>
+            <div class="auth-avatar" id="authAvatar" title="${name}">${initial}</div>
+            <div class="auth-dropdown" id="authDropdown">
+              <div class="auth-dropdown-header">
+                <strong>${name}</strong>
+                Signed in via GitHub
+              </div>
+              <a href="/logout">Sign out</a>
+            </div>
           `;
+
+          document.getElementById("authAvatar").addEventListener("click", (e) => {
+            e.stopPropagation();
+            document.getElementById("authDropdown").classList.toggle("open");
+          });
+
+          document.addEventListener("click", () => {
+            const d = document.getElementById("authDropdown");
+            if (d) d.classList.remove("open");
+          });
+
           cloudBtn.disabled = false;
           cloudBtn.title = "";
         } else {
           currentUser = null;
           authBar.innerHTML = `
-            <span>Sign in to save your trees</span>
-            <a href="/login"><button class="btn-login">Sign in with GitHub</button></a>
+            <a href="/login"><button class="btn btn-login">Sign in</button></a>
           `;
           cloudBtn.disabled = true;
           cloudBtn.title = "Sign in to use cloud save";
-          // Close cloud panel if open
           const panel = document.getElementById("cloudPanel");
           if (panel) panel.open = false;
         }
-      } catch (_) {
-        authStatus.textContent = "";
-      }
+      } catch (_) { /* silent — auth unavailable locally */ }
     }
 
     initAuth();
