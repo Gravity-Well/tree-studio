@@ -315,6 +315,39 @@
       background: #1a2f4e;
     }
 
+    .btn-login {
+      background: #24292f;
+    }
+
+    .btn-login:hover {
+      background: #1a1f24;
+    }
+
+    .btn-logout {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid #c8d8e8;
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+
+    .btn-logout:hover {
+      background: #f0f4f8;
+      color: var(--ink);
+    }
+
+    .auth-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .auth-bar strong {
+      color: var(--ink);
+    }
+
     .btn-subtle {
       background: var(--btn-muted);
     }
@@ -415,6 +448,9 @@
           <button id="loadLineage" class="btn-subtle">Human Lineage</button>
           <button id="cloudPanelToggleBtn" class="btn-cloud">Save/Load</button>
           <button id="importPanelToggleBtn" class="btn-subtle">Import</button>
+        </div>
+        <div class="auth-bar" id="authBar">
+          <span id="authStatus">Checking login…</span>
         </div>
       </div>
       <div class="toolbar-secondary">
@@ -2349,6 +2385,48 @@
         applyZoom(zoomScale + (direction * zoomStep), e.clientX, e.clientY);
       }, { passive: false });
     })();
+
+    // ── Auth ─────────────────────────────────────────────────────────────────
+
+    let currentUser = null;
+
+    async function initAuth() {
+      const authBar = document.getElementById("authBar");
+      const authStatus = document.getElementById("authStatus");
+      const cloudBtn = document.getElementById("cloudPanelToggleBtn");
+
+      try {
+        const res = await fetch("/.auth/me");
+        const data = await res.json();
+        const principal = data && data.clientPrincipal;
+
+        if (principal && principal.userId) {
+          currentUser = principal;
+          const name = principal.userDetails || principal.userId;
+          authBar.innerHTML = `
+            <strong>${name}</strong>
+            <a href="/logout"><button class="btn-logout">Sign out</button></a>
+          `;
+          cloudBtn.disabled = false;
+          cloudBtn.title = "";
+        } else {
+          currentUser = null;
+          authBar.innerHTML = `
+            <span>Sign in to save your trees</span>
+            <a href="/login"><button class="btn-login">Sign in with GitHub</button></a>
+          `;
+          cloudBtn.disabled = true;
+          cloudBtn.title = "Sign in to use cloud save";
+          // Close cloud panel if open
+          const panel = document.getElementById("cloudPanel");
+          if (panel) panel.open = false;
+        }
+      } catch (_) {
+        authStatus.textContent = "";
+      }
+    }
+
+    initAuth();
   </script>
 </body>
 </html>

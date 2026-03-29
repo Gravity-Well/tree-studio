@@ -20,11 +20,32 @@ function getContainerClient() {
   return service.getContainerClient(cfg.containerName);
 }
 
-function normalizeTreeName(name) {
-  const raw = String(name || "").trim();
-  if (!raw) {
-    throw new Error("Tree name is required.");
+/**
+ * Decode the SWA client principal header and return the userId.
+ * Returns null if the header is missing or invalid.
+ */
+function getUserId(req) {
+  try {
+    const header = req.headers && req.headers["x-ms-client-principal"];
+    if (!header) return null;
+    const decoded = Buffer.from(header, "base64").toString("utf8");
+    const principal = JSON.parse(decoded);
+    return principal.userId || null;
+  } catch (_) {
+    return null;
   }
+}
+
+/**
+ * Sanitize userId for use as a blob path prefix.
+ */
+function userPrefix(userId) {
+  return userId.replace(/[^a-zA-Z0-9_-]/g, "_");
+}
+
+function normalizeTreeName(name, userId) {
+  const raw = String(name || "").trim();
+  if (!raw) throw new Error("Tree name is required.");
 
   const cleaned = raw.replace(/\\/g, "/");
   if (cleaned.startsWith("/") || cleaned.includes("..")) {
@@ -32,15 +53,13 @@ function normalizeTreeName(name) {
   }
 
   const normalized = cleaned.split("/").filter(Boolean).join("/");
-  if (!normalized) {
-    throw new Error("Invalid tree name.");
-  }
+  if (!normalized) throw new Error("Invalid tree name.");
 
-  if (!normalized.toLowerCase().endsWith(".json")) {
-    return `${normalized}.json`;
-  }
+  const withExt = normalized.toLowerCase().endsWith(".json")
+    ? normalized
+    : `${normalized}.json`;
 
-  return normalized;
+  return userId ? `${userPrefix(userId)}/${withExt}` : withExt;
 }
 
 function validateTreePayload(tree) {
@@ -64,6 +83,8 @@ async function streamToString(stream) {
 
 module.exports = {
   getContainerClient,
+  getUserId,
+  userPrefix,
   normalizeTreeName,
   validateTreePayload,
   streamToString

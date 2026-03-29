@@ -2,6 +2,8 @@
 
 const {
   getContainerClient,
+  getUserId,
+  userPrefix,
   normalizeTreeName,
   validateTreePayload
 } = require("../shared/storage");
@@ -16,15 +18,21 @@ function json(context, status, body) {
 
 module.exports = async function (context, req) {
   try {
+    const userId = getUserId(req);
+    if (!userId) return json(context, 401, { error: "Not authenticated." });
+
     const method = (req.method || "").toUpperCase();
     const container = getContainerClient();
+    const prefix = userPrefix(userId) + "/";
 
     if (method === "GET") {
       const items = [];
-      for await (const blob of container.listBlobsFlat()) {
+      for await (const blob of container.listBlobsFlat({ prefix })) {
         if (!blob.name.toLowerCase().endsWith(".json")) continue;
+        // Strip the user prefix from the name returned to the client
+        const displayName = blob.name.slice(prefix.length);
         items.push({
-          name: blob.name,
+          name: displayName,
           size: blob.properties && blob.properties.contentLength ? blob.properties.contentLength : 0,
           lastModified: blob.properties && blob.properties.lastModified
             ? new Date(blob.properties.lastModified).toISOString()
@@ -38,7 +46,7 @@ module.exports = async function (context, req) {
 
     if (method === "POST") {
       const body = req.body || {};
-      const name = normalizeTreeName(body.name);
+      const name = normalizeTreeName(body.name, userId);
       const tree = body.tree;
       validateTreePayload(tree);
 
@@ -48,7 +56,7 @@ module.exports = async function (context, req) {
         blobHTTPHeaders: { blobContentType: "application/json; charset=utf-8" }
       });
 
-      return json(context, 200, { ok: true, name });
+      return json(context, 200, { ok: true, name: body.name });
     }
 
     return json(context, 405, { error: "Method not allowed." });

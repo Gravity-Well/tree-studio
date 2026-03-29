@@ -2,6 +2,7 @@
 
 const {
   getContainerClient,
+  getUserId,
   normalizeTreeName,
   streamToString
 } = require("../shared/storage");
@@ -16,9 +17,12 @@ function json(context, status, body) {
 
 module.exports = async function (context, req) {
   try {
+    const userId = getUserId(req);
+    if (!userId) return json(context, 401, { error: "Not authenticated." });
+
     const method = (req.method || "").toUpperCase();
     const nameParam = req.params ? req.params.name : "";
-    const name = normalizeTreeName(nameParam);
+    const name = normalizeTreeName(nameParam, userId);
     const container = getContainerClient();
     const blob = container.getBlobClient(name);
 
@@ -35,12 +39,12 @@ module.exports = async function (context, req) {
         return json(context, 500, { error: "Stored tree is not valid JSON." });
       }
 
-      return json(context, 200, { name, tree });
+      return json(context, 200, { name: nameParam, tree });
     }
 
     if (method === "DELETE") {
       const result = await blob.deleteIfExists();
-      return json(context, 200, { ok: true, deleted: !!result.succeeded, name });
+      return json(context, 200, { ok: true, deleted: !!result.succeeded, name: nameParam });
     }
 
     return json(context, 405, { error: "Method not allowed." });
