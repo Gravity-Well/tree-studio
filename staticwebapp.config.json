@@ -16,6 +16,10 @@
       "route": "/api/share/*"
     },
     {
+      "route": "/api/stripeWebhook",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "allowedRoles": ["authenticated"]
     },

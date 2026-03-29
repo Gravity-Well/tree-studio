@@ -81,11 +81,65 @@ async function streamToString(stream) {
   });
 }
 
+/**
+ * Read a user's plan record from blob storage.
+ * Returns { plan: "free"|"pro"|"business", stripeCustomerId, subscriptionId, periodEnd }
+ */
+async function getUserPlan(userId) {
+  try {
+    const container = getContainerClient();
+    const blob = container.getBlockBlobClient(`plans/${userPrefix(userId)}.json`);
+    const download = await blob.download();
+    const text = await streamToString(download.readableStreamBody);
+    return JSON.parse(text);
+  } catch (_) {
+    return { plan: "free" };
+  }
+}
+
+/**
+ * Write a user's plan record to blob storage.
+ */
+async function setUserPlan(userId, planData) {
+  const container = getContainerClient();
+  const blob = container.getBlockBlobClient(`plans/${userPrefix(userId)}.json`);
+  const serialized = JSON.stringify(planData, null, 2);
+  await blob.upload(serialized, Buffer.byteLength(serialized), {
+    blobHTTPHeaders: { blobContentType: "application/json; charset=utf-8" },
+    overwrite: true
+  });
+}
+
+/**
+ * Find a userId by Stripe customer ID (scans plan blobs — use sparingly).
+ */
+async function findUserIdByStripeCustomer(stripeCustomerId) {
+  try {
+    const container = getContainerClient();
+    for await (const blob of container.listBlobsFlat({ prefix: "plans/" })) {
+      try {
+        const client = container.getBlockBlobClient(blob.name);
+        const download = await client.download();
+        const text = await streamToString(download.readableStreamBody);
+        const data = JSON.parse(text);
+        if (data.stripeCustomerId === stripeCustomerId) {
+          // Extract userId from blob name: plans/{userId}.json
+          return blob.name.replace("plans/", "").replace(".json", "");
+        }
+      } catch (_) { /* skip corrupt entries */ }
+    }
+  } catch (_) {}
+  return null;
+}
+
 module.exports = {
   getContainerClient,
   getUserId,
   userPrefix,
   normalizeTreeName,
   validateTreePayload,
-  streamToString
+  streamToString,
+  getUserPlan,
+  setUserPlan,
+  findUserIdByStripeCustomer
 };

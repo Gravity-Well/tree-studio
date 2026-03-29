@@ -5,7 +5,8 @@ const {
   getUserId,
   userPrefix,
   normalizeTreeName,
-  validateTreePayload
+  validateTreePayload,
+  getUserPlan
 } = require("../shared/storage");
 
 function json(context, status, body) {
@@ -49,6 +50,31 @@ module.exports = async function (context, req) {
       const name = normalizeTreeName(body.name, userId);
       const tree = body.tree;
       validateTreePayload(tree);
+
+      // Enforce free-tier limit (3 trees max) — skip for paid plans
+      const planData = await getUserPlan(userId);
+      const isPaid = planData && (planData.plan === "pro" || planData.plan === "business");
+      const FREE_LIMIT = 3;
+      let existingCount = 0;
+      for await (const blob of container.listBlobsFlat({ prefix })) {
+        if (blob.name.toLowerCase().endsWith(".json")) existingCount++;
+      }
+
+      // Allow overwriting an existing tree (same name → same blob key)
+      const blobKey = name; // normalizeTreeName returns the full blob path
+      let isOverwrite = false;
+      try {
+        const existing = container.getBlockBlobClient(blobKey);
+        const props = await existing.getProperties();
+        if (props) isOverwrite = true;
+      } catch (_) { /* doesn't exist yet */ }
+
+      if (!isPaid && !isOverwrite && existingCount >= FREE_LIMIT) {
+        return json(context, 403, {
+          error: "FREE_TIER_LIMIT",
+          message: `Free accounts can save up to ${FREE_LIMIT} trees. Delete a tree or upgrade to Pro.`
+        });
+      }
 
       const serialized = JSON.stringify(tree, null, 2);
       const blob = container.getBlockBlobClient(name);

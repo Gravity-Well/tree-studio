@@ -429,6 +429,70 @@
       background: #ffffff;
     }
 
+    /* ── Embed watermark ── */
+    .embed-watermark {
+      display: none;
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      background: rgba(255,255,255,0.90);
+      backdrop-filter: blur(4px);
+      border: 1px solid #d2dde8;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #4a6170;
+      text-decoration: none;
+      z-index: 50;
+      align-items: center;
+      gap: 5px;
+    }
+
+    body.embed-mode .embed-watermark {
+      display: flex;
+    }
+
+    /* ── Upgrade modal ── */
+    .upgrade-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 25, 40, 0.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upgrade-overlay.open {
+      display: flex;
+    }
+
+    .upgrade-modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 36px 40px;
+      max-width: 440px;
+      width: calc(100% - 32px);
+      box-shadow: 0 24px 60px rgba(10,25,40,0.18);
+      text-align: center;
+    }
+
+    .upgrade-modal .upgrade-icon { font-size: 40px; margin-bottom: 12px; }
+    .upgrade-modal h2 { font-size: 22px; font-weight: 800; margin-bottom: 8px; color: var(--ink); }
+    .upgrade-modal p { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+    .upgrade-modal .upgrade-actions { display: flex; gap: 10px; justify-content: center; }
+    .upgrade-modal .btn-upgrade {
+      background: var(--accent); color: #fff; border: none; border-radius: 8px;
+      padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .upgrade-modal .btn-upgrade:hover { background: var(--accent-dark); }
+    .upgrade-modal .btn-cancel {
+      background: none; border: 1px solid #d2dde8; border-radius: 8px;
+      padding: 10px 18px; font-size: 14px; color: var(--muted); cursor: pointer;
+    }
+    .upgrade-modal .btn-cancel:hover { background: #f0f5fa; }
+
     /* ── View-only (read-only) mode ── */
     body.view-mode .toolbar-secondary {
       display: none;
@@ -748,6 +812,39 @@
       resize: none;
       overflow: hidden;
     }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .layout { margin: 10px auto; padding: 0 8px; }
+
+      .toolbar { border-radius: 10px; padding: 10px; gap: 8px; }
+
+      .brand h1 { font-size: 17px; }
+      .brand p, .brand .algorithm-note { display: none; }
+
+      .toolbar-main { gap: 8px; }
+      .toolbar-actions { gap: 6px; }
+
+      /* Collapse secondary toolbar buttons on mobile */
+      #expandAllBtn, #collapseAllBtn, #expandLevelBtn, #collapseLevelBtn,
+      #zoomOutBtn, #zoomInBtn, #zoomResetBtn, #zoomInfo,
+      #exportSvgBtn, #exportPngBtn, #cleanViewBtn, #printBtn { display: none; }
+
+      .toolbar-secondary { padding-top: 8px; gap: 6px; }
+
+      .canvas-wrap { height: calc(100vh - 200px); border-radius: 8px; }
+
+      .cloud-panel, .json-panel { border-radius: 10px; }
+
+      .copyright { font-size: 11px; text-align: center; padding: 8px; }
+
+      .upgrade-modal { padding: 28px 20px; }
+      .upgrade-modal h2 { font-size: 18px; }
+      .upgrade-modal .upgrade-actions { flex-direction: column; }
+
+      .toast-container { bottom: 16px; right: 12px; left: 12px; }
+      .toast { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -840,6 +937,10 @@
 
     <div id="treeViewport" class="canvas-wrap">
       <svg id="treeSvg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMin meet"></svg>
+      <a href="https://treestudio.nusoftva.com" target="_blank" class="embed-watermark" title="Built with Tree Studio">
+        <img src="/favicon.svg" width="14" height="14" alt="" style="border-radius:3px;" />
+        Built with Tree Studio
+      </a>
       <div id="emptyState" class="empty-state">
         <div class="empty-icon">🌳</div>
         <h2>Start your first tree</h2>
@@ -854,6 +955,19 @@
     <div class="copyright">Copyright &copy; 2026 NuSoftVA, a division of Nilmot Solutions LLC. All rights reserved. &nbsp;|&nbsp; <a href="/terms" style="color:inherit;">Terms</a> &nbsp;|&nbsp; <a href="/privacy" style="color:inherit;">Privacy</a></div>
   </div>
   <div class="toast-container" id="toastContainer"></div>
+
+  <div class="upgrade-overlay" id="upgradeOverlay">
+    <div class="upgrade-modal">
+      <div class="upgrade-icon">🌳</div>
+      <h2>Free plan limit reached</h2>
+      <p>Free accounts can save up to 3 trees. Upgrade to <strong>Pro</strong> for unlimited trees, embeds, and priority support — or delete an existing tree to make room.</p>
+      <div class="upgrade-actions">
+        <button class="btn-upgrade" onclick="startCheckout('pro')">Upgrade to Pro — $9/mo</button>
+        <button class="btn-cancel" onclick="document.getElementById('upgradeOverlay').classList.remove('open');document.getElementById('cloudPanelToggleBtn').click();">Manage Trees</button>
+      </div>
+      <p style="margin-top:14px;font-size:12px;color:var(--muted);cursor:pointer;" onclick="document.getElementById('upgradeOverlay').classList.remove('open')">Not now</p>
+    </div>
+  </div>
 
   <script>
     class WNode {
@@ -1901,6 +2015,14 @@
           })
         });
 
+        if (res.status === 403) {
+          const data = await res.json().catch(() => ({}));
+          if (data && data.error === "FREE_TIER_LIMIT") {
+            document.getElementById("upgradeOverlay").classList.add("open");
+            return;
+          }
+        }
+
         await parseApiJson(res, "Save");
         await refreshCloudList();
         toast(`"${name}" saved`);
@@ -2661,10 +2783,65 @@
     }
 
     let currentUser = null;
+    let currentPlan = "free";
+
+    async function startCheckout(tier) {
+      try {
+        const res = await fetch("/api/createCheckout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tier })
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          toast(data.error || "Could not start checkout.", "error");
+        }
+      } catch (err) {
+        toast("Checkout failed. Please try again.", "error");
+      }
+    }
+
+    async function openBillingPortal() {
+      try {
+        const res = await fetch("/api/billingPortal", { method: "POST" });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          toast(data.error || "Could not open billing portal.", "error");
+        }
+      } catch (err) {
+        toast("Could not open billing portal.", "error");
+      }
+    }
+
+    function planLabel(plan) {
+      if (plan === "pro") return "PRO";
+      if (plan === "business") return "BUSINESS";
+      return "FREE";
+    }
+
+    function planBadgeColor(plan) {
+      if (plan === "pro") return "background:#e8f5f4;color:#0f766e;";
+      if (plan === "business") return "background:#fff3e0;color:#b45309;";
+      return "background:#f0f4f8;color:#4a6170;";
+    }
 
     async function initAuth() {
       const authBar = document.getElementById("authBar");
       const cloudBtn = document.getElementById("cloudPanelToggleBtn");
+
+      // Handle post-checkout redirect params
+      const urlParams = new URLSearchParams(location.search);
+      if (urlParams.get("upgraded") === "1") {
+        toast("🎉 Welcome to your new plan! It may take a moment to activate.", "info");
+        history.replaceState({}, "", "/app");
+      }
+      if (urlParams.get("upgrade_cancelled") === "1") {
+        history.replaceState({}, "", "/app");
+      }
 
       try {
         const res = await fetch("/.auth/me");
@@ -2676,13 +2853,29 @@
           const name = principal.userDetails || principal.userId;
           const initial = name.charAt(0).toUpperCase();
 
+          // Fetch plan
+          try {
+            const planRes = await fetch("/api/userPlan");
+            if (planRes.ok) {
+              const planData = await planRes.json();
+              currentPlan = planData.plan || "free";
+            }
+          } catch (_) {}
+
+          const isPaid = currentPlan === "pro" || currentPlan === "business";
+
           authBar.innerHTML = `
             <div class="auth-avatar" id="authAvatar" title="${name}">${initial}</div>
             <div class="auth-dropdown" id="authDropdown">
               <div class="auth-dropdown-header">
                 <strong>${name}</strong>
                 Signed in via GitHub
+                <span style="display:inline-block;margin-top:4px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:0.3px;${planBadgeColor(currentPlan)}">${planLabel(currentPlan)} PLAN</span>
               </div>
+              ${isPaid
+                ? `<a href="#" id="billingPortalBtn">Manage subscription</a>`
+                : `<a href="#" id="upgradeProBtn" style="color:var(--accent);font-weight:600;">Upgrade to Pro →</a>`
+              }
               <a href="/logout">Sign out</a>
             </div>
           `;
@@ -2696,6 +2889,19 @@
             const d = document.getElementById("authDropdown");
             if (d) d.classList.remove("open");
           });
+
+          if (isPaid) {
+            document.getElementById("billingPortalBtn").addEventListener("click", (e) => {
+              e.preventDefault();
+              openBillingPortal();
+            });
+          } else {
+            document.getElementById("upgradeProBtn").addEventListener("click", (e) => {
+              e.preventDefault();
+              document.getElementById("authDropdown").classList.remove("open");
+              document.getElementById("upgradeOverlay").classList.add("open");
+            });
+          }
 
           cloudBtn.disabled = false;
           cloudBtn.title = "";

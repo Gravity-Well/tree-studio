@@ -492,6 +492,127 @@
       color: #c8d8e8;
     }
 
+    /* ── Integrations ── */
+    .integrations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .integration-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      background: var(--panel);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+    }
+
+    .integration-icon {
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .integration-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .integration-card p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .integration-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #e8f5f4;
+      color: var(--accent);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 99px;
+    }
+
+    /* ── Email capture ── */
+    .capture-section {
+      background: linear-gradient(135deg, #0f2236 0%, #0d3428 100%);
+      padding: 80px 24px;
+      text-align: center;
+    }
+
+    .capture-section .section-inner {
+      max-width: 560px;
+    }
+
+    .capture-section h2 {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .capture-section p {
+      font-size: 16px;
+      color: #8aaabb;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .capture-form {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .capture-input {
+      flex: 1;
+      min-width: 220px;
+      max-width: 340px;
+      padding: 13px 18px;
+      border-radius: 10px;
+      border: 1.5px solid #1e3a52;
+      background: rgba(255,255,255,0.07);
+      color: #e8f0f8;
+      font-size: 15px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      outline: none;
+    }
+
+    .capture-input::placeholder { color: #4a6878; }
+    .capture-input:focus { border-color: #4db8ae; }
+
+    .capture-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      transition: background 0.15s;
+    }
+
+    .capture-btn:hover { background: var(--accent-dark); }
+
+    .capture-note {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #4a6878;
+    }
+
     /* ── Footer ── */
     footer {
       background: var(--panel);
@@ -525,6 +646,47 @@
       color: #8aaabb;
       width: 100%;
       margin-top: 8px;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+
+      .nav-links {
+        gap: 14px;
+        font-size: 13px;
+      }
+
+      /* Hide prose nav links, keep only the CTA */
+      .nav-links a:not(.nav-cta) { display: none; }
+
+      .hero { padding: 56px 20px 44px; }
+
+      .demo-frame-wrap iframe { height: 340px; }
+
+      .section { padding: 56px 20px; }
+
+      .section-sub { font-size: 15px; margin-bottom: 32px; }
+
+      .embed-section .section { padding: 56px 20px; }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 32px 20px;
+        gap: 20px;
+      }
+
+      .footer-links {
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-actions { flex-direction: column; align-items: stretch; }
+      .hero-actions .btn-primary,
+      .hero-actions .btn-ghost { text-align: center; }
     }
   </style>
 </head>
@@ -691,7 +853,7 @@
             <li>Shareable view links</li>
             <li>Export SVG &amp; PNG</li>
             <li>Clean View &amp; Print</li>
-            <li>GitHub &amp; Azure import</li>
+            <li>JSON import &amp; export</li>
             <li>Undo / Redo</li>
             <li class="off">Embed on your site</li>
             <li class="off">PDF export</li>
@@ -711,7 +873,7 @@
             <li>Shareable view links</li>
             <li>Export SVG &amp; PNG</li>
             <li>Clean View &amp; Print</li>
-            <li>GitHub &amp; Azure import</li>
+            <li>JSON import &amp; export</li>
             <li>Undo / Redo</li>
             <li>Embed on your site</li>
             <li class="off">PDF export</li>
@@ -730,7 +892,7 @@
             <li>Shareable view links</li>
             <li>Export SVG &amp; PNG</li>
             <li>Clean View &amp; Print</li>
-            <li>GitHub &amp; Azure import</li>
+            <li>JSON import &amp; export</li>
             <li>Undo / Redo</li>
             <li>Embed on your site</li>
             <li>PDF export</li>
@@ -747,6 +909,99 @@
       </p>
     </div>
   </section>
+
+  <!-- Integrations / Coming Soon -->
+  <section class="section" id="integrations">
+    <div class="section-inner">
+      <div class="section-label">Integrations</div>
+      <div class="section-title">Connect your tools</div>
+      <p class="section-sub">Native integrations are coming. Vote for what matters to you at <a href="mailto:hello@nusoftva.com" style="color:var(--accent);">hello@nusoftva.com</a>.</p>
+      <div class="integrations-grid">
+        <div class="integration-card">
+          <div class="integration-icon">🐙</div>
+          <div>
+            <h4>GitHub</h4>
+            <p>Visualize repo structure, branches &amp; org charts</p>
+          </div>
+          <span class="integration-badge">Soon</span>
+        </div>
+        <div class="integration-card">
+          <div class="integration-icon">☁️</div>
+          <div>
+            <h4>Azure DevOps</h4>
+            <p>Work items, pipelines &amp; resource hierarchies</p>
+          </div>
+          <span class="integration-badge">Soon</span>
+        </div>
+        <div class="integration-card">
+          <div class="integration-icon">📄</div>
+          <div>
+            <h4>Confluence</h4>
+            <p>Embed live trees in Confluence pages</p>
+          </div>
+          <span class="integration-badge">Soon</span>
+        </div>
+        <div class="integration-card">
+          <div class="integration-icon">🗂️</div>
+          <div>
+            <h4>Notion</h4>
+            <p>Embed interactive trees in Notion documents</p>
+          </div>
+          <span class="integration-badge">Soon</span>
+        </div>
+        <div class="integration-card">
+          <div class="integration-icon">📊</div>
+          <div>
+            <h4>CSV / JSON Import</h4>
+            <p>Build trees from your own structured data</p>
+          </div>
+          <span class="integration-badge">Soon</span>
+        </div>
+        <div class="integration-card">
+          <div class="integration-icon">🔌</div>
+          <div>
+            <h4>REST API</h4>
+            <p>Programmatic create, update &amp; share via API</p>
+          </div>
+          <span class="integration-badge">Business</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Email capture / waitlist -->
+  <section class="capture-section" id="waitlist">
+    <div class="section-inner">
+      <h2>Get early access to Pro</h2>
+      <p>Be the first to know when Pro launches — unlimited trees, embeds, and custom themes. No spam, ever.</p>
+      <form class="capture-form" id="waitlistForm" onsubmit="handleWaitlist(event)">
+        <input class="capture-input" type="email" id="waitlistEmail" placeholder="you@company.com" required autocomplete="email" />
+        <button class="capture-btn" type="submit">Notify me</button>
+      </form>
+      <p class="capture-note" id="waitlistMsg">No credit card required. Unsubscribe any time.</p>
+    </div>
+  </section>
+  <script>
+    function handleWaitlist(e) {
+      e.preventDefault();
+      const email = document.getElementById("waitlistEmail").value.trim();
+      const msg = document.getElementById("waitlistMsg");
+      const btn = e.target.querySelector("button");
+      if (!email) return;
+      // Send to a mailto as a fallback until a proper backend endpoint exists
+      btn.disabled = true;
+      btn.textContent = "Submitting...";
+      fetch("/.auth/me").catch(() => {}).finally(() => {
+        // Simple mailto fallback — swap for a real endpoint when backend is ready
+        window.location.href = `mailto:hello@nusoftva.com?subject=Tree+Studio+waitlist&body=Please+add+me+to+the+Pro+waitlist:+${encodeURIComponent(email)}`;
+        msg.textContent = "Thanks! We'll be in touch.";
+        msg.style.color = "#4db8ae";
+        btn.textContent = "Notify me";
+        btn.disabled = false;
+        document.getElementById("waitlistEmail").value = "";
+      });
+    }
+  </script>
 
   <!-- Footer -->
   <footer>
