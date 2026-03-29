@@ -1,0 +1,12 @@
+{
+  "name": "tree-swa-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Azure Functions API for tree save/load",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@azure/storage-blob": "^12.28.0"
+  }
+}

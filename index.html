@@ -1,0 +1,2350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tree Layout Demo</title>
+  <style>
+    :root {
+      --bg: #edf3f5;
+      --panel: #ffffff;
+      --ink: #13273a;
+      --muted: #4a6170;
+      --line: #7b8fa3;
+      --node-border: #2e5f87;
+      --accent: #0f766e;
+      --accent-dark: #0b5f5d;
+      --btn-muted: #3f617a;
+      --btn-muted-dark: #355167;
+      --danger: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background:
+        radial-gradient(circle at 16% 12%, #f7fbfd 0%, #edf4f7 38%, #e7eef2 100%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    .layout {
+      max-width: 1380px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .toolbar {
+      background: var(--panel);
+      border: 1px solid #d2dde8;
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 20px rgba(17, 50, 74, 0.08);
+    }
+
+    .toolbar-main {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.2px;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .brand .algorithm-note {
+      margin-top: 2px;
+      color: #2f546f;
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    .toolbar-actions,
+    .toolbar-secondary {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .toolbar-secondary {
+      width: 100%;
+      border-top: 1px solid #e4ebf2;
+      padding-top: 10px;
+    }
+
+    .json-panel {
+      background: var(--panel);
+      border: 1px solid #d2dde8;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 20px rgba(17, 50, 74, 0.06);
+    }
+
+    .cloud-panel {
+      background: #f9fcff;
+      border: 1px solid #d2dde8;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 20px rgba(17, 50, 74, 0.06);
+    }
+
+    .cloud-panel summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #25435b;
+    }
+
+    .cloud-panel .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: 10px 0 8px;
+      flex-wrap: wrap;
+    }
+
+    .cloud-shell {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.2fr) auto minmax(240px, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+      margin-top: 10px;
+    }
+
+    .cloud-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      color: #3e5b71;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .cloud-field input,
+    .cloud-field select {
+      text-transform: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 10px;
+      border: 1px solid #b8cad9;
+      border-radius: 10px;
+      background: #fff;
+      color: #123046;
+      min-height: 40px;
+    }
+
+    .cloud-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .cloud-panel button {
+      min-height: 40px;
+      padding: 0 14px;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 120ms ease;
+    }
+
+    #saveCloudBtn {
+      background: #0f766e;
+    }
+
+    #saveCloudBtn:hover {
+      background: #0b5f5d;
+    }
+
+    #refreshCloudBtn,
+    #loadCloudBtn {
+      background: #244364;
+    }
+
+    #refreshCloudBtn:hover,
+    #loadCloudBtn:hover {
+      background: #1d3753;
+    }
+
+    .cloud-select {
+      min-width: 220px;
+    }
+
+    @media (max-width: 980px) {
+      .cloud-shell {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .cloud-actions {
+        flex-wrap: wrap;
+      }
+    }
+
+    .json-panel summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #25435b;
+    }
+
+    .json-panel .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: 10px 0 8px;
+      flex-wrap: wrap;
+    }
+
+    .json-panel textarea {
+      width: 100%;
+      min-height: 160px;
+      border: 1px solid #bcccdc;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      resize: vertical;
+    }
+
+    .json-panel button {
+      background: #1f3a5f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .error {
+      margin-top: 8px;
+      color: #a61b1b;
+      font-size: 13px;
+      min-height: 18px;
+    }
+
+    .toolbar label {
+      font-size: 14px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toolbar input[type="number"] {
+      width: 88px;
+      padding: 5px 8px;
+      border: 1px solid #bcccdc;
+      border-radius: 6px;
+    }
+
+    .toolbar input[type="text"] {
+      width: 160px;
+      padding: 5px 8px;
+      border: 1px solid #bcccdc;
+      border-radius: 6px;
+    }
+
+    .toolbar select,
+    .cloud-panel input[type="text"],
+    .cloud-panel input[type="password"],
+    .cloud-panel select,
+    .json-panel input[type="text"],
+    .json-panel input[type="password"],
+    .json-panel select {
+      padding: 5px 8px;
+      border: 1px solid #bcccdc;
+      border-radius: 6px;
+    }
+
+    .toolbar button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .toolbar button:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-primary {
+      background: #0f766e;
+    }
+
+    .btn-cloud {
+      background: #1f3a5f;
+    }
+
+    .btn-cloud:hover {
+      background: #1a2f4e;
+    }
+
+    .btn-subtle {
+      background: var(--btn-muted);
+    }
+
+    .btn-subtle:hover {
+      background: var(--btn-muted-dark);
+    }
+
+    .canvas-wrap {
+      background: var(--panel);
+      border: 1px solid #d9e2ec;
+      border-radius: 10px;
+      overflow: auto;
+      height: 700px;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .canvas-wrap.dragging {
+      cursor: grabbing;
+    }
+
+    svg {
+      width: 1200px;
+      height: 700px;
+      display: block;
+      background:
+        radial-gradient(circle at 20% 20%, #f3f9fc 0%, #f8fcfd 58%, #ffffff 100%);
+    }
+
+    .meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .copyright {
+      font-size: 12px;
+      color: #5f7486;
+      margin-top: 6px;
+    }
+
+    .selected-info {
+      font-size: 13px;
+      color: var(--muted);
+      margin-left: 6px;
+    }
+
+    .node-group {
+      cursor: pointer;
+    }
+
+    .node-plus {
+      cursor: pointer;
+    }
+
+    .node-delete {
+      cursor: pointer;
+    }
+
+    .node-toggle {
+      cursor: pointer;
+    }
+
+    .node-editor {
+      width: 100%;
+      height: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      padding: 0;
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      line-height: 1.1;
+      resize: none;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="toolbar">
+      <div class="toolbar-main">
+        <div class="brand">
+          <h1>Tree Studio</h1>
+          <p>Build and explore logic trees visually.</p>
+          <p class="algorithm-note">Layout: custom Reingold-Tilford/Walker tidy implementation.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button id="newTreeBtn" class="btn-primary">New Tree</button>
+          <button id="loadSample">Load Sample</button>
+          <button id="loadPackedSample">Load Packed</button>
+          <button id="loadTaxonomy" class="btn-subtle">Taxonomy</button>
+          <button id="loadLineage" class="btn-subtle">Human Lineage</button>
+          <button id="cloudPanelToggleBtn" class="btn-cloud">Save/Load</button>
+          <button id="importPanelToggleBtn" class="btn-subtle">Import</button>
+        </div>
+      </div>
+      <div class="toolbar-secondary">
+        <button id="expandAllBtn" class="btn-subtle">Expand All</button>
+        <button id="collapseAllBtn" class="btn-subtle">Collapse All</button>
+        <button id="expandLevelBtn" class="btn-subtle">Expand +1</button>
+        <button id="collapseLevelBtn" class="btn-subtle">Collapse -1</button>
+        <button id="zoomOutBtn" class="btn-subtle" title="Zoom out (Ctrl+scroll)">-</button>
+        <button id="zoomInBtn" class="btn-subtle" title="Zoom in (Ctrl+scroll)">+</button>
+        <button id="zoomResetBtn" class="btn-subtle">100%</button>
+        <span id="zoomInfo" class="selected-info">zoom=100%</span>
+        <button id="addChildBtn" class="btn-primary" title="Add child to selected node (Tab)">Add Child</button>
+        <button id="undoBtn" class="btn-subtle" title="Undo (Ctrl+Z)" disabled>&#8617; Undo</button>
+        <button id="redoBtn" class="btn-subtle" title="Redo (Ctrl+Y)" disabled>&#8618; Redo</button>
+        <button id="exportSvgBtn" class="btn-subtle" title="Download as SVG file">Export SVG</button>
+        <button id="exportPngBtn" class="btn-subtle" title="Download as PNG (2× retina)">Export PNG</button>
+        <span id="selectedInfo" class="selected-info">selected=(none)</span>
+        <span id="versionInfo" class="selected-info">version=loading...</span>
+      </div>
+    </div>
+
+    <details id="cloudPanel" class="cloud-panel">
+      <summary>Cloud Save and Load</summary>
+      <div class="cloud-shell">
+        <label class="cloud-field">Tree name
+          <input id="cloudTreeName" type="text" placeholder="my-tree" />
+        </label>
+        <div class="cloud-actions">
+          <button id="saveCloudBtn">Save to Cloud</button>
+          <button id="refreshCloudBtn">Refresh List</button>
+        </div>
+        <label class="cloud-field cloud-select">Cloud trees
+          <select id="cloudTreeSelect">
+            <option value="">(none)</option>
+          </select>
+        </label>
+        <button id="loadCloudBtn">Load Selected</button>
+      </div>
+      <div id="error" class="error"></div>
+    </details>
+
+    <details id="importPanel" class="cloud-panel">
+      <summary>Import: GitHub Repo / Azure Resources</summary>
+
+      <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;">
+        <!-- GitHub Repo Tree -->
+        <fieldset style="flex:1;min-width:280px;border:1px solid #c8d8e8;border-radius:10px;padding:12px;">
+          <legend style="font-weight:600;color:#25435b;font-size:13px;">GitHub Repository Tree</legend>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label class="cloud-field">Owner / Repo
+              <input id="ghOwner" type="text" placeholder="microsoft/vscode" style="text-transform:none;" />
+            </label>
+            <label class="cloud-field">Branch (optional)
+              <input id="ghBranch" type="text" placeholder="main" style="text-transform:none;" />
+            </label>
+            <label class="cloud-field">Max depth
+              <input id="ghDepth" type="number" min="1" max="10" value="3" style="width:70px;" />
+            </label>
+            <label style="font-size:12px;color:#3e5b71;display:flex;align-items:center;gap:6px;">
+              <input id="ghFoldersOnly" type="checkbox" /> Folders only
+            </label>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <button id="ghImportBtn" style="background:#24292f;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;">Import from GitHub</button>
+            </div>
+            <div id="ghStatus" class="error"></div>
+          </div>
+        </fieldset>
+
+        <!-- Azure Resource Group -->
+        <fieldset style="flex:1;min-width:280px;border:1px solid #c8d8e8;border-radius:10px;padding:12px;">
+          <legend style="font-weight:600;color:#25435b;font-size:13px;">Azure Resource Hierarchy</legend>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label class="cloud-field">Subscription ID
+              <input id="azSubId" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="text-transform:none;" />
+            </label>
+            <label class="cloud-field">Bearer Token
+              <input id="azToken" type="password" placeholder="paste az account get-access-token output" style="text-transform:none;" />
+            </label>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <button id="azImportBtn" style="background:#0078d4;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;">Import from Azure</button>
+              <button id="azTokenHelpBtn" style="background:#5c5c5c;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;font-size:12px;">How to get token?</button>
+            </div>
+            <div id="azStatus" class="error"></div>
+          </div>
+        </fieldset>
+      </div>
+    </details>
+
+    <details class="json-panel">
+      <summary>Advanced: JSON and Layout Settings</summary>
+      <div class="row">
+        <label>Horizontal <input id="xOffset" type="number" min="0" value="30" /></label>
+        <label>Vertical <input id="yOffset" type="number" min="50" value="70" /></label>
+        <button id="loadJson">Apply JSON</button>
+        <button id="rerun">Re-layout</button>
+      </div>
+      <textarea id="jsonInput" aria-label="Tree JSON"></textarea>
+    </details>
+
+    <div id="treeViewport" class="canvas-wrap">
+      <svg id="treeSvg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMin meet"></svg>
+    </div>
+    <div id="meta" class="meta"></div>
+    <div class="copyright">Copyright (c) 2026 NuSoftVA, a division of Nilmot Solutions LLC. All rights reserved.</div>
+  </div>
+
+  <script>
+    class WNode {
+      constructor(label, parent = null) {
+        this.label = label;
+        this.parent = parent;
+        this.children = [];
+        this.expanded = true;
+        this.position = { x: 0, y: 0 };
+        this.width = 100;
+        this.height = 50;
+      }
+    }
+
+    let currentRoot = null;
+    let selectedNode = null;
+    let suppressNodeClick = false;
+    let editingNode = null;
+    let editingOriginalLabel = "";
+    let zoomScale = 1;
+    let preferredInitialScrollLeft = 0;
+    let preferredInitialScrollTop = 0;
+    const minZoom = 0.4;
+    const maxZoom = 2.5;
+    const zoomStep = 0.1;
+    const repoOwner = "Gravity-Well";
+    const repoName = "tree";
+    const deployedBranch = "feature/tree-studio-next";
+
+    function addChild(parent, label) {
+      const c = new WNode(label, parent);
+      parent.children.push(c);
+      return c;
+    }
+
+    function buildSampleTree() {
+      const root = new WNode("Root", null);
+      const a = addChild(root, "A");
+      const b = addChild(root, "B");
+      const c = addChild(root, "C");
+
+      addChild(a, "A1");
+      addChild(a, "A2");
+
+      const b1 = addChild(b, "B1");
+      addChild(b, "B2");
+      addChild(b, "B3");
+      addChild(b1, "B1a");
+      addChild(b1, "B1b");
+      addChild(b1, "B1c");
+
+      addChild(c, "C1");
+      addChild(c, "C2");
+      addChild(c, "C3");
+
+      return root;
+    }
+
+    function sampleTreeJson() {
+      return JSON.stringify({
+        label: "Root",
+        children: [
+          {
+            label: "A",
+            children: [
+              { label: "A1" },
+              { label: "A2" }
+            ]
+          },
+          {
+            label: "B",
+            children: [
+              {
+                label: "B1",
+                children: [
+                  {
+                    label: "B1a",
+                    children: [
+                      {
+                        label: "B1a1",
+                        children: [
+                          {
+                            label: "B1a1i",
+                            children: [
+                              { label: "B1a1i-alpha" }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  { label: "B1b" },
+                  { label: "B1c" }
+                ]
+              },
+              { label: "B2" },
+              { label: "B3" }
+            ]
+          },
+          {
+            label: "C",
+            children: [
+              { label: "C1" },
+              { label: "C2" },
+              { label: "C3" }
+            ]
+          }
+        ]
+      }, null, 2);
+    }
+
+    function packedTreeJson() {
+      return JSON.stringify({
+        label: "Root",
+        children: [
+          {
+            label: "A",
+            children: [
+              {
+                label: "A1",
+                children: [
+                  {
+                    label: "A1a",
+                    children: [
+                      {
+                        label: "A1a-I",
+                        children: [
+                          {
+                            label: "A1a-II",
+                            children: [
+                              { label: "A1a-III" }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  { label: "A1b" },
+                  { label: "A1c" }
+                ]
+              },
+              { label: "A2" },
+              {
+                label: "A3",
+                children: [
+                  { label: "A3a" },
+                  { label: "A3b" }
+                ]
+              }
+            ]
+          },
+          {
+            label: "B",
+            children: [
+              {
+                label: "B1",
+                children: [
+                  { label: "B1a" },
+                  { label: "B1b" },
+                  {
+                    label: "B1c",
+                    children: [
+                      {
+                        label: "B1c-I",
+                        children: [
+                          {
+                            label: "B1c-II",
+                            children: [
+                              { label: "B1c-III" }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              { label: "B2" },
+              { label: "B3" },
+              {
+                label: "B4",
+                children: [
+                  { label: "B4a" },
+                  { label: "B4b" }
+                ]
+              }
+            ]
+          },
+          {
+            label: "C",
+            children: [
+              { label: "C1" },
+              {
+                label: "C2",
+                children: [
+                  { label: "C2a" },
+                  {
+                    label: "C2b",
+                    children: [
+                      {
+                        label: "C2b-I",
+                        children: [
+                          {
+                            label: "C2b-II",
+                            children: [
+                              { label: "C2b-III" }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  { label: "C2c" }
+                ]
+              },
+              { label: "C3" }
+            ]
+          },
+          {
+            label: "D",
+            children: [
+              {
+                label: "D1",
+                children: [
+                  { label: "D1a" },
+                  {
+                    label: "D1b",
+                    children: [
+                      {
+                        label: "D1b-I",
+                        children: [
+                          {
+                            label: "D1b-II",
+                            children: [
+                              { label: "D1b-III" }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              { label: "D2" }
+            ]
+          }
+        ]
+      }, null, 2);
+    }
+
+    function buildTreeFromJsonNode(data, parent = null) {
+      if (!data || typeof data !== "object") {
+        throw new Error("Each node must be an object.");
+      }
+      if (typeof data.label !== "string" || data.label.trim() === "") {
+        throw new Error("Each node needs a non-empty string 'label'.");
+      }
+
+      const node = new WNode(data.label.trim(), parent);
+      if (Number.isInteger(data.width) && data.width > 0) node.width = data.width;
+      if (Number.isInteger(data.height) && data.height > 0) node.height = data.height;
+      if (typeof data.expanded === "boolean") node.expanded = data.expanded;
+
+      if (data.children !== undefined) {
+        if (!Array.isArray(data.children)) {
+          throw new Error(`Node '${node.label}' has invalid 'children' (must be an array).`);
+        }
+        for (const childData of data.children) {
+          const child = buildTreeFromJsonNode(childData, node);
+          node.children.push(child);
+        }
+      }
+
+      return node;
+    }
+
+    function layoutTreeWalker(root, centerX, yStart, xGap, yGap) {
+      if (!root) return;
+
+      function buildAux(node, parentAux = null, number = 1) {
+        const aux = {
+          node,
+          parent: parentAux,
+          children: [],
+          number,
+          prelim: 0,
+          mod: 0,
+          change: 0,
+          shift: 0,
+          thread: null,
+          ancestor: null
+        };
+        aux.ancestor = aux;
+
+        const visibleChildren = getVisibleChildren(node);
+        for (let i = 0; i < visibleChildren.length; i++) {
+          aux.children.push(buildAux(visibleChildren[i], aux, i + 1));
+        }
+        return aux;
+      }
+
+      function leftSibling(v) {
+        if (!v.parent || v.number <= 1) return null;
+        return v.parent.children[v.number - 2];
+      }
+
+      function leftmostSibling(v) {
+        if (!v.parent || v.parent.children.length === 0) return null;
+        return v.parent.children[0];
+      }
+
+      function nextLeft(v) {
+        if (!v) return null;
+        if (v.children.length > 0) return v.children[0];
+        return v.thread;
+      }
+
+      function nextRight(v) {
+        if (!v) return null;
+        if (v.children.length > 0) return v.children[v.children.length - 1];
+        return v.thread;
+      }
+
+      function siblingDistance(leftAux, rightAux) {
+        return ((leftAux.node.width + rightAux.node.width) / 2) + xGap;
+      }
+
+      function moveSubtree(wl, wr, shift) {
+        const subtrees = wr.number - wl.number;
+        if (subtrees <= 0) return;
+        wr.change -= shift / subtrees;
+        wr.shift += shift;
+        wl.change += shift / subtrees;
+        wr.prelim += shift;
+        wr.mod += shift;
+      }
+
+      function executeShifts(v) {
+        let shift = 0;
+        let change = 0;
+        for (let i = v.children.length - 1; i >= 0; i--) {
+          const w = v.children[i];
+          w.prelim += shift;
+          w.mod += shift;
+          change += w.change;
+          shift += w.shift + change;
+        }
+      }
+
+      function ancestor(vil, v, defaultAncestor) {
+        if (!v.parent) return defaultAncestor;
+        if (v.parent.children.includes(vil.ancestor)) return vil.ancestor;
+        return defaultAncestor;
+      }
+
+      function apportion(v, defaultAncestor) {
+        const w = leftSibling(v);
+        if (!w) return defaultAncestor;
+
+        let vir = v;
+        let vor = v;
+        let vil = w;
+        let vol = leftmostSibling(v);
+        let sir = vir.mod;
+        let sor = vor.mod;
+        let sil = vil.mod;
+        let sol = vol.mod;
+
+        while (nextRight(vil) && nextLeft(vir)) {
+          vil = nextRight(vil);
+          vir = nextLeft(vir);
+          vol = nextLeft(vol);
+          vor = nextRight(vor);
+          vor.ancestor = v;
+
+          const shift = (vil.prelim + sil) - (vir.prelim + sir) + siblingDistance(vil, vir);
+          if (shift > 0) {
+            const a = ancestor(vil, v, defaultAncestor);
+            moveSubtree(a, v, shift);
+            sir += shift;
+            sor += shift;
+          }
+
+          sil += vil.mod;
+          sir += vir.mod;
+          sol += vol.mod;
+          sor += vor.mod;
+        }
+
+        if (nextRight(vil) && !nextRight(vor)) {
+          vor.thread = nextRight(vil);
+          vor.mod += sil - sor;
+        }
+        if (nextLeft(vir) && !nextLeft(vol)) {
+          vol.thread = nextLeft(vir);
+          vol.mod += sir - sol;
+          defaultAncestor = v;
+        }
+
+        return defaultAncestor;
+      }
+
+      function firstWalk(v) {
+        if (v.children.length === 0) {
+          const left = leftSibling(v);
+          v.prelim = left ? left.prelim + siblingDistance(left, v) : 0;
+          return;
+        }
+
+        let defaultAncestor = v.children[0];
+        for (const w of v.children) {
+          firstWalk(w);
+          defaultAncestor = apportion(w, defaultAncestor);
+        }
+        executeShifts(v);
+
+        const midpoint = (v.children[0].prelim + v.children[v.children.length - 1].prelim) / 2;
+        const left = leftSibling(v);
+        if (left) {
+          v.prelim = left.prelim + siblingDistance(left, v);
+          v.mod = v.prelim - midpoint;
+        } else {
+          v.prelim = midpoint;
+        }
+      }
+
+      function secondWalk(v, m, depth) {
+        const center = v.prelim + m;
+        v.node.position = {
+          x: Math.round(center - (v.node.width / 2)),
+          y: yStart + (depth * yGap)
+        };
+        for (const child of v.children) {
+          secondWalk(child, m + v.mod, depth + 1);
+        }
+      }
+
+      function shiftVisibleSubtree(node, amount) {
+        node.position.x += amount;
+        for (const child of getVisibleChildren(node)) {
+          shiftVisibleSubtree(child, amount);
+        }
+      }
+
+      const auxRoot = buildAux(root, null, 1);
+      firstWalk(auxRoot);
+      secondWalk(auxRoot, 0, 0);
+
+      const rootCenter = root.position.x + (root.width / 2);
+      const delta = Math.round(centerX - rootCenter);
+      if (delta !== 0) shiftVisibleSubtree(root, delta);
+    }
+
+    function getRightmostEdge(node) {
+      if (!node) return 0;
+      let right = node.position.x + node.width;
+      for (const child of getVisibleChildren(node)) right = Math.max(right, getRightmostEdge(child));
+      return right;
+    }
+
+    function getLeftmostEdge(node) {
+      if (!node) return Number.MAX_SAFE_INTEGER;
+      let left = node.position.x;
+      for (const child of getVisibleChildren(node)) left = Math.min(left, getLeftmostEdge(child));
+      return left;
+    }
+
+    function shiftSubtree(node, amount) {
+      if (!node) return;
+      node.position.x += amount;
+      for (const child of node.children) shiftSubtree(child, amount);
+    }
+
+    function ensureTreeInBounds(root, minX, minY, maxWidth, maxHeight) {
+      if (!root) return;
+      const leftEdge = getLeftmostEdge(root);
+      const rightEdge = getRightmostEdge(root);
+
+      if (leftEdge < minX) shiftSubtree(root, minX - leftEdge);
+
+      const rightBoundary = minX + maxWidth;
+      if (rightEdge > rightBoundary) shiftSubtree(root, rightBoundary - rightEdge);
+    }
+
+    function flatten(root) {
+      const out = [];
+      (function walk(node) {
+        if (!node) return;
+        out.push(node);
+        for (const c of getVisibleChildren(node)) walk(c);
+      })(root);
+      return out;
+    }
+
+    function serializeTree(node) {
+      if (!node) return null;
+      return {
+        label: node.label,
+        expanded: node.expanded !== false,
+        children: node.children.map((child) => serializeTree(child))
+      };
+    }
+
+    function getVisibleChildren(node) {
+      if (!node || !node.children) return [];
+      return node.expanded === false ? [] : node.children;
+    }
+
+    function hasChildren(node) {
+      return !!(node && node.children && node.children.length > 0);
+    }
+
+    function syncJsonFromTree() {
+      document.getElementById("jsonInput").value = JSON.stringify(serializeTree(currentRoot), null, 2);
+    }
+
+    function getMeasureContext() {
+      if (!getMeasureContext.ctx) {
+        const c = document.createElement("canvas");
+        getMeasureContext.ctx = c.getContext("2d");
+      }
+      return getMeasureContext.ctx;
+    }
+
+    function splitLabelLines(text) {
+      return String(text ?? "").replace(/\r\n/g, "\n").split("\n");
+    }
+
+    function fitLineToNodeWidth(line, node) {
+      const maxTextWidth = Math.max(20, node.width - 16);
+      const ctx = getMeasureContext();
+      ctx.font = "600 12px Segoe UI";
+      let fitted = line;
+      while (fitted.length > 0 && ctx.measureText(fitted).width > maxTextWidth) {
+        fitted = fitted.slice(0, -1);
+      }
+      return fitted;
+    }
+
+    function sanitizeLabelForNode(text, node) {
+      const rawLines = splitLabelLines(text).slice(0, 3);
+      const fitted = rawLines.map((line) => fitLineToNodeWidth(line, node));
+      return fitted.join("\n");
+    }
+
+    function getRenderLines(node) {
+      const sanitized = sanitizeLabelForNode(node.label, node);
+      const lines = splitLabelLines(sanitized).slice(0, 3);
+      return lines.length === 0 ? [""] : lines;
+    }
+
+    function getNodeDepth(node) {
+      let d = 0;
+      let current = node;
+      while (current && current.parent) {
+        d++;
+        current = current.parent;
+      }
+      return d;
+    }
+
+    function getNodeFillByDepth(node) {
+      const palette = [
+        "#d7ecfa",
+        "#dff4ec",
+        "#f6ecd8",
+        "#eadff7",
+        "#f9e0e0",
+        "#dfeaf8"
+      ];
+      return palette[getNodeDepth(node) % palette.length];
+    }
+
+    function updateZoomInfo() {
+      document.getElementById("zoomInfo").textContent = `zoom=${Math.round(zoomScale * 100)}%`;
+    }
+
+    async function updateVersionInfo() {
+      const versionEl = document.getElementById("versionInfo");
+      try {
+        const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/commits/${deployedBranch}`, {
+          headers: { "Accept": "application/vnd.github+json" }
+        });
+        if (!res.ok) throw new Error("version fetch failed");
+        const data = await res.json();
+        const sha = (data.sha || "").slice(0, 7);
+        const date = data.commit && data.commit.author && data.commit.author.date
+          ? new Date(data.commit.author.date).toISOString().slice(0, 10)
+          : "";
+        versionEl.textContent = `version=${sha}${date ? " (" + date + ")" : ""}`;
+      } catch {
+        versionEl.textContent = "version=unknown";
+      }
+    }
+
+    function clampZoom(value) {
+      return Math.max(minZoom, Math.min(maxZoom, value));
+    }
+
+    function getAutoChildLabel(parent) {
+      const next = parent.children.length + 1;
+
+      if (!parent.parent) {
+        return `Node ${next}`;
+      }
+
+      const base = (parent.label || "Node").trim();
+      return `${base}-${next}`;
+    }
+
+    function updateSelectedInfo() {
+      const info = document.getElementById("selectedInfo");
+      info.textContent = selectedNode ? `selected=${selectedNode.label}` : "selected=(none)";
+    }
+
+    function selectNode(node, rerender = true) {
+      selectedNode = node;
+      updateSelectedInfo();
+      onNodeSelected(node);
+      if (rerender) run(currentRoot, false);
+    }
+
+    function startNodeEdit(node) {
+      if (!node) return;
+      selectNode(node, false);
+      editingNode = node;
+      editingOriginalLabel = node.label;
+      run(currentRoot, false);
+      window.requestAnimationFrame(() => {
+        const editor = document.getElementById("activeNodeEditor");
+        if (editor) {
+          editor.focus();
+          editor.select();
+        }
+      });
+    }
+
+    function commitNodeEdit(newValue) {
+      if (!editingNode) return;
+      const newLabel = sanitizeLabelForNode((newValue || "").trim(), editingNode);
+      const effective = newLabel || editingOriginalLabel;
+      if (effective !== editingNode.label) pushUndo();
+      editingNode.label = effective;
+      editingNode = null;
+      editingOriginalLabel = "";
+      syncJsonFromTree();
+      run(currentRoot, false);
+    }
+
+    function cancelNodeEdit() {
+      if (!editingNode) return;
+      editingNode = null;
+      editingOriginalLabel = "";
+      run(currentRoot, false);
+    }
+
+    function onNodeSelected(node) {
+      window.dispatchEvent(new CustomEvent("tree-node-selected", {
+        detail: { node }
+      }));
+    }
+
+    function getTreeBounds(root) {
+      const nodes = flatten(root);
+      let minX = Number.POSITIVE_INFINITY;
+      let minY = Number.POSITIVE_INFINITY;
+      let maxX = Number.NEGATIVE_INFINITY;
+      let maxY = Number.NEGATIVE_INFINITY;
+
+      for (const node of nodes) {
+        minX = Math.min(minX, node.position.x);
+        minY = Math.min(minY, node.position.y);
+        maxX = Math.max(maxX, node.position.x + node.width);
+        maxY = Math.max(maxY, node.position.y + node.height);
+      }
+
+      return { minX, minY, maxX, maxY };
+    }
+
+    function drawTree(svg, root, offsetX = 0, offsetY = 0) {
+      svg.innerHTML = "";
+      const nodes = flatten(root);
+      let lineCount = 0;
+
+      for (const node of nodes) {
+        for (const child of getVisibleChildren(node)) {
+          const startX = node.position.x + Math.floor(node.width / 2);
+          const startY = node.position.y + node.height;
+          const endX = child.position.x + Math.floor(child.width / 2);
+          const endY = child.position.y;
+          const midY = startY + Math.floor((endY - startY) / 2);
+
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("d", `M ${startX + offsetX} ${startY + offsetY} L ${startX + offsetX} ${midY + offsetY} L ${endX + offsetX} ${midY + offsetY} L ${endX + offsetX} ${endY + offsetY}`);
+          path.setAttribute("fill", "none");
+          path.setAttribute("stroke", "var(--line)");
+          path.setAttribute("stroke-width", "2");
+          svg.appendChild(path);
+          lineCount++;
+        }
+      }
+
+      for (const node of nodes) {
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.setAttribute("class", "node-group");
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", String(node.position.x + offsetX));
+        rect.setAttribute("y", String(node.position.y + offsetY));
+        rect.setAttribute("rx", "8");
+        rect.setAttribute("ry", "8");
+        rect.setAttribute("width", String(node.width));
+        rect.setAttribute("height", String(node.height));
+        rect.setAttribute("fill", node === selectedNode ? "#ffe2a6" : getNodeFillByDepth(node));
+        rect.setAttribute("stroke", node === selectedNode ? "#8a5a14" : "var(--node-border)");
+        rect.setAttribute("stroke-width", node === selectedNode ? "3" : "2");
+        group.appendChild(rect);
+
+        if (node !== editingNode) {
+          const lines = getRenderLines(node);
+          const lineHeight = 13;
+          const centerY = node.position.y + Math.floor(node.height / 2) + offsetY;
+          const startY = centerY - Math.floor(((lines.length - 1) * lineHeight) / 2) + 4;
+
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("x", String(node.position.x + Math.floor(node.width / 2) + offsetX));
+          text.setAttribute("y", String(startY));
+          text.setAttribute("font-size", "12");
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("fill", "var(--ink)");
+          for (let i = 0; i < lines.length; i++) {
+            const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+            tspan.setAttribute("x", String(node.position.x + Math.floor(node.width / 2) + offsetX));
+            if (i === 0) {
+              tspan.setAttribute("y", String(startY));
+            } else {
+              tspan.setAttribute("dy", String(lineHeight));
+            }
+            tspan.textContent = lines[i];
+            text.appendChild(tspan);
+          }
+          group.appendChild(text);
+        } else {
+          const editorFo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+          editorFo.setAttribute("x", String(node.position.x + 8 + offsetX));
+          editorFo.setAttribute("y", String(node.position.y + 8 + offsetY));
+          editorFo.setAttribute("width", String(node.width - 16));
+          editorFo.setAttribute("height", String(node.height - 12));
+
+          const editor = document.createElementNS("http://www.w3.org/1999/xhtml", "textarea");
+          editor.id = "activeNodeEditor";
+          editor.className = "node-editor";
+          editor.value = node.label;
+          editor.setAttribute("rows", "3");
+
+          editor.addEventListener("mousedown", (e) => e.stopPropagation());
+          editor.addEventListener("click", (e) => e.stopPropagation());
+          editor.addEventListener("input", () => {
+            const fitted = sanitizeLabelForNode(editor.value, node);
+            if (fitted !== editor.value) {
+              editor.value = fitted;
+            }
+          });
+          editor.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && e.ctrlKey) {
+              e.preventDefault();
+              commitNodeEdit(editor.value);
+            } else if (e.key === "Enter") {
+              const lineCount = splitLabelLines(editor.value).length;
+              if (lineCount >= 3) {
+                e.preventDefault();
+              }
+            } else if (e.key === "Escape") {
+              e.preventDefault();
+              cancelNodeEdit();
+            }
+          });
+          editor.addEventListener("blur", () => commitNodeEdit(editor.value));
+
+          editorFo.appendChild(editor);
+          group.appendChild(editorFo);
+        }
+
+        const plusCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        plusCircle.setAttribute("class", "node-plus");
+        plusCircle.setAttribute("cx", String(node.position.x + node.width - 10 + offsetX));
+        plusCircle.setAttribute("cy", String(node.position.y + 10 + offsetY));
+        plusCircle.setAttribute("r", "9");
+        plusCircle.setAttribute("fill", "#ffffff");
+        plusCircle.setAttribute("stroke", "#0f766e");
+        plusCircle.setAttribute("stroke-width", "2");
+        group.appendChild(plusCircle);
+
+        const plusText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        plusText.setAttribute("class", "node-plus");
+        plusText.setAttribute("x", String(node.position.x + node.width - 10 + offsetX));
+        plusText.setAttribute("y", String(node.position.y + 14 + offsetY));
+        plusText.setAttribute("font-size", "14");
+        plusText.setAttribute("font-weight", "700");
+        plusText.setAttribute("text-anchor", "middle");
+        plusText.setAttribute("fill", "#0f766e");
+        plusText.textContent = "+";
+        group.appendChild(plusText);
+
+        if (hasChildren(node)) {
+          const toggleCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          toggleCircle.setAttribute("class", "node-toggle");
+          toggleCircle.setAttribute("cx", String(node.position.x + Math.floor(node.width / 2) + offsetX));
+          toggleCircle.setAttribute("cy", String(node.position.y + node.height - 8 + offsetY));
+          toggleCircle.setAttribute("r", "8");
+          toggleCircle.setAttribute("fill", "#ffffff");
+          toggleCircle.setAttribute("stroke", "#334e68");
+          toggleCircle.setAttribute("stroke-width", "2");
+          group.appendChild(toggleCircle);
+
+          const toggleText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          toggleText.setAttribute("class", "node-toggle");
+          toggleText.setAttribute("x", String(node.position.x + Math.floor(node.width / 2) + offsetX));
+          toggleText.setAttribute("y", String(node.position.y + node.height - 4 + offsetY));
+          toggleText.setAttribute("font-size", "12");
+          toggleText.setAttribute("font-weight", "700");
+          toggleText.setAttribute("text-anchor", "middle");
+          toggleText.setAttribute("fill", "#334e68");
+          toggleText.textContent = node.expanded === false ? "+" : "-";
+          group.appendChild(toggleText);
+
+          const toggleNode = (e) => {
+            e.stopPropagation();
+            if (suppressNodeClick) return;
+            node.expanded = node.expanded === false ? true : false;
+            syncJsonFromTree();
+            run(currentRoot, false, true);
+          };
+          toggleCircle.addEventListener("click", toggleNode);
+          toggleText.addEventListener("click", toggleNode);
+        }
+
+        if (node.parent) {
+          const deleteCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          deleteCircle.setAttribute("class", "node-delete");
+          deleteCircle.setAttribute("cx", String(node.position.x + 10 + offsetX));
+          deleteCircle.setAttribute("cy", String(node.position.y + 10 + offsetY));
+          deleteCircle.setAttribute("r", "9");
+          deleteCircle.setAttribute("fill", "#ffffff");
+          deleteCircle.setAttribute("stroke", "#b42318");
+          deleteCircle.setAttribute("stroke-width", "2");
+          group.appendChild(deleteCircle);
+
+          const deleteText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          deleteText.setAttribute("class", "node-delete");
+          deleteText.setAttribute("x", String(node.position.x + 10 + offsetX));
+          deleteText.setAttribute("y", String(node.position.y + 14 + offsetY));
+          deleteText.setAttribute("font-size", "14");
+          deleteText.setAttribute("font-weight", "700");
+          deleteText.setAttribute("text-anchor", "middle");
+          deleteText.setAttribute("fill", "#b42318");
+          deleteText.textContent = "×";
+          group.appendChild(deleteText);
+
+          const deleteFromNode = (e) => {
+            e.stopPropagation();
+            if (suppressNodeClick) return;
+            deleteNode(node);
+          };
+          deleteCircle.addEventListener("click", deleteFromNode);
+          deleteText.addEventListener("click", deleteFromNode);
+        }
+
+        group.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (suppressNodeClick) return;
+          if (editingNode && editingNode !== node) commitNodeEdit(document.getElementById("activeNodeEditor")?.value || editingNode.label);
+          selectNode(node, true);
+        });
+        group.addEventListener("dblclick", (e) => {
+          e.stopPropagation();
+          if (suppressNodeClick) return;
+          startNodeEdit(node);
+        });
+
+        const addFromPlus = (e) => {
+          e.stopPropagation();
+          if (suppressNodeClick) return;
+          selectNode(node, false);
+          addChildToNode(node);
+        };
+        plusCircle.addEventListener("click", addFromPlus);
+        plusText.addEventListener("click", addFromPlus);
+
+        svg.appendChild(group);
+      }
+
+      svg.onclick = () => {
+        if (suppressNodeClick) return;
+        if (editingNode) {
+          const active = document.getElementById("activeNodeEditor");
+          commitNodeEdit(active ? active.value : editingNode.label);
+          return;
+        }
+        if (selectedNode) selectNode(null, true);
+      };
+
+      return { nodeCount: nodes.length, lineCount };
+    }
+
+    function centerViewport() {
+      const viewport = document.getElementById("treeViewport");
+      viewport.scrollLeft = Math.max(0, preferredInitialScrollLeft);
+      viewport.scrollTop = Math.max(0, preferredInitialScrollTop);
+    }
+
+    function centerViewportHorizontalOnly() {
+      const viewport = document.getElementById("treeViewport");
+      viewport.scrollLeft = Math.max(0, preferredInitialScrollLeft);
+    }
+
+    function run(root, recenter = false, recomputeLayout = true) {
+      const xOffset = Number(document.getElementById("xOffset").value || 30);
+      const yOffset = Number(document.getElementById("yOffset").value || 70);
+      const svg = document.getElementById("treeSvg");
+      const viewport = document.getElementById("treeViewport");
+      if (recomputeLayout) {
+        layoutTreeWalker(root, 600, 50, xOffset, yOffset);
+        ensureTreeInBounds(root, 20, 20, 100000, 100000);
+      }
+
+      const bounds = getTreeBounds(root);
+      const panPadding = 2000;
+      const treeWidth = bounds.maxX - bounds.minX;
+      const treeHeight = bounds.maxY - bounds.minY;
+      const canvasWidth = Math.max(1200, treeWidth + panPadding * 2);
+      const canvasHeight = Math.max(700, treeHeight + panPadding * 2);
+      const offsetX = panPadding - bounds.minX;
+      const offsetY = panPadding - bounds.minY;
+      const treeCenterX = ((bounds.minX + bounds.maxX) / 2) + offsetX;
+      const treeTopY = bounds.minY + offsetY;
+      preferredInitialScrollLeft = Math.floor(treeCenterX - (viewport.clientWidth / 2));
+      preferredInitialScrollTop = Math.floor(treeTopY - 20);
+
+      svg.setAttribute("viewBox", `0 0 ${canvasWidth} ${canvasHeight}`);
+      svg.style.width = `${Math.floor(canvasWidth * zoomScale)}px`;
+      svg.style.height = `${Math.floor(canvasHeight * zoomScale)}px`;
+
+      const meta = drawTree(svg, root, offsetX, offsetY);
+      document.getElementById("meta").textContent =
+        `mode=walker xOffset=${xOffset} yOffset=${yOffset} nodes=${meta.nodeCount} edges=${meta.lineCount} canvas=${canvasWidth}x${canvasHeight} zoom=${Math.round(zoomScale * 100)}%`;
+
+      IfNeededCenter(recenter);
+    }
+
+    function applyZoom(newZoom, anchorClientX, anchorClientY) {
+      const viewport = document.getElementById("treeViewport");
+      const oldZoom = zoomScale;
+      const targetZoom = clampZoom(newZoom);
+      if (Math.abs(targetZoom - oldZoom) < 0.001) return;
+
+      const rect = viewport.getBoundingClientRect();
+      const anchorXInViewport = anchorClientX - rect.left;
+      const anchorYInViewport = anchorClientY - rect.top;
+      const contentX = viewport.scrollLeft + anchorXInViewport;
+      const contentY = viewport.scrollTop + anchorYInViewport;
+
+      zoomScale = targetZoom;
+      updateZoomInfo();
+      run(currentRoot, false, false);
+
+      const ratio = targetZoom / oldZoom;
+      viewport.scrollLeft = Math.max(0, (contentX * ratio) - anchorXInViewport);
+      viewport.scrollTop = Math.max(0, (contentY * ratio) - anchorYInViewport);
+    }
+
+    function setZoom(newZoom) {
+      const viewport = document.getElementById("treeViewport");
+      const rect = viewport.getBoundingClientRect();
+      const centerClientX = rect.left + (viewport.clientWidth / 2);
+      const centerClientY = rect.top + (viewport.clientHeight / 2);
+      applyZoom(newZoom, centerClientX, centerClientY);
+    }
+
+    function IfNeededCenter(recenter) {
+      if (!recenter) return;
+      window.requestAnimationFrame(centerViewport);
+    }
+
+    currentRoot = new WNode("Root", null);
+    selectedNode = currentRoot;
+
+    function clearError() {
+      document.getElementById("error").textContent = "";
+    }
+
+    function setError(message) {
+      document.getElementById("error").textContent = message;
+    }
+
+    function normalizeTreeFileName(inputName) {
+      let name = (inputName || "").trim();
+      if (!name) {
+        const d = new Date();
+        const stamp = d.toISOString().replace(/[:.]/g, "-");
+        name = `tree-${stamp}`;
+      }
+      if (!name.toLowerCase().endsWith(".json")) name += ".json";
+      return name;
+    }
+
+    async function parseApiJson(res, contextLabel) {
+      const text = await res.text();
+      let data = null;
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (_) {
+        const preview = text.slice(0, 80).replace(/\s+/g, " ");
+        throw new Error(`${contextLabel} returned non-JSON response (${res.status}): ${preview}`);
+      }
+      if (!res.ok) {
+        const msg = data && data.error ? data.error : `${contextLabel} failed (${res.status})`;
+        throw new Error(msg);
+      }
+      return data;
+    }
+
+    async function saveTreeToCloud() {
+      clearError();
+      try {
+        const input = document.getElementById("cloudTreeName");
+        const name = normalizeTreeFileName(input.value);
+        input.value = name;
+
+        const res = await fetch("/api/trees", {
+          method: "POST",
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+          body: JSON.stringify({
+            name,
+            tree: serializeTree(currentRoot)
+          })
+        });
+
+        await parseApiJson(res, "Save");
+        await refreshCloudList();
+      } catch (err) {
+        setError(err.message || "Cloud save failed.");
+      }
+    }
+
+    async function refreshCloudList() {
+      clearError();
+      try {
+        const res = await fetch("/api/trees");
+        const payload = await parseApiJson(res, "List");
+        const names = Array.isArray(payload.items)
+          ? payload.items.map((x) => x && x.name).filter((x) => typeof x === "string" && x.length > 0)
+          : [];
+
+        const sel = document.getElementById("cloudTreeSelect");
+        const current = sel.value;
+        sel.innerHTML = "";
+        const empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = names.length ? "(select tree)" : "(none)";
+        sel.appendChild(empty);
+
+        names.forEach((name) => {
+          const opt = document.createElement("option");
+          opt.value = name;
+          opt.textContent = name;
+          sel.appendChild(opt);
+        });
+
+        if (current && names.includes(current)) {
+          sel.value = current;
+        }
+      } catch (err) {
+        setError(err.message || "Cloud list failed.");
+      }
+    }
+
+    async function loadSelectedCloudTree() {
+      clearError();
+      try {
+        const selected = document.getElementById("cloudTreeSelect").value;
+        if (!selected) throw new Error("Select a cloud tree first.");
+        const res = await fetch(`/api/trees/${encodeURIComponent(selected)}`);
+        const payload = await parseApiJson(res, "Load");
+        const tree = payload && payload.tree ? payload.tree : payload;
+        document.getElementById("jsonInput").value = JSON.stringify(tree, null, 2);
+        loadJsonTree();
+      } catch (err) {
+        setError(err.message || "Cloud load failed.");
+      }
+    }
+
+    function rerenderCurrent() {
+      clearError();
+      run(currentRoot, false);
+    }
+
+    function loadJsonTree() {
+      clearError();
+      pushUndo();
+      try {
+        const raw = document.getElementById("jsonInput").value;
+        const parsed = JSON.parse(raw);
+        currentRoot = buildTreeFromJsonNode(parsed, null);
+        selectedNode = currentRoot;
+        updateSelectedInfo();
+        run(currentRoot, true);
+      } catch (err) {
+        setError(`Invalid JSON tree: ${err.message}`);
+      }
+    }
+
+    function newTree() {
+      clearError();
+      pushUndo();
+      currentRoot = new WNode("Root", null);
+      selectedNode = currentRoot;
+      updateSelectedInfo();
+      syncJsonFromTree();
+      run(currentRoot, true);
+    }
+
+    function addChildBelowSelected() {
+      clearError();
+      if (!selectedNode) {
+        setError("Select a node first.");
+        return;
+      }
+
+      addChildToNode(selectedNode);
+    }
+
+    function addChildToNode(parentNode) {
+      pushUndo();
+      if (editingNode) {
+        const active = document.getElementById("activeNodeEditor");
+        commitNodeEdit(active ? active.value : editingNode.label);
+      }
+
+      const label = getAutoChildLabel(parentNode);
+
+      const child = new WNode(label, parentNode);
+      parentNode.children.push(child);
+      parentNode.expanded = true;
+      selectNode(child, false);
+
+      syncJsonFromTree();
+      run(currentRoot, false);
+    }
+
+    function deleteNode(node) {
+      clearError();
+      if (!node) return;
+      if (!node.parent) {
+        setError("Root node cannot be deleted.");
+        return;
+      }
+
+      if (editingNode) {
+        const active = document.getElementById("activeNodeEditor");
+        commitNodeEdit(active ? active.value : editingNode.label);
+      }
+
+      pushUndo();
+      const parent = node.parent;
+      parent.children = parent.children.filter((c) => c !== node);
+      selectNode(parent, false);
+      syncJsonFromTree();
+      run(currentRoot, false);
+    }
+
+    function setExpandedRecursive(node, expanded) {
+      if (!node) return;
+      if (hasChildren(node)) {
+        node.expanded = expanded;
+      }
+      for (const child of node.children) {
+        setExpandedRecursive(child, expanded);
+      }
+    }
+
+    function expandAll() {
+      clearError();
+      setExpandedRecursive(currentRoot, true);
+      syncJsonFromTree();
+      run(currentRoot, false, true);
+      window.requestAnimationFrame(centerViewportHorizontalOnly);
+    }
+
+    function collapseAll() {
+      clearError();
+      setExpandedRecursive(currentRoot, false);
+      if (currentRoot) currentRoot.expanded = true;
+      syncJsonFromTree();
+      run(currentRoot, false, true);
+      window.requestAnimationFrame(centerViewportHorizontalOnly);
+    }
+
+    function getMaxVisibleDepth(node, depth) {
+      if (!node) return depth;
+      if (!hasChildren(node) || node.expanded === false) return depth;
+      let max = depth;
+      for (const child of node.children) {
+        max = Math.max(max, getMaxVisibleDepth(child, depth + 1));
+      }
+      return max;
+    }
+
+    function expandOneLevel() {
+      clearError();
+      const maxVisible = getMaxVisibleDepth(currentRoot, 0);
+      // Find collapsed nodes at exactly maxVisible depth and expand them
+      let expanded = false;
+      function walk(node, depth) {
+        if (!node || !hasChildren(node)) return;
+        if (node.expanded === false && depth <= maxVisible) {
+          node.expanded = true;
+          expanded = true;
+          return; // don't recurse deeper on this pass
+        }
+        if (node.expanded !== false) {
+          for (const child of node.children) walk(child, depth + 1);
+        }
+      }
+      walk(currentRoot, 0);
+      if (!expanded) {
+        // All nodes already expanded — nothing to do
+        return;
+      }
+      syncJsonFromTree();
+      run(currentRoot, false, true);
+      window.requestAnimationFrame(centerViewportHorizontalOnly);
+    }
+
+    function collapseOneLevel() {
+      clearError();
+      const maxVisible = getMaxVisibleDepth(currentRoot, 0);
+      if (maxVisible <= 0) return; // root only, nothing to collapse
+      // Collapse nodes at the deepest visible level that have children
+      function walk(node, depth) {
+        if (!node || !hasChildren(node)) return;
+        if (node.expanded !== false) {
+          if (depth === maxVisible - 1) {
+            node.expanded = false;
+          } else {
+            for (const child of node.children) walk(child, depth + 1);
+          }
+        }
+      }
+      walk(currentRoot, 0);
+      syncJsonFromTree();
+      run(currentRoot, false, true);
+      window.requestAnimationFrame(centerViewportHorizontalOnly);
+    }
+
+    document.getElementById("rerun").addEventListener("click", rerenderCurrent);
+    document.getElementById("newTreeBtn").addEventListener("click", newTree);
+    document.getElementById("cloudPanelToggleBtn").addEventListener("click", () => {
+      const panel = document.getElementById("cloudPanel");
+      panel.open = !panel.open;
+    });
+    document.getElementById("importPanelToggleBtn").addEventListener("click", () => {
+      const panel = document.getElementById("importPanel");
+      panel.open = !panel.open;
+    });
+    document.getElementById("expandAllBtn").addEventListener("click", expandAll);
+    document.getElementById("collapseAllBtn").addEventListener("click", collapseAll);
+    document.getElementById("expandLevelBtn").addEventListener("click", expandOneLevel);
+    document.getElementById("collapseLevelBtn").addEventListener("click", collapseOneLevel);
+    document.getElementById("zoomInBtn").addEventListener("click", () => setZoom(zoomScale + zoomStep));
+    document.getElementById("zoomOutBtn").addEventListener("click", () => setZoom(zoomScale - zoomStep));
+    document.getElementById("zoomResetBtn").addEventListener("click", () => setZoom(1));
+    document.getElementById("loadJson").addEventListener("click", loadJsonTree);
+    document.getElementById("saveCloudBtn").addEventListener("click", saveTreeToCloud);
+    document.getElementById("refreshCloudBtn").addEventListener("click", refreshCloudList);
+    document.getElementById("loadCloudBtn").addEventListener("click", loadSelectedCloudTree);
+    document.getElementById("loadSample").addEventListener("click", () => {
+      clearError();
+      document.getElementById("jsonInput").value = sampleTreeJson();
+      currentRoot = buildSampleTree();
+      selectedNode = currentRoot;
+      updateSelectedInfo();
+      run(currentRoot, true);
+    });
+    document.getElementById("loadPackedSample").addEventListener("click", () => {
+      clearError();
+      document.getElementById("jsonInput").value = packedTreeJson();
+      loadJsonTree();
+    });
+
+    /* ── GitHub Repo Tree Connector ── */
+
+    async function importGitHubRepo() {
+      const statusEl = document.getElementById("ghStatus");
+      statusEl.textContent = "";
+      try {
+        const raw = (document.getElementById("ghOwner").value || "").trim();
+        if (!raw || !raw.includes("/")) throw new Error("Enter owner/repo (e.g. microsoft/vscode).");
+        const [owner, repo] = raw.split("/", 2);
+        const branch = (document.getElementById("ghBranch").value || "").trim() || "HEAD";
+        const maxDepth = Math.max(1, Math.min(10, Number(document.getElementById("ghDepth").value) || 3));
+        const foldersOnly = document.getElementById("ghFoldersOnly").checked;
+
+        statusEl.textContent = "Fetching repo tree…";
+        statusEl.style.color = "#2f546f";
+
+        const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/trees/${encodeURIComponent(branch)}?recursive=1`;
+        const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.message || `GitHub API returned ${res.status}`);
+        }
+        const data = await res.json();
+        const items = (data.tree || []).filter(item => foldersOnly ? item.type === "tree" : true);
+
+        const rootJson = { label: `${owner}/${repo}`, children: [] };
+        const dirMap = { "": rootJson };
+
+        function ensureDir(pathParts) {
+          let current = "";
+          let parentJson = rootJson;
+          for (const part of pathParts) {
+            const full = current ? current + "/" + part : part;
+            if (!dirMap[full]) {
+              const node = { label: part, children: [] };
+              parentJson.children.push(node);
+              dirMap[full] = node;
+            }
+            parentJson = dirMap[full];
+            current = full;
+          }
+          return parentJson;
+        }
+
+        for (const item of items) {
+          const parts = item.path.split("/");
+          if (parts.length > maxDepth) continue;
+          if (item.type === "tree") {
+            ensureDir(parts);
+          } else {
+            const dirParts = parts.slice(0, -1);
+            const fileName = parts[parts.length - 1];
+            const parent = ensureDir(dirParts);
+            parent.children.push({ label: fileName });
+          }
+        }
+
+        function cleanEmpty(node) {
+          if (node.children && node.children.length === 0) delete node.children;
+          if (node.children) node.children.forEach(cleanEmpty);
+        }
+        cleanEmpty(rootJson);
+
+        document.getElementById("jsonInput").value = JSON.stringify(rootJson, null, 2);
+        currentRoot = buildTreeFromJsonNode(rootJson, null);
+        selectedNode = currentRoot;
+        updateSelectedInfo();
+        run(currentRoot, true);
+
+        const nodeCount = flatten(currentRoot).length;
+        statusEl.textContent = `Imported ${nodeCount} nodes from ${owner}/${repo}.`;
+        statusEl.style.color = "#0f766e";
+      } catch (err) {
+        statusEl.textContent = err.message || "GitHub import failed.";
+        statusEl.style.color = "#a61b1b";
+      }
+    }
+
+    /* ── Azure Resource Hierarchy Connector ── */
+
+    async function importAzureResources() {
+      const statusEl = document.getElementById("azStatus");
+      statusEl.textContent = "";
+      try {
+        const subId = (document.getElementById("azSubId").value || "").trim();
+        const token = (document.getElementById("azToken").value || "").trim();
+        if (!subId) throw new Error("Enter your Azure Subscription ID.");
+        if (!token) throw new Error("Paste a Bearer token (see help).");
+
+        statusEl.textContent = "Fetching Azure resources…";
+        statusEl.style.color = "#2f546f";
+
+        const url = `https://management.azure.com/subscriptions/${encodeURIComponent(subId)}/resources?api-version=2021-04-01`;
+        const res = await fetch(url, {
+          headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" }
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error?.message || `Azure API returned ${res.status}`);
+        }
+        const data = await res.json();
+        const resources = data.value || [];
+
+        const rootJson = { label: `Subscription\n${subId.slice(0, 8)}…`, children: [] };
+        const rgMap = {};
+
+        for (const r of resources) {
+          const idParts = (r.id || "").split("/");
+          const rgIdx = idParts.findIndex(p => p.toLowerCase() === "resourcegroups");
+          const rgName = rgIdx >= 0 && rgIdx + 1 < idParts.length ? idParts[rgIdx + 1] : "(unknown)";
+          const typeParts = (r.type || "").split("/");
+          const shortType = typeParts.length > 1 ? typeParts.slice(1).join("/") : r.type;
+
+          if (!rgMap[rgName]) {
+            const rgNode = { label: rgName, children: [] };
+            rgMap[rgName] = { node: rgNode, types: {} };
+            rootJson.children.push(rgNode);
+          }
+
+          const rg = rgMap[rgName];
+          if (!rg.types[shortType]) {
+            const typeNode = { label: shortType, children: [] };
+            rg.types[shortType] = typeNode;
+            rg.node.children.push(typeNode);
+          }
+
+          rg.types[shortType].children.push({ label: r.name || "(unnamed)" });
+        }
+
+        rootJson.children.sort((a, b) => a.label.localeCompare(b.label));
+        for (const rg of Object.values(rgMap)) {
+          rg.node.children.sort((a, b) => a.label.localeCompare(b.label));
+        }
+
+        document.getElementById("jsonInput").value = JSON.stringify(rootJson, null, 2);
+        currentRoot = buildTreeFromJsonNode(rootJson, null);
+        selectedNode = currentRoot;
+        updateSelectedInfo();
+        run(currentRoot, true);
+
+        const nodeCount = flatten(currentRoot).length;
+        statusEl.textContent = `Imported ${nodeCount} nodes (${resources.length} resources across ${Object.keys(rgMap).length} resource groups).`;
+        statusEl.style.color = "#0f766e";
+      } catch (err) {
+        statusEl.textContent = err.message || "Azure import failed.";
+        statusEl.style.color = "#a61b1b";
+      }
+    }
+
+    document.getElementById("ghImportBtn").addEventListener("click", importGitHubRepo);
+    document.getElementById("azImportBtn").addEventListener("click", importAzureResources);
+    document.getElementById("azTokenHelpBtn").addEventListener("click", () => {
+      const el = document.getElementById("azStatus");
+      el.style.color = "#2f546f";
+      el.textContent = 'Run: az account get-access-token --query accessToken -o tsv | clip — then paste above.';
+    });
+
+    /* ── Taxonomy Sample ── */
+
+    function taxonomyTreeJson() {
+      return JSON.stringify({
+        label: "Life",
+        children: [
+          { label: "Bacteria", children: [
+            { label: "Proteobacteria", children: [
+              { label: "Escherichia" }, { label: "Salmonella" }, { label: "Vibrio" }
+            ]},
+            { label: "Cyanobacteria", children: [
+              { label: "Nostoc" }, { label: "Anabaena" }
+            ]},
+            { label: "Firmicutes", children: [
+              { label: "Bacillus" }, { label: "Clostridium" }, { label: "Lactobacillus" }
+            ]}
+          ]},
+          { label: "Archaea", children: [
+            { label: "Euryarchaeota", children: [
+              { label: "Methanogens" }, { label: "Halophiles" }
+            ]},
+            { label: "Crenarchaeota", children: [
+              { label: "Sulfolobus" }, { label: "Thermoproteus" }
+            ]}
+          ]},
+          { label: "Eukarya", children: [
+            { label: "Plantae", children: [
+              { label: "Bryophyta\n(mosses)" },
+              { label: "Pteridophyta\n(ferns)" },
+              { label: "Gymnosperms", children: [
+                { label: "Conifers" }, { label: "Cycads" }
+              ]},
+              { label: "Angiosperms", children: [
+                { label: "Monocots" }, { label: "Eudicots" }
+              ]}
+            ]},
+            { label: "Fungi", children: [
+              { label: "Ascomycota\n(sac fungi)" },
+              { label: "Basidiomycota\n(club fungi)" },
+              { label: "Zygomycota" }
+            ]},
+            { label: "Animalia", children: [
+              { label: "Cnidaria\n(jellyfish)" },
+              { label: "Mollusca", children: [
+                { label: "Gastropoda" }, { label: "Cephalopoda" }
+              ]},
+              { label: "Arthropoda", children: [
+                { label: "Insecta" }, { label: "Arachnida" }, { label: "Crustacea" }
+              ]},
+              { label: "Chordata", children: [
+                { label: "Actinopterygii\n(ray-fin fish)" },
+                { label: "Amphibia" },
+                { label: "Reptilia", children: [
+                  { label: "Testudines\n(turtles)" },
+                  { label: "Squamata\n(lizards/snakes)" },
+                  { label: "Crocodilia" }
+                ]},
+                { label: "Aves\n(birds)" },
+                { label: "Mammalia", children: [
+                  { label: "Monotremata\n(platypus)" },
+                  { label: "Marsupialia\n(kangaroo)" },
+                  { label: "Placentalia", children: [
+                    { label: "Rodentia" },
+                    { label: "Carnivora" },
+                    { label: "Cetacea\n(whales)" },
+                    { label: "Primates", children: [
+                      { label: "Prosimians\n(lemurs)" },
+                      { label: "Anthropoidea", children: [
+                        { label: "New World\nMonkeys" },
+                        { label: "Old World\nMonkeys" },
+                        { label: "Hominoidea\n(apes)" }
+                      ]}
+                    ]}
+                  ]}
+                ]}
+              ]}
+            ]},
+            { label: "Protista", children: [
+              { label: "Amoebozoa" }, { label: "Alveolata" }, { label: "Euglenozoa" }
+            ]}
+          ]}
+        ]
+      }, null, 2);
+    }
+
+    /* ── Human Lineage Sample ── */
+
+    function humanLineageTreeJson() {
+      return JSON.stringify({
+        label: "Hominini\n~7 MYA",
+        children: [
+          { label: "Sahelanthropus\ntchadensis\n~7 MYA" },
+          { label: "Orrorin\ntugenensis\n~6 MYA" },
+          { label: "Ardipithecus", children: [
+            { label: "Ar. kadabba\n~5.5 MYA" },
+            { label: "Ar. ramidus\n~4.4 MYA" }
+          ]},
+          { label: "Australopithecus", children: [
+            { label: "Au. anamensis\n~4.2 MYA" },
+            { label: "Au. afarensis\n(Lucy)\n~3.5 MYA", children: [
+              { label: "Au. garhi\n~2.5 MYA" },
+              { label: "Au. africanus\n~3 MYA", children: [
+                { label: "Au. sediba\n~2 MYA" }
+              ]}
+            ]},
+            { label: "Paranthropus", children: [
+              { label: "P. aethiopicus\n~2.5 MYA" },
+              { label: "P. boisei\n~2.3 MYA" },
+              { label: "P. robustus\n~1.8 MYA" }
+            ]}
+          ]},
+          { label: "Early Homo", children: [
+            { label: "H. habilis\n~2.4 MYA" },
+            { label: "H. rudolfensis\n~1.9 MYA" },
+            { label: "H. erectus\n~1.9 MYA", children: [
+              { label: "H. antecessor\n~1.2 MYA" },
+              { label: "H. heidelberg.\n~700 KYA", children: [
+                { label: "H. neanderthal.\n~400 KYA" },
+                { label: "Denisovans\n~400 KYA" },
+                { label: "H. sapiens\n~300 KYA", children: [
+                  { label: "Anatomically\nModern Humans\n~200 KYA" },
+                  { label: "Behavioral\nModernity\n~50 KYA" }
+                ]}
+              ]}
+            ]},
+            { label: "H. naledi\n~335 KYA" },
+            { label: "H. floresiensis\n(Hobbit)\n~100 KYA" }
+          ]}
+        ]
+      }, null, 2);
+    }
+
+    document.getElementById("loadTaxonomy").addEventListener("click", () => {
+      clearError();
+      document.getElementById("jsonInput").value = taxonomyTreeJson();
+      loadJsonTree();
+    });
+    document.getElementById("loadLineage").addEventListener("click", () => {
+      clearError();
+      document.getElementById("jsonInput").value = humanLineageTreeJson();
+      loadJsonTree();
+    });
+
+    syncJsonFromTree();
+    updateSelectedInfo();
+    updateZoomInfo();
+    updateVersionInfo();
+    run(currentRoot, true);
+    refreshCloudList();
+
+    // ── Undo / Redo ──────────────────────────────────────────────────────────
+
+    const undoStack = [];
+    const redoStack = [];
+    const MAX_UNDO = 50;
+
+    function pushUndo() {
+      if (!currentRoot) return;
+      undoStack.push(JSON.stringify(serializeTree(currentRoot)));
+      if (undoStack.length > MAX_UNDO) undoStack.shift();
+      redoStack.length = 0;
+      updateUndoButtons();
+    }
+
+    function undo() {
+      if (undoStack.length === 0) return;
+      if (editingNode) commitNodeEdit(document.getElementById("activeNodeEditor")?.value || editingNode.label);
+      redoStack.push(JSON.stringify(serializeTree(currentRoot)));
+      currentRoot = buildTreeFromJsonNode(JSON.parse(undoStack.pop()), null);
+      selectedNode = currentRoot;
+      updateSelectedInfo();
+      syncJsonFromTree();
+      run(currentRoot, false);
+      updateUndoButtons();
+    }
+
+    function redo() {
+      if (redoStack.length === 0) return;
+      if (editingNode) commitNodeEdit(document.getElementById("activeNodeEditor")?.value || editingNode.label);
+      undoStack.push(JSON.stringify(serializeTree(currentRoot)));
+      currentRoot = buildTreeFromJsonNode(JSON.parse(redoStack.pop()), null);
+      selectedNode = currentRoot;
+      updateSelectedInfo();
+      syncJsonFromTree();
+      run(currentRoot, false);
+      updateUndoButtons();
+    }
+
+    function updateUndoButtons() {
+      const u = document.getElementById("undoBtn");
+      const r = document.getElementById("redoBtn");
+      if (u) u.disabled = undoStack.length === 0;
+      if (r) r.disabled = redoStack.length === 0;
+    }
+
+    // ── Export ────────────────────────────────────────────────────────────────
+
+    function getExportFilename(ext) {
+      const name = (currentRoot ? currentRoot.label : "tree")
+        .replace(/[^a-z0-9_-]/gi, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+      return `${name || "tree"}.${ext}`;
+    }
+
+    function buildExportSvg() {
+      if (!currentRoot) return null;
+      if (editingNode) commitNodeEdit(document.getElementById("activeNodeEditor")?.value || editingNode.label);
+      const bounds = getTreeBounds(currentRoot);
+      const padding = 40;
+      const W = Math.ceil((bounds.maxX - bounds.minX) + padding * 2);
+      const H = Math.ceil((bounds.maxY - bounds.minY) + padding * 2);
+      const offsetX = padding - bounds.minX;
+      const offsetY = padding - bounds.minY;
+
+      const offSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      offSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      offSvg.setAttribute("width", String(W));
+      offSvg.setAttribute("height", String(H));
+      offSvg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      offSvg.setAttribute("font-family", "Segoe UI, Tahoma, sans-serif");
+
+      const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      bg.setAttribute("width", String(W));
+      bg.setAttribute("height", String(H));
+      bg.setAttribute("fill", "#edf3f5");
+      offSvg.appendChild(bg);
+
+      const prevSelected = selectedNode;
+      selectedNode = null;
+      drawTree(offSvg, currentRoot, offsetX, offsetY);
+      selectedNode = prevSelected;
+
+      offSvg.querySelectorAll(".node-plus, .node-delete, .node-toggle").forEach(el => el.remove());
+
+      const serializer = new XMLSerializer();
+      let source = serializer.serializeToString(offSvg);
+      source = source
+        .replace(/var\(--line\)/g, "#7b8fa3")
+        .replace(/var\(--node-border\)/g, "#2e5f87")
+        .replace(/var\(--ink\)/g, "#13273a");
+
+      return { source, W, H };
+    }
+
+    function exportSvg() {
+      const result = buildExportSvg();
+      if (!result) return;
+      const blob = new Blob(
+        ['<?xml version="1.0" encoding="UTF-8"?>\n' + result.source],
+        { type: "image/svg+xml;charset=utf-8" }
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = getExportFilename("svg");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportPng() {
+      const result = buildExportSvg();
+      if (!result) return;
+      const scale = 2;
+      const blob = new Blob([result.source], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = result.W * scale;
+        canvas.height = result.H * scale;
+        const ctx = canvas.getContext("2d");
+        ctx.scale(scale, scale);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        canvas.toBlob((pngBlob) => {
+          const a = document.createElement("a");
+          a.download = getExportFilename("png");
+          a.href = URL.createObjectURL(pngBlob);
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }, "image/png");
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        setError("PNG export failed — try Export SVG instead.");
+      };
+      img.src = url;
+    }
+
+    document.getElementById("addChildBtn").addEventListener("click", addChildBelowSelected);
+    document.getElementById("undoBtn").addEventListener("click", undo);
+    document.getElementById("redoBtn").addEventListener("click", redo);
+    document.getElementById("exportSvgBtn").addEventListener("click", exportSvg);
+    document.getElementById("exportPngBtn").addEventListener("click", exportPng);
+
+    // ── Keyboard Shortcuts ────────────────────────────────────────────────────
+
+    document.addEventListener("keydown", (e) => {
+      const tag = document.activeElement && document.activeElement.tagName;
+      const inInput = (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") &&
+        document.activeElement.id !== "activeNodeEditor";
+      if (inInput) return;
+
+      if (e.ctrlKey && !e.shiftKey && (e.key === "z" || e.key === "Z")) {
+        e.preventDefault();
+        undo();
+        return;
+      }
+      if ((e.ctrlKey && !e.shiftKey && (e.key === "y" || e.key === "Y")) ||
+          (e.ctrlKey && e.shiftKey && (e.key === "z" || e.key === "Z"))) {
+        e.preventDefault();
+        redo();
+        return;
+      }
+      if (editingNode) return;
+
+      if (e.key === "Tab" && !e.ctrlKey && !e.altKey && selectedNode) {
+        e.preventDefault();
+        addChildToNode(selectedNode);
+      } else if ((e.key === "Delete" || e.key === "Backspace") && selectedNode && selectedNode.parent) {
+        e.preventDefault();
+        deleteNode(selectedNode);
+      } else if (e.key === "F2" && selectedNode) {
+        e.preventDefault();
+        startNodeEdit(selectedNode);
+      } else if (e.key === "Escape" && selectedNode) {
+        selectNode(null, true);
+      } else if (e.key === "Enter" && !e.ctrlKey && selectedNode && selectedNode.parent) {
+        e.preventDefault();
+        addChildToNode(selectedNode.parent);
+      }
+    });
+
+    (function wireDragPan() {
+      const viewport = document.getElementById("treeViewport");
+      let dragging = false;
+      let moved = false;
+      let startX = 0;
+      let startY = 0;
+      let startScrollLeft = 0;
+      let startScrollTop = 0;
+
+      viewport.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        dragging = true;
+        viewport.classList.add("dragging");
+        startX = e.clientX;
+        startY = e.clientY;
+        startScrollLeft = viewport.scrollLeft;
+        startScrollTop = viewport.scrollTop;
+        moved = false;
+        e.preventDefault();
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+        viewport.scrollLeft = startScrollLeft - dx;
+        viewport.scrollTop = startScrollTop - dy;
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (!dragging) return;
+        dragging = false;
+        viewport.classList.remove("dragging");
+        if (moved) {
+          suppressNodeClick = true;
+          window.setTimeout(() => { suppressNodeClick = false; }, 0);
+        }
+      });
+
+      viewport.addEventListener("wheel", (e) => {
+        if (!e.ctrlKey) return;
+        e.preventDefault();
+        const direction = e.deltaY > 0 ? -1 : 1;
+        applyZoom(zoomScale + (direction * zoomStep), e.clientX, e.clientY);
+      }, { passive: false });
+    })();
+  </script>
+</body>
+</html>

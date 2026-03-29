@@ -1,0 +1,1310 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tree Layout Demo</title>
+  <style>
+    :root {
+      --bg: #f4f7f8;
+      --panel: #ffffff;
+      --ink: #1f2933;
+      --muted: #52606d;
+      --line: #7b8794;
+      --node: #d9f2ff;
+      --node-border: #245b7a;
+      --accent: #0f766e;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(180deg, #ecf2f5 0%, #f8fbfc 100%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    .layout {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .toolbar {
+      background: var(--panel);
+      border: 1px solid #d9e2ec;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .json-panel {
+      background: var(--panel);
+      border: 1px solid #d9e2ec;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .json-panel .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .json-panel textarea {
+      width: 100%;
+      min-height: 160px;
+      border: 1px solid #bcccdc;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      resize: vertical;
+    }
+
+    .json-panel button {
+      background: #1f3a5f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .error {
+      margin-top: 8px;
+      color: #a61b1b;
+      font-size: 13px;
+      min-height: 18px;
+    }
+
+    .toolbar label {
+      font-size: 14px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toolbar input[type="number"] {
+      width: 88px;
+      padding: 5px 8px;
+      border: 1px solid #bcccdc;
+      border-radius: 6px;
+    }
+
+    .toolbar input[type="text"] {
+      width: 160px;
+      padding: 5px 8px;
+      border: 1px solid #bcccdc;
+      border-radius: 6px;
+    }
+
+    .toolbar button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .canvas-wrap {
+      background: var(--panel);
+      border: 1px solid #d9e2ec;
+      border-radius: 10px;
+      overflow: auto;
+      height: 700px;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .canvas-wrap.dragging {
+      cursor: grabbing;
+    }
+
+    svg {
+      width: 1200px;
+      height: 700px;
+      display: block;
+      background:
+        radial-gradient(circle at 20% 20%, #f4fafc 0%, #f8fcfd 55%, #ffffff 100%);
+    }
+
+    .meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .selected-info {
+      font-size: 13px;
+      color: var(--muted);
+      margin-left: 6px;
+    }
+
+    .node-group {
+      cursor: pointer;
+    }
+
+    .node-plus {
+      cursor: pointer;
+    }
+
+    .node-editor {
+      width: 100%;
+      height: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      padding: 0;
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      line-height: 1.1;
+      resize: none;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="toolbar">
+      <label><input id="compactMode" type="checkbox" /> Compact mode</label>
+      <label>Horizontal <input id="xOffset" type="number" min="0" value="30" /></label>
+      <label>Vertical <input id="yOffset" type="number" min="50" value="70" /></label>
+      <button id="rerun">Re-layout</button>
+      <label>Child label <input id="newChildLabel" type="text" placeholder="auto" /></label>
+      <button id="addChildBtn">Add Child Below Selected</button>
+      <button id="zoomOutBtn">-</button>
+      <button id="zoomInBtn">+</button>
+      <button id="zoomResetBtn">100%</button>
+      <span id="zoomInfo" class="selected-info">zoom=100%</span>
+      <span id="selectedInfo" class="selected-info">selected=(none)</span>
+    </div>
+
+    <div class="json-panel">
+      <div class="row">
+        <button id="loadJson">Load JSON Tree</button>
+        <button id="loadSample">Load Sample</button>
+        <button id="loadPackedSample">Load Packed Sample</button>
+      </div>
+      <textarea id="jsonInput" aria-label="Tree JSON"></textarea>
+      <div id="error" class="error"></div>
+    </div>
+
+    <div id="treeViewport" class="canvas-wrap">
+      <svg id="treeSvg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMin meet"></svg>
+    </div>
+    <div id="meta" class="meta"></div>
+  </div>
+
+  <script>
+    class WNode {
+      constructor(label, parent = null) {
+        this.label = label;
+        this.parent = parent;
+        this.children = [];
+        this.position = { x: 0, y: 0 };
+        this.width = 100;
+        this.height = 50;
+      }
+    }
+
+    let currentRoot = null;
+    let selectedNode = null;
+    let suppressNodeClick = false;
+    let editingNode = null;
+    let editingOriginalLabel = "";
+    let zoomScale = 1;
+    const minZoom = 0.4;
+    const maxZoom = 2.5;
+    const zoomStep = 0.1;
+
+    function addChild(parent, label) {
+      const c = new WNode(label, parent);
+      parent.children.push(c);
+      return c;
+    }
+
+    function buildSampleTree() {
+      const root = new WNode("Root", null);
+      const a = addChild(root, "A");
+      const b = addChild(root, "B");
+      const c = addChild(root, "C");
+
+      addChild(a, "A1");
+      addChild(a, "A2");
+
+      const b1 = addChild(b, "B1");
+      addChild(b, "B2");
+      addChild(b, "B3");
+      addChild(b1, "B1a");
+      addChild(b1, "B1b");
+      addChild(b1, "B1c");
+
+      addChild(c, "C1");
+      addChild(c, "C2");
+      addChild(c, "C3");
+
+      return root;
+    }
+
+    function sampleTreeJson() {
+      return JSON.stringify({
+        label: "Root",
+        children: [
+          {
+            label: "A",
+            children: [
+              { label: "A1" },
+              { label: "A2" }
+            ]
+          },
+          {
+            label: "B",
+            children: [
+              {
+                label: "B1",
+                children: [
+                  {
+                    label: "B1a",
+                    children: [
+                      {
+                        label: "B1a1",
+                        children: [
+                          {
+                            label: "B1a1i",
+                            children: [
+                              { label: "B1a1i-alpha" }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  { label: "B1b" },
+                  { label: "B1c" }
+                ]
+              },
+              { label: "B2" },
+              { label: "B3" }
+            ]
+          },
+          {
+            label: "C",
+            children: [
+              { label: "C1" },
+              { label: "C2" },
+              { label: "C3" }
+            ]
+          }
+        ]
+      }, null, 2);
+    }
+
+    function packedTreeJson() {
+      return JSON.stringify({
+        label: "Root",
+        children: [
+          {
+            label: "A",
+            children: [
+              {
+                label: "A1",
+                children: [
+                  {
+                    label: "A1a",
+                    children: [
+                      {
+                        label: "A1a-I",
+                        children: [
+                          {
+                            label: "A1a-II",
+                            children: [
+                              { label: "A1a-III" }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  { label: "A1b" },
+                  { label: "A1c" }
+                ]
+              },
+              { label: "A2" },
+              {
+                label: "A3",
+                children: [
+                  { label: "A3a" },
+                  { label: "A3b" }
+                ]
+              }
+            ]
+          },
+          {
+            label: "B",
+            children: [
+              {
+                label: "B1",
+                children: [
+                  { label: "B1a" },
+                  { label: "B1b" },
+                  {
+                    label: "B1c",
+                    children: [
+                      {
+                        label: "B1c-I",
+                        children: [
+                          {
+                            label: "B1c-II",
+                            children: [
+                              { label: "B1c-III" }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              { label: "B2" },
+              { label: "B3" },
+              {
+                label: "B4",
+                children: [
+                  { label: "B4a" },
+                  { label: "B4b" }
+                ]
+              }
+            ]
+          },
+          {
+            label: "C",
+            children: [
+              { label: "C1" },
+              {
+                label: "C2",
+                children: [
+                  { label: "C2a" },
+                  {
+                    label: "C2b",
+                    children: [
+                      {
+                        label: "C2b-I",
+                        children: [
+                          {
+                            label: "C2b-II",
+                            children: [
+                              { label: "C2b-III" }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  { label: "C2c" }
+                ]
+              },
+              { label: "C3" }
+            ]
+          },
+          {
+            label: "D",
+            children: [
+              {
+                label: "D1",
+                children: [
+                  { label: "D1a" },
+                  {
+                    label: "D1b",
+                    children: [
+                      {
+                        label: "D1b-I",
+                        children: [
+                          {
+                            label: "D1b-II",
+                            children: [
+                              { label: "D1b-III" }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              { label: "D2" }
+            ]
+          }
+        ]
+      }, null, 2);
+    }
+
+    function buildTreeFromJsonNode(data, parent = null) {
+      if (!data || typeof data !== "object") {
+        throw new Error("Each node must be an object.");
+      }
+      if (typeof data.label !== "string" || data.label.trim() === "") {
+        throw new Error("Each node needs a non-empty string 'label'.");
+      }
+
+      const node = new WNode(data.label.trim(), parent);
+      if (Number.isInteger(data.width) && data.width > 0) node.width = data.width;
+      if (Number.isInteger(data.height) && data.height > 0) node.height = data.height;
+
+      if (data.children !== undefined) {
+        if (!Array.isArray(data.children)) {
+          throw new Error(`Node '${node.label}' has invalid 'children' (must be an array).`);
+        }
+        for (const childData of data.children) {
+          const child = buildTreeFromJsonNode(childData, node);
+          node.children.push(child);
+        }
+      }
+
+      return node;
+    }
+
+    function layoutTree(node, centerX, y, xOffset, yOffset, compactMode = false) {
+      if (!node) return;
+      node.position = { x: centerX - Math.floor(node.width / 2), y };
+
+      const childCount = node.children.length;
+      if (childCount === 0) return;
+
+      let actualXOffset = xOffset;
+      if (compactMode) {
+        if (childCount > 3) {
+          actualXOffset = Math.max(5, Math.floor(xOffset / 4));
+        } else if (childCount > 1) {
+          actualXOffset = Math.max(6, Math.floor(xOffset / 3));
+        }
+      }
+
+      let totalChildWidth = 0;
+      for (const child of node.children) totalChildWidth += child.width;
+      totalChildWidth += (childCount - 1) * actualXOffset;
+
+      let startX = centerX - Math.floor(totalChildWidth / 2);
+
+      let actualYOffset = yOffset;
+      if (compactMode) actualYOffset = Math.max(55, yOffset - 15);
+
+      for (const child of node.children) {
+        const childCenterX = startX + Math.floor(child.width / 2);
+        layoutTree(child, childCenterX, y + actualYOffset, xOffset, yOffset, compactMode);
+        startX += child.width + actualXOffset;
+      }
+    }
+
+    function isSimpleSubtree(node) {
+      if (!node) return true;
+      for (const child of node.children) {
+        if (child.children.length > 0) return false;
+      }
+      return true;
+    }
+
+    function getDynamicMinOffset(leftChild, rightChild, baseMinOffset) {
+      if (leftChild.children.length > 0 || rightChild.children.length > 0) {
+        return baseMinOffset;
+      }
+
+      const leftSimple = isSimpleSubtree(leftChild);
+      const rightSimple = isSimpleSubtree(rightChild);
+
+      if (leftSimple && rightSimple) return Math.max(4, Math.floor(baseMinOffset / 2));
+      return Math.max(5, Math.floor((baseMinOffset * 2) / 3));
+    }
+
+    function getRightmostEdge(node) {
+      if (!node) return 0;
+      let right = node.position.x + node.width;
+      for (const child of node.children) right = Math.max(right, getRightmostEdge(child));
+      return right;
+    }
+
+    function collectYLevels(node, outSet) {
+      if (!node) return;
+      outSet.add(node.position.y);
+      for (const child of node.children) collectYLevels(child, outSet);
+    }
+
+    function getRightmostEdgeAtY(node, targetY) {
+      if (!node) return Number.NEGATIVE_INFINITY;
+      let right = Number.NEGATIVE_INFINITY;
+      if (node.position.y === targetY) {
+        right = node.position.x + node.width;
+      }
+      for (const child of node.children) {
+        right = Math.max(right, getRightmostEdgeAtY(child, targetY));
+      }
+      return right;
+    }
+
+    function getLeftmostEdgeAtY(node, targetY) {
+      if (!node) return Number.POSITIVE_INFINITY;
+      let left = Number.POSITIVE_INFINITY;
+      if (node.position.y === targetY) {
+        left = node.position.x;
+      }
+      for (const child of node.children) {
+        left = Math.min(left, getLeftmostEdgeAtY(child, targetY));
+      }
+      return left;
+    }
+
+    function getLeftmostEdge(node) {
+      if (!node) return Number.MAX_SAFE_INTEGER;
+      let left = node.position.x;
+      for (const child of node.children) left = Math.min(left, getLeftmostEdge(child));
+      return left;
+    }
+
+    function shiftSubtree(node, amount) {
+      if (!node) return;
+      node.position.x += amount;
+      for (const child of node.children) shiftSubtree(child, amount);
+    }
+
+    function centerParentAboveChildren(node) {
+      if (!node || node.children.length === 0) return;
+
+      const firstChild = node.children[0];
+      const lastChild = node.children[node.children.length - 1];
+      const childrenLeft = firstChild.position.x;
+      const childrenRight = lastChild.position.x + lastChild.width;
+      const midpoint = childrenLeft + Math.floor((childrenRight - childrenLeft) / 2);
+      node.position.x = midpoint - Math.floor(node.width / 2);
+    }
+
+    function adjustOffsets(node, minOffset) {
+      if (!node || node.children.length <= 1) return;
+
+      for (const child of node.children) adjustOffsets(child, minOffset);
+
+      let needsAnotherPass;
+      do {
+        needsAnotherPass = false;
+        for (let i = 1; i < node.children.length; i++) {
+          const leftChild = node.children[i - 1];
+          const rightChild = node.children[i];
+
+          const leftNodeRight = leftChild.position.x + leftChild.width;
+          const rightNodeLeft = rightChild.position.x;
+          const nodeGap = rightNodeLeft - leftNodeRight;
+
+          const dynamicMinOffset = getDynamicMinOffset(leftChild, rightChild, minOffset);
+
+          let overlap = 0;
+          if (nodeGap < dynamicMinOffset) {
+            overlap = dynamicMinOffset - nodeGap;
+          } else {
+            let rowOverlap = 0;
+            const rightLevels = new Set();
+            collectYLevels(rightChild, rightLevels);
+
+            for (const levelY of rightLevels) {
+              const leftRowRight = getRightmostEdgeAtY(leftChild, levelY);
+              const rightRowLeft = getLeftmostEdgeAtY(rightChild, levelY);
+              if (Number.isFinite(leftRowRight) && Number.isFinite(rightRowLeft)) {
+                const currentRowOverlap = (leftRowRight + dynamicMinOffset) - rightRowLeft;
+                if (currentRowOverlap > rowOverlap) rowOverlap = currentRowOverlap;
+              }
+            }
+
+            if (rowOverlap > 0) overlap = rowOverlap;
+          }
+
+          if (overlap > 0) {
+            shiftSubtree(rightChild, overlap);
+            needsAnotherPass = true;
+          }
+        }
+      } while (needsAnotherPass);
+
+      resolveNonAdjacentSiblingOverlaps(node, minOffset);
+
+      alignNestedColumns(node);
+
+      enforceSiblingNodeGap(node, minOffset);
+
+      centerParentAboveChildren(node);
+    }
+
+    function getRowOverlap(leftChild, rightChild, minGap) {
+      let rowOverlap = 0;
+      const rightLevels = new Set();
+      collectYLevels(rightChild, rightLevels);
+
+      for (const levelY of rightLevels) {
+        const leftRowRight = getRightmostEdgeAtY(leftChild, levelY);
+        const rightRowLeft = getLeftmostEdgeAtY(rightChild, levelY);
+        if (Number.isFinite(leftRowRight) && Number.isFinite(rightRowLeft)) {
+          const currentRowOverlap = (leftRowRight + minGap) - rightRowLeft;
+          if (currentRowOverlap > rowOverlap) rowOverlap = currentRowOverlap;
+        }
+      }
+
+      return rowOverlap;
+    }
+
+    function resolveNonAdjacentSiblingOverlaps(node, minOffset) {
+      if (!node || node.children.length <= 2) return;
+
+      let changed;
+      do {
+        changed = false;
+
+        for (let i = 0; i < node.children.length - 2; i++) {
+          for (let j = i + 2; j < node.children.length; j++) {
+            const leftChild = node.children[i];
+            const rightChild = node.children[j];
+            const dynamicMinOffset = getDynamicMinOffset(leftChild, rightChild, minOffset);
+            const overlap = getRowOverlap(leftChild, rightChild, dynamicMinOffset);
+
+            if (overlap > 0) {
+              shiftSubtree(rightChild, overlap);
+              changed = true;
+            }
+          }
+        }
+      } while (changed);
+    }
+
+    function enforceSiblingNodeGap(node, minOffset) {
+      if (!node || node.children.length <= 1) return;
+
+      let changed;
+      do {
+        changed = false;
+        for (let i = 1; i < node.children.length; i++) {
+          const leftChild = node.children[i - 1];
+          const rightChild = node.children[i];
+          const requiredGap = getDynamicMinOffset(leftChild, rightChild, minOffset);
+          const currentGap = rightChild.position.x - (leftChild.position.x + leftChild.width);
+          if (currentGap < requiredGap) {
+            shiftSubtree(rightChild, requiredGap - currentGap);
+            changed = true;
+          }
+        }
+      } while (changed);
+    }
+
+    function alignNestedColumns(node) {
+      if (!node || node.children.length <= 1) return;
+      if (node.children.length > 3) return;
+
+      for (let i = 1; i < node.children.length; i++) {
+        const leftChild = node.children[i - 1];
+        const rightChild = node.children[i];
+
+        if (rightChild.children.length < 3) continue;
+
+        const nestedTarget = getLeftmostNodeBelowY(rightChild, rightChild.position.y);
+        if (!nestedTarget || !nestedTarget.parent) continue;
+        if (nestedTarget.parent === rightChild) continue;
+
+        const anchorY = nestedTarget.parent.position.y;
+        const anchor = getRightmostNodeAtY(leftChild, anchorY);
+        if (!anchor) continue;
+
+        const anchorCenter = anchor.position.x + Math.floor(anchor.width / 2);
+        const targetCenter = nestedTarget.position.x + Math.floor(nestedTarget.width / 2);
+        const shift = anchorCenter - targetCenter;
+        if (shift !== 0) {
+          shiftChildrenOfNode(nestedTarget.parent, shift);
+          snapParentToMiddleChild(nestedTarget.parent);
+        }
+      }
+    }
+
+    function shiftChildrenOfNode(node, shiftAmount) {
+      if (!node || shiftAmount === 0) return;
+      for (const child of node.children) shiftSubtree(child, shiftAmount);
+    }
+
+    function snapParentToMiddleChild(node) {
+      if (!node || node.children.length === 0) return;
+      if ((node.children.length % 2) === 0) return;
+
+      const middleIndex = Math.floor(node.children.length / 2);
+      const middleChild = node.children[middleIndex];
+      const middleCenter = middleChild.position.x + Math.floor(middleChild.width / 2);
+      node.position.x = middleCenter - Math.floor(node.width / 2);
+    }
+
+    function getRightmostNodeAtY(node, targetY) {
+      if (!node) return null;
+
+      let bestNode = null;
+      if (node.position.y === targetY) bestNode = node;
+
+      for (const child of node.children) {
+        const candidate = getRightmostNodeAtY(child, targetY);
+        if (!candidate) continue;
+        if (!bestNode || candidate.position.x > bestNode.position.x) {
+          bestNode = candidate;
+        }
+      }
+
+      return bestNode;
+    }
+
+    function getLeftmostNodeBelowY(node, minExclusiveY) {
+      if (!node) return null;
+
+      let bestNode = null;
+      if (node.position.y > minExclusiveY) bestNode = node;
+
+      for (const child of node.children) {
+        const candidate = getLeftmostNodeBelowY(child, minExclusiveY);
+        if (!candidate) continue;
+        if (
+          !bestNode ||
+          candidate.position.x < bestNode.position.x ||
+          (candidate.position.x === bestNode.position.x && candidate.position.y < bestNode.position.y)
+        ) {
+          bestNode = candidate;
+        }
+      }
+
+      return bestNode;
+    }
+
+    function ensureTreeInBounds(root, minX, minY, maxWidth, maxHeight) {
+      if (!root) return;
+      const leftEdge = getLeftmostEdge(root);
+      const rightEdge = getRightmostEdge(root);
+
+      if (leftEdge < minX) shiftSubtree(root, minX - leftEdge);
+
+      const rightBoundary = minX + maxWidth;
+      if (rightEdge > rightBoundary) shiftSubtree(root, rightBoundary - rightEdge);
+    }
+
+    function flatten(root) {
+      const out = [];
+      (function walk(node) {
+        if (!node) return;
+        out.push(node);
+        for (const c of node.children) walk(c);
+      })(root);
+      return out;
+    }
+
+    function serializeTree(node) {
+      if (!node) return null;
+      return {
+        label: node.label,
+        children: node.children.map((child) => serializeTree(child))
+      };
+    }
+
+    function syncJsonFromTree() {
+      document.getElementById("jsonInput").value = JSON.stringify(serializeTree(currentRoot), null, 2);
+    }
+
+    function getMeasureContext() {
+      if (!getMeasureContext.ctx) {
+        const c = document.createElement("canvas");
+        getMeasureContext.ctx = c.getContext("2d");
+      }
+      return getMeasureContext.ctx;
+    }
+
+    function splitLabelLines(text) {
+      return String(text ?? "").replace(/\r\n/g, "\n").split("\n");
+    }
+
+    function fitLineToNodeWidth(line, node) {
+      const maxTextWidth = Math.max(20, node.width - 16);
+      const ctx = getMeasureContext();
+      ctx.font = "600 12px Segoe UI";
+      let fitted = line;
+      while (fitted.length > 0 && ctx.measureText(fitted).width > maxTextWidth) {
+        fitted = fitted.slice(0, -1);
+      }
+      return fitted;
+    }
+
+    function sanitizeLabelForNode(text, node) {
+      const rawLines = splitLabelLines(text).slice(0, 3);
+      const fitted = rawLines.map((line) => fitLineToNodeWidth(line, node));
+      return fitted.join("\n");
+    }
+
+    function getRenderLines(node) {
+      const sanitized = sanitizeLabelForNode(node.label, node);
+      const lines = splitLabelLines(sanitized).slice(0, 3);
+      return lines.length === 0 ? [""] : lines;
+    }
+
+    function updateZoomInfo() {
+      document.getElementById("zoomInfo").textContent = `zoom=${Math.round(zoomScale * 100)}%`;
+    }
+
+    function clampZoom(value) {
+      return Math.max(minZoom, Math.min(maxZoom, value));
+    }
+
+    function getAutoChildLabel(parent) {
+      return `${parent.label}${parent.children.length + 1}`;
+    }
+
+    function updateSelectedInfo() {
+      const info = document.getElementById("selectedInfo");
+      info.textContent = selectedNode ? `selected=${selectedNode.label}` : "selected=(none)";
+    }
+
+    function selectNode(node, rerender = true) {
+      selectedNode = node;
+      updateSelectedInfo();
+      onNodeSelected(node);
+      if (rerender) run(currentRoot, false);
+    }
+
+    function startNodeEdit(node) {
+      if (!node) return;
+      selectNode(node, false);
+      editingNode = node;
+      editingOriginalLabel = node.label;
+      run(currentRoot, false);
+      window.requestAnimationFrame(() => {
+        const editor = document.getElementById("activeNodeEditor");
+        if (editor) {
+          editor.focus();
+          editor.select();
+        }
+      });
+    }
+
+    function commitNodeEdit(newValue) {
+      if (!editingNode) return;
+      editingNode.label = sanitizeLabelForNode((newValue || "").trim(), editingNode);
+      if (editingNode.label === "") {
+        editingNode.label = editingOriginalLabel;
+      }
+      editingNode = null;
+      editingOriginalLabel = "";
+      syncJsonFromTree();
+      run(currentRoot, false);
+    }
+
+    function cancelNodeEdit() {
+      if (!editingNode) return;
+      editingNode = null;
+      editingOriginalLabel = "";
+      run(currentRoot, false);
+    }
+
+    function onNodeSelected(node) {
+      window.dispatchEvent(new CustomEvent("tree-node-selected", {
+        detail: { node }
+      }));
+    }
+
+    function getTreeBounds(root) {
+      const nodes = flatten(root);
+      let minX = Number.POSITIVE_INFINITY;
+      let minY = Number.POSITIVE_INFINITY;
+      let maxX = Number.NEGATIVE_INFINITY;
+      let maxY = Number.NEGATIVE_INFINITY;
+
+      for (const node of nodes) {
+        minX = Math.min(minX, node.position.x);
+        minY = Math.min(minY, node.position.y);
+        maxX = Math.max(maxX, node.position.x + node.width);
+        maxY = Math.max(maxY, node.position.y + node.height);
+      }
+
+      return { minX, minY, maxX, maxY };
+    }
+
+    function drawTree(svg, root, offsetX = 0, offsetY = 0) {
+      svg.innerHTML = "";
+      const nodes = flatten(root);
+      let lineCount = 0;
+
+      for (const node of nodes) {
+        for (const child of node.children) {
+          const startX = node.position.x + Math.floor(node.width / 2);
+          const startY = node.position.y + node.height;
+          const endX = child.position.x + Math.floor(child.width / 2);
+          const endY = child.position.y;
+          const midY = startY + Math.floor((endY - startY) / 2);
+
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("d", `M ${startX + offsetX} ${startY + offsetY} L ${startX + offsetX} ${midY + offsetY} L ${endX + offsetX} ${midY + offsetY} L ${endX + offsetX} ${endY + offsetY}`);
+          path.setAttribute("fill", "none");
+          path.setAttribute("stroke", "var(--line)");
+          path.setAttribute("stroke-width", "2");
+          svg.appendChild(path);
+          lineCount++;
+        }
+      }
+
+      for (const node of nodes) {
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.setAttribute("class", "node-group");
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", String(node.position.x + offsetX));
+        rect.setAttribute("y", String(node.position.y + offsetY));
+        rect.setAttribute("rx", "8");
+        rect.setAttribute("ry", "8");
+        rect.setAttribute("width", String(node.width));
+        rect.setAttribute("height", String(node.height));
+        rect.setAttribute("fill", node === selectedNode ? "#ffe1a8" : "var(--node)");
+        rect.setAttribute("stroke", node === selectedNode ? "#8a5a14" : "var(--node-border)");
+        rect.setAttribute("stroke-width", node === selectedNode ? "3" : "2");
+        group.appendChild(rect);
+
+        if (node !== editingNode) {
+          const lines = getRenderLines(node);
+          const lineHeight = 13;
+          const centerY = node.position.y + Math.floor(node.height / 2) + offsetY;
+          const startY = centerY - Math.floor(((lines.length - 1) * lineHeight) / 2) + 4;
+
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("x", String(node.position.x + Math.floor(node.width / 2) + offsetX));
+          text.setAttribute("y", String(startY));
+          text.setAttribute("font-size", "12");
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("fill", "var(--ink)");
+          for (let i = 0; i < lines.length; i++) {
+            const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+            tspan.setAttribute("x", String(node.position.x + Math.floor(node.width / 2) + offsetX));
+            if (i === 0) {
+              tspan.setAttribute("y", String(startY));
+            } else {
+              tspan.setAttribute("dy", String(lineHeight));
+            }
+            tspan.textContent = lines[i];
+            text.appendChild(tspan);
+          }
+          group.appendChild(text);
+        } else {
+          const editorFo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+          editorFo.setAttribute("x", String(node.position.x + 8 + offsetX));
+          editorFo.setAttribute("y", String(node.position.y + 8 + offsetY));
+          editorFo.setAttribute("width", String(node.width - 16));
+          editorFo.setAttribute("height", String(node.height - 12));
+
+          const editor = document.createElementNS("http://www.w3.org/1999/xhtml", "textarea");
+          editor.id = "activeNodeEditor";
+          editor.className = "node-editor";
+          editor.value = node.label;
+          editor.setAttribute("rows", "3");
+
+          editor.addEventListener("mousedown", (e) => e.stopPropagation());
+          editor.addEventListener("click", (e) => e.stopPropagation());
+          editor.addEventListener("input", () => {
+            const fitted = sanitizeLabelForNode(editor.value, node);
+            if (fitted !== editor.value) {
+              editor.value = fitted;
+            }
+          });
+          editor.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && e.ctrlKey) {
+              e.preventDefault();
+              commitNodeEdit(editor.value);
+            } else if (e.key === "Enter") {
+              const lineCount = splitLabelLines(editor.value).length;
+              if (lineCount >= 3) {
+                e.preventDefault();
+              }
+            } else if (e.key === "Escape") {
+              e.preventDefault();
+              cancelNodeEdit();
+            }
+          });
+          editor.addEventListener("blur", () => commitNodeEdit(editor.value));
+
+          editorFo.appendChild(editor);
+          group.appendChild(editorFo);
+        }
+
+        const plusCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        plusCircle.setAttribute("class", "node-plus");
+        plusCircle.setAttribute("cx", String(node.position.x + node.width - 10 + offsetX));
+        plusCircle.setAttribute("cy", String(node.position.y + 10 + offsetY));
+        plusCircle.setAttribute("r", "9");
+        plusCircle.setAttribute("fill", "#ffffff");
+        plusCircle.setAttribute("stroke", "#0f766e");
+        plusCircle.setAttribute("stroke-width", "2");
+        group.appendChild(plusCircle);
+
+        const plusText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        plusText.setAttribute("class", "node-plus");
+        plusText.setAttribute("x", String(node.position.x + node.width - 10 + offsetX));
+        plusText.setAttribute("y", String(node.position.y + 14 + offsetY));
+        plusText.setAttribute("font-size", "14");
+        plusText.setAttribute("font-weight", "700");
+        plusText.setAttribute("text-anchor", "middle");
+        plusText.setAttribute("fill", "#0f766e");
+        plusText.textContent = "+";
+        group.appendChild(plusText);
+
+        group.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (suppressNodeClick) return;
+          if (editingNode && editingNode !== node) commitNodeEdit(document.getElementById("activeNodeEditor")?.value || editingNode.label);
+          selectNode(node, true);
+        });
+        group.addEventListener("dblclick", (e) => {
+          e.stopPropagation();
+          if (suppressNodeClick) return;
+          startNodeEdit(node);
+        });
+
+        const addFromPlus = (e) => {
+          e.stopPropagation();
+          if (suppressNodeClick) return;
+          selectNode(node, false);
+          addChildToNode(node);
+        };
+        plusCircle.addEventListener("click", addFromPlus);
+        plusText.addEventListener("click", addFromPlus);
+
+        svg.appendChild(group);
+      }
+
+      svg.onclick = () => {
+        if (suppressNodeClick) return;
+        if (editingNode) {
+          const active = document.getElementById("activeNodeEditor");
+          commitNodeEdit(active ? active.value : editingNode.label);
+          return;
+        }
+        if (selectedNode) selectNode(null, true);
+      };
+
+      return { nodeCount: nodes.length, lineCount };
+    }
+
+    function centerViewport() {
+      const viewport = document.getElementById("treeViewport");
+      const svg = document.getElementById("treeSvg");
+      viewport.scrollLeft = Math.max(0, Math.floor((svg.clientWidth - viewport.clientWidth) / 2));
+      viewport.scrollTop = Math.max(0, Math.floor((svg.clientHeight - viewport.clientHeight) / 2));
+    }
+
+    function run(root, recenter = false, recomputeLayout = true) {
+      const compactMode = document.getElementById("compactMode").checked;
+      const xOffset = Number(document.getElementById("xOffset").value || 30);
+      const yOffset = Number(document.getElementById("yOffset").value || 70);
+      const svg = document.getElementById("treeSvg");
+      if (recomputeLayout) {
+        layoutTree(root, 600, 50, xOffset, yOffset, compactMode);
+        adjustOffsets(root, xOffset);
+        ensureTreeInBounds(root, 20, 20, 100000, 100000);
+      }
+
+      const bounds = getTreeBounds(root);
+      const panPadding = 2000;
+      const treeWidth = bounds.maxX - bounds.minX;
+      const treeHeight = bounds.maxY - bounds.minY;
+      const canvasWidth = Math.max(1200, treeWidth + panPadding * 2);
+      const canvasHeight = Math.max(700, treeHeight + panPadding * 2);
+      const offsetX = panPadding - bounds.minX;
+      const offsetY = panPadding - bounds.minY;
+
+      svg.setAttribute("viewBox", `0 0 ${canvasWidth} ${canvasHeight}`);
+      svg.style.width = `${Math.floor(canvasWidth * zoomScale)}px`;
+      svg.style.height = `${Math.floor(canvasHeight * zoomScale)}px`;
+
+      const meta = drawTree(svg, root, offsetX, offsetY);
+      document.getElementById("meta").textContent =
+        `compactMode=${compactMode} xOffset=${xOffset} yOffset=${yOffset} nodes=${meta.nodeCount} edges=${meta.lineCount} canvas=${canvasWidth}x${canvasHeight} zoom=${Math.round(zoomScale * 100)}%`;
+
+      IfNeededCenter(recenter);
+    }
+
+    function applyZoom(newZoom, anchorClientX, anchorClientY) {
+      const viewport = document.getElementById("treeViewport");
+      const oldZoom = zoomScale;
+      const targetZoom = clampZoom(newZoom);
+      if (Math.abs(targetZoom - oldZoom) < 0.001) return;
+
+      const rect = viewport.getBoundingClientRect();
+      const anchorXInViewport = anchorClientX - rect.left;
+      const anchorYInViewport = anchorClientY - rect.top;
+      const contentX = viewport.scrollLeft + anchorXInViewport;
+      const contentY = viewport.scrollTop + anchorYInViewport;
+
+      zoomScale = targetZoom;
+      updateZoomInfo();
+      run(currentRoot, false, false);
+
+      const ratio = targetZoom / oldZoom;
+      viewport.scrollLeft = Math.max(0, (contentX * ratio) - anchorXInViewport);
+      viewport.scrollTop = Math.max(0, (contentY * ratio) - anchorYInViewport);
+    }
+
+    function setZoom(newZoom) {
+      const viewport = document.getElementById("treeViewport");
+      const rect = viewport.getBoundingClientRect();
+      const centerClientX = rect.left + (viewport.clientWidth / 2);
+      const centerClientY = rect.top + (viewport.clientHeight / 2);
+      applyZoom(newZoom, centerClientX, centerClientY);
+    }
+
+    function IfNeededCenter(recenter) {
+      if (!recenter) return;
+      window.requestAnimationFrame(centerViewport);
+    }
+
+    currentRoot = buildSampleTree();
+    selectedNode = currentRoot;
+
+    function clearError() {
+      document.getElementById("error").textContent = "";
+    }
+
+    function setError(message) {
+      document.getElementById("error").textContent = message;
+    }
+
+    function rerenderCurrent() {
+      clearError();
+      run(currentRoot, false);
+    }
+
+    function loadJsonTree() {
+      clearError();
+      try {
+        const raw = document.getElementById("jsonInput").value;
+        const parsed = JSON.parse(raw);
+        currentRoot = buildTreeFromJsonNode(parsed, null);
+        selectedNode = currentRoot;
+        updateSelectedInfo();
+        run(currentRoot, true);
+      } catch (err) {
+        setError(`Invalid JSON tree: ${err.message}`);
+      }
+    }
+
+    function addChildBelowSelected() {
+      clearError();
+      if (!selectedNode) {
+        setError("Select a node first.");
+        return;
+      }
+
+      addChildToNode(selectedNode);
+    }
+
+    function addChildToNode(parentNode) {
+      if (editingNode) {
+        const active = document.getElementById("activeNodeEditor");
+        commitNodeEdit(active ? active.value : editingNode.label);
+      }
+
+      const input = document.getElementById("newChildLabel");
+      const rawLabel = input.value.trim();
+      const label = rawLabel === "" ? getAutoChildLabel(parentNode) : rawLabel;
+
+      const child = new WNode(label, parentNode);
+      parentNode.children.push(child);
+      selectNode(child, false);
+
+      syncJsonFromTree();
+      run(currentRoot, false);
+      input.value = "";
+    }
+
+    document.getElementById("rerun").addEventListener("click", rerenderCurrent);
+    document.getElementById("addChildBtn").addEventListener("click", addChildBelowSelected);
+    document.getElementById("zoomInBtn").addEventListener("click", () => setZoom(zoomScale + zoomStep));
+    document.getElementById("zoomOutBtn").addEventListener("click", () => setZoom(zoomScale - zoomStep));
+    document.getElementById("zoomResetBtn").addEventListener("click", () => setZoom(1));
+    document.getElementById("newChildLabel").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") addChildBelowSelected();
+    });
+    document.getElementById("loadJson").addEventListener("click", loadJsonTree);
+    document.getElementById("loadSample").addEventListener("click", () => {
+      clearError();
+      document.getElementById("jsonInput").value = sampleTreeJson();
+      currentRoot = buildSampleTree();
+      selectedNode = currentRoot;
+      updateSelectedInfo();
+      run(currentRoot, true);
+    });
+    document.getElementById("loadPackedSample").addEventListener("click", () => {
+      clearError();
+      document.getElementById("jsonInput").value = packedTreeJson();
+      loadJsonTree();
+    });
+
+    document.getElementById("jsonInput").value = sampleTreeJson();
+    updateSelectedInfo();
+    updateZoomInfo();
+    run(currentRoot, true);
+
+    (function wireDragPan() {
+      const viewport = document.getElementById("treeViewport");
+      let dragging = false;
+      let moved = false;
+      let startX = 0;
+      let startY = 0;
+      let startScrollLeft = 0;
+      let startScrollTop = 0;
+
+      viewport.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        dragging = true;
+        viewport.classList.add("dragging");
+        startX = e.clientX;
+        startY = e.clientY;
+        startScrollLeft = viewport.scrollLeft;
+        startScrollTop = viewport.scrollTop;
+        moved = false;
+        e.preventDefault();
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+        viewport.scrollLeft = startScrollLeft - dx;
+        viewport.scrollTop = startScrollTop - dy;
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (!dragging) return;
+        dragging = false;
+        viewport.classList.remove("dragging");
+        if (moved) {
+          suppressNodeClick = true;
+          window.setTimeout(() => { suppressNodeClick = false; }, 0);
+        }
+      });
+
+      viewport.addEventListener("wheel", (e) => {
+        if (!e.ctrlKey) return;
+        e.preventDefault();
+        const direction = e.deltaY > 0 ? -1 : 1;
+        applyZoom(zoomScale + (direction * zoomStep), e.clientX, e.clientY);
+      }, { passive: false });
+    })();
+  </script>
+</body>
+</html>
+

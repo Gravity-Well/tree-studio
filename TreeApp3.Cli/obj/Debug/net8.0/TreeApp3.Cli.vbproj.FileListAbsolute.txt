@@ -1,0 +1,14 @@
+C:\Sandbox\Tree\tree\TreeApp3.Cli\bin\Debug\net8.0\TreeApp3.Cli.exe
+C:\Sandbox\Tree\tree\TreeApp3.Cli\bin\Debug\net8.0\TreeApp3.Cli.deps.json
+C:\Sandbox\Tree\tree\TreeApp3.Cli\bin\Debug\net8.0\TreeApp3.Cli.runtimeconfig.json
+C:\Sandbox\Tree\tree\TreeApp3.Cli\bin\Debug\net8.0\TreeApp3.Cli.dll
+C:\Sandbox\Tree\tree\TreeApp3.Cli\bin\Debug\net8.0\TreeApp3.Cli.pdb
+C:\Sandbox\Tree\tree\TreeApp3.Cli\obj\Debug\net8.0\TreeApp3.Cli.GeneratedMSBuildEditorConfig.editorconfig
+C:\Sandbox\Tree\tree\TreeApp3.Cli\obj\Debug\net8.0\TreeApp3.Cli.AssemblyInfoInputs.cache
+C:\Sandbox\Tree\tree\TreeApp3.Cli\obj\Debug\net8.0\TreeApp3.Cli.AssemblyInfo.vb
+C:\Sandbox\Tree\tree\TreeApp3.Cli\obj\Debug\net8.0\TreeApp3.Cli.vbproj.CoreCompileInputs.cache
+C:\Sandbox\Tree\tree\TreeApp3.Cli\obj\Debug\net8.0\TreeApp3.Cli.dll
+C:\Sandbox\Tree\tree\TreeApp3.Cli\obj\Debug\net8.0\refint\TreeApp3.Cli.dll
+C:\Sandbox\Tree\tree\TreeApp3.Cli\obj\Debug\net8.0\TreeApp3.Cli.pdb
+C:\Sandbox\Tree\tree\TreeApp3.Cli\obj\Debug\net8.0\TreeApp3.Cli.genruntimeconfig.cache
+C:\Sandbox\Tree\tree\TreeApp3.Cli\obj\Debug\net8.0\ref\TreeApp3.Cli.dll

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>TreeApp3.Cli</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Drawing" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Text" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\WNode.vb" Link="WNode.vb" />
+    <Compile Include="..\modTree.vb" Link="modTree.vb" />
+    <Compile Include="..\modTreeHarness.vb" Link="modTreeHarness.vb" />
+    <Compile Include="Program.vb" />
+  </ItemGroup>
+</Project>

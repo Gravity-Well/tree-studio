@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.35230.98
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TreeApp3", "TreeApp3.vbproj", "{E13ED853-90AD-4C6E-BE41-94D9767C352B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CF4BC03C-EAF2-4A23-BD43-D1BA7572ECBA}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E13ED853-90AD-4C6E-BE41-94D9767C352B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E13ED853-90AD-4C6E-BE41-94D9767C352B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E13ED853-90AD-4C6E-BE41-94D9767C352B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E13ED853-90AD-4C6E-BE41-94D9767C352B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {22789E6B-198B-4858-B115-F2C842C2A852}
+	EndGlobalSection
+EndGlobal
