@@ -1,6 +1,10 @@
 {
   "routes": [
     {
+      "route": "/app",
+      "rewrite": "/app.html"
+    },
+    {
       "route": "/api/share/*"
     },
     {
@@ -17,5 +21,4 @@
     }
   ],
   "responseOverrides": {}
-
 }
