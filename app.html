@@ -580,6 +580,58 @@
       cursor: pointer;
     }
 
+    /* ── Clean View ── */
+    .clean-view .node-plus,
+    .clean-view .node-delete,
+    .clean-view .node-toggle {
+      display: none;
+    }
+
+    #cleanViewBtn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ── Print ── */
+    @media print {
+      .toolbar,
+      .cloud-panel,
+      .json-panel,
+      .meta,
+      .copyright,
+      .view-banner {
+        display: none !important;
+      }
+
+      body {
+        background: #ffffff;
+      }
+
+      .layout {
+        margin: 0;
+        padding: 0;
+        max-width: 100%;
+      }
+
+      .canvas-wrap {
+        border: none;
+        border-radius: 0;
+        height: auto;
+        overflow: visible;
+      }
+
+      svg {
+        width: 100%;
+        height: auto;
+      }
+
+      .node-plus,
+      .node-delete,
+      .node-toggle {
+        display: none;
+      }
+    }
+
     .node-editor {
       width: 100%;
       height: 100%;
@@ -639,6 +691,8 @@
         <button id="redoBtn" class="btn-subtle" title="Redo (Ctrl+Y)" disabled>&#8618; Redo</button>
         <button id="exportSvgBtn" class="btn-subtle" title="Download as SVG file">Export SVG</button>
         <button id="exportPngBtn" class="btn-subtle" title="Download as PNG (2× retina)">Export PNG</button>
+        <button id="cleanViewBtn" class="btn-subtle" title="Hide +/× controls for a clean presentation view">Clean View</button>
+        <button id="printBtn" class="btn-subtle" title="Print tree">Print</button>
         <span id="selectedInfo" class="selected-info"></span>
       </div>
     </div>
@@ -2482,6 +2536,29 @@
     document.getElementById("redoBtn").addEventListener("click", redo);
     document.getElementById("exportSvgBtn").addEventListener("click", exportSvg);
     document.getElementById("exportPngBtn").addEventListener("click", exportPng);
+
+    // ── Clean View ────────────────────────────────────────────────────────────
+    let cleanViewActive = false;
+
+    document.getElementById("cleanViewBtn").addEventListener("click", () => {
+      cleanViewActive = !cleanViewActive;
+      const svg = document.getElementById("treeSvg");
+      const btn = document.getElementById("cleanViewBtn");
+      svg.classList.toggle("clean-view", cleanViewActive);
+      btn.classList.toggle("active", cleanViewActive);
+      btn.textContent = cleanViewActive ? "Edit View" : "Clean View";
+    });
+
+    // ── Print ─────────────────────────────────────────────────────────────────
+    document.getElementById("printBtn").addEventListener("click", () => {
+      const svg = document.getElementById("treeSvg");
+      const wasClean = svg.classList.contains("clean-view");
+      // Always print in clean view
+      svg.classList.add("clean-view");
+      window.print();
+      // Restore previous state
+      if (!wasClean) svg.classList.remove("clean-view");
+    });
 
     // ── Keyboard Shortcuts ────────────────────────────────────────────────────
 
