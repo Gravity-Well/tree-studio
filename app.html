@@ -306,19 +306,20 @@
     }
 
     .zoom-pill button {
-      border: none;
-      background: transparent;
-      padding: 5px 10px;
-      font-size: 14px;
+      border: none !important;
+      background: transparent !important;
+      color: var(--btn-muted) !important;
+      padding: 5px 10px !important;
+      font-size: 15px !important;
       font-weight: 700;
-      color: var(--btn-muted);
       cursor: pointer;
       min-height: 0;
-      border-radius: 0;
+      border-radius: 0 !important;
       line-height: 1;
+      box-shadow: none !important;
     }
 
-    .zoom-pill button:hover { background: #f0f5fa; }
+    .zoom-pill button:hover { background: #f0f5fa !important; }
 
     .zoom-pill-val {
       font-size: 12px;
@@ -713,11 +714,15 @@
     }
 
     .btn-subtle {
-      background: var(--btn-muted);
+      background: #fff !important;
+      color: var(--btn-muted) !important;
+      border: 1px solid #ccd8e4 !important;
+      box-shadow: none;
     }
 
     .btn-subtle:hover {
-      background: var(--btn-muted-dark);
+      background: #f0f6fa !important;
+      border-color: #9ab0c4 !important;
     }
 
     .canvas-wrap {
