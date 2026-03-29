@@ -203,6 +203,17 @@
       display: block;
     }
 
+    .demo-caption {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 14px;
+      font-style: italic;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     /* ── Section shared ── */
     .section {
       padding: 80px 24px;
@@ -549,6 +560,9 @@
       </div>
       <iframe src="/app?embed=1" title="Tree Studio live demo" loading="lazy"></iframe>
     </div>
+    <p class="demo-caption">
+      Layouts are computed with a proprietary tidy-tree engine — a custom implementation inspired by the Reingold-Tilford, Walker, and Buchheim algorithms. Trees stay readable at any size.
+    </p>
   </div>
 
   <!-- Use cases -->
@@ -639,6 +653,13 @@
             <div>
               <h4>Always current</h4>
               <p>Edit your tree in Tree Studio and the embed updates everywhere it's used — no re-publishing needed.</p>
+            </div>
+          </div>
+          <div class="embed-feature">
+            <div class="embed-feature-icon">🧮</div>
+            <div>
+              <h4>Proprietary layout engine</h4>
+              <p>Not a D3 wrapper. Tree Studio uses a custom tidy-tree algorithm inspired by Reingold-Tilford, Walker, and Buchheim — producing compact, readable layouts at any depth.</p>
             </div>
           </div>
         </div>
