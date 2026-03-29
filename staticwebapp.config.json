@@ -5,6 +5,14 @@
       "rewrite": "/app.html"
     },
     {
+      "route": "/terms",
+      "rewrite": "/terms.html"
+    },
+    {
+      "route": "/privacy",
+      "rewrite": "/privacy.html"
+    },
+    {
       "route": "/api/share/*"
     },
     {
