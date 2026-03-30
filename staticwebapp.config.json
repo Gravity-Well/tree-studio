@@ -29,7 +29,15 @@
     },
     {
       "route": "/login",
+      "rewrite": "/login.html"
+    },
+    {
+      "route": "/login/github",
       "rewrite": "/.auth/login/github"
+    },
+    {
+      "route": "/login/microsoft",
+      "rewrite": "/.auth/login/aad"
     },
     {
       "route": "/logout",

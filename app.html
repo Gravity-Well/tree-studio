@@ -10,7 +10,6 @@
   <meta property="og:description" content="Build, explore, and share hierarchical trees visually." />
   <meta property="og:url" content="https://treestudio.nusoftva.com" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <script src="https://js.stripe.com/v3/"></script>
   <style>
     :root {
       --bg: #edf3f5;
@@ -1268,7 +1267,7 @@
           <button id="cloudPanelToggleBtn" class="btn-cloud">My Trees</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:10px;color:var(--muted);opacity:0.5;user-select:none;" title="App version">v1.0.2</span>
+          <span style="font-size:10px;color:var(--muted);opacity:0.5;user-select:none;" title="App version">v1.0.3</span>
           <button id="upgradePill" class="upgrade-pill" style="display:none" onclick="openPlanModal()">Upgrade ✦</button>
           <div class="auth-bar" id="authBar">
             <span id="authStatus"></span>
@@ -1415,16 +1414,6 @@
           </div>
           <p class="plan-modal-close" onclick="closePlanModal()">No thanks, stay on Free</p>
         </div>
-      </div>
-      <!-- Phase 2: Embedded Stripe checkout -->
-      <div id="planPhaseCheckout" style="display:none">
-        <div class="checkout-header">
-          <button class="checkout-back-btn" onclick="showPlanCards()">← Back</button>
-          <span class="checkout-title" id="checkoutTitle">Complete your upgrade</span>
-        </div>
-        <div id="checkoutLoading" style="text-align:center;padding:48px 0;color:var(--muted);font-size:14px;display:none">Loading payment form…</div>
-        <div id="checkoutError" style="display:none"></div>
-        <div id="stripeCheckoutContainer"></div>
       </div>
     </div>
   </div>
@@ -3401,18 +3390,7 @@
     let currentUser = null;
     let currentPlan = "free";
 
-    let stripePublishableKey = null;
-    let stripeInstance = null;
-    let embeddedCheckout = null;
 
-    async function fetchStripeConfig() {
-      try {
-        const res = await fetch("/api/stripeConfig");
-        if (res.ok) {
-          const data = await res.json();
-          stripePublishableKey = data.publishableKey || null;
-        }
-      } catch (_) {}
     }
 
     function openPlanModal(tier) {
@@ -3431,16 +3409,6 @@
 
     function closePlanModal() {
       document.getElementById("planOverlay").classList.remove("open");
-      if (embeddedCheckout) {
-        embeddedCheckout.destroy();
-        embeddedCheckout = null;
-      }
-    }
-
-    function showPlanCards() {
-      document.getElementById("planPhaseCards").style.display = "";
-      document.getElementById("planPhaseCheckout").style.display = "none";
-      document.getElementById("planModal").style.maxWidth = "780px";
     }
 
     async function selectCheckoutPlan(tier) {
@@ -3451,44 +3419,20 @@
         return;
       }
 
-      const tierLabel = tier === "business" ? "Business — $29/mo" : "Pro — $9/mo";
-      document.getElementById("checkoutTitle").textContent = `Upgrade to ${tierLabel}`;
-      document.getElementById("planPhaseCards").style.display = "none";
-      document.getElementById("planPhaseCheckout").style.display = "";
-      document.getElementById("planModal").style.maxWidth = "520px";
-
-      const loadingEl = document.getElementById("checkoutLoading");
-      const errorEl = document.getElementById("checkoutError");
-      loadingEl.style.display = "";
-      errorEl.style.display = "none";
-      errorEl.innerHTML = "";
+      closePlanModal();
+      toast("Redirecting to checkout…", "info");
 
       try {
-        if (!stripePublishableKey) await fetchStripeConfig();
-        if (!stripePublishableKey) throw new Error("Payment not configured. Please try again later.");
-
-        if (!stripeInstance) stripeInstance = Stripe(stripePublishableKey);
-
-        if (embeddedCheckout) {
-          embeddedCheckout.destroy();
-          embeddedCheckout = null;
-        }
-
-        const res = await fetch("/api/createEmbeddedCheckout", {
+        const res = await fetch("/api/createCheckout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ tier })
         });
         const data = await res.json();
-        if (!data.clientSecret) throw new Error(data.error || "Checkout failed.");
-
-        embeddedCheckout = await stripeInstance.initEmbeddedCheckout({ clientSecret: data.clientSecret });
-        loadingEl.style.display = "none";
-        embeddedCheckout.mount("#stripeCheckoutContainer");
+        if (!data.url) throw new Error(data.error || "Checkout failed.");
+        window.location.href = data.url;
       } catch (err) {
-        loadingEl.style.display = "none";
-        errorEl.innerHTML = `<p style="color:var(--danger);text-align:center;padding:32px;font-size:14px;">${err.message}</p>`;
-        errorEl.style.display = "";
+        toast(err.message, "error");
       }
     }
 
@@ -3631,7 +3575,6 @@
     }
 
     initAuth();
-    fetchStripeConfig();
   </script>
 </body>
 </html>
