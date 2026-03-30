@@ -3391,6 +3391,12 @@
     let currentPlan = "free";
 
     function openPlanModal(tier) {
+      // If a specific tier is already chosen (e.g. from pricing page), skip the
+      // cards view and go straight to checkout — no modal flash.
+      if (tier) {
+        selectCheckoutPlan(tier);
+        return;
+      }
       // Update free plan button based on current plan
       const freeBtn = document.getElementById("freePlanBtn");
       if (freeBtn) {
@@ -3401,7 +3407,6 @@
       }
       showPlanCards();
       document.getElementById("planOverlay").classList.add("open");
-      if (tier) selectCheckoutPlan(tier);
     }
 
     function closePlanModal() {
@@ -3411,13 +3416,18 @@
     async function selectCheckoutPlan(tier) {
       if (!currentUser) {
         closePlanModal();
-        toast("Sign in first to upgrade.", "info");
-        setTimeout(() => { window.location.href = `/login?post_login_redirect=/app?checkout=${tier}`; }, 1400);
+        // Store intent in sessionStorage so it survives the OAuth round-trip
+        // even if post_login_redirect query params are dropped by Azure SWA.
+        sessionStorage.setItem("pendingCheckoutTier", tier);
+        window.location.href = `/login?post_login_redirect=/app?checkout=${tier}`;
         return;
       }
 
-      closePlanModal();
-      toast("Redirecting to checkout…", "info");
+      // Disable the button to prevent double-clicks; keep modal open until we
+      // have a Stripe URL so there's no flash of nothing.
+      const btn = document.querySelector(`button[onclick="selectCheckoutPlan('${tier}')"]`);
+      if (btn) { btn.disabled = true; btn.textContent = "Loading…"; }
+      toast("Opening checkout…", "info");
 
       try {
         const res = await fetch("/api/createCheckout", {
@@ -3427,9 +3437,15 @@
         });
         const data = await res.json();
         if (!data.url) throw new Error(data.error || "Checkout failed.");
+        closePlanModal();
         window.location.href = data.url;
       } catch (err) {
-        toast(err.message, "error");
+        // Restore button so user can retry
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = tier === "pro" ? "Get Pro — $9/mo" : "Get Business — $29/mo";
+        }
+        toast(err.message || "Checkout failed. Please try again.", "error");
       }
     }
 
@@ -3540,11 +3556,14 @@
           cloudBtn.disabled = false;
           cloudBtn.title = "";
 
-          // Auto-trigger checkout if coming from pricing page
-          if (checkoutTier && (checkoutTier === "pro" || checkoutTier === "business")) {
+          // Auto-trigger checkout if coming from pricing page (URL param OR
+          // sessionStorage fallback in case post_login_redirect dropped params).
+          const pendingTier = checkoutTier || sessionStorage.getItem("pendingCheckoutTier");
+          if (pendingTier && (pendingTier === "pro" || pendingTier === "business")) {
+            sessionStorage.removeItem("pendingCheckoutTier");
             history.replaceState({}, "", "/app");
             if (!isPaid) {
-              setTimeout(() => openPlanModal(checkoutTier), 600);
+              openPlanModal(pendingTier);
             } else {
               toast("You already have an active paid plan.", "info");
             }
@@ -3559,13 +3578,11 @@
           const panel = document.getElementById("cloudPanel");
           if (panel) panel.open = false;
 
-          // Not signed in — redirect to login then back to checkout
+          // Not signed in — store intent and redirect to login immediately.
           if (checkoutTier && (checkoutTier === "pro" || checkoutTier === "business")) {
+            sessionStorage.setItem("pendingCheckoutTier", checkoutTier);
             history.replaceState({}, "", "/app");
-            toast("Sign in first to complete your purchase.", "info");
-            setTimeout(() => {
-              window.location.href = `/login?post_login_redirect=/app?checkout=${checkoutTier}`;
-            }, 1500);
+            window.location.href = `/login?post_login_redirect=/app?checkout=${checkoutTier}`;
           }
         }
       } catch (_) { /* silent — auth unavailable locally */ }
