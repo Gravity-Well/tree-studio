@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tree Studio</title>
+  <meta name="app-version" content="1.0.2" />
   <meta name="description" content="Build, explore, and share hierarchical trees visually. Embed in any site or use as a standalone tool." />
   <meta property="og:title" content="Tree Studio" />
   <meta property="og:description" content="Build, explore, and share hierarchical trees visually." />
@@ -1267,6 +1268,7 @@
           <button id="cloudPanelToggleBtn" class="btn-cloud">My Trees</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:10px;color:var(--muted);opacity:0.5;user-select:none;" title="App version">v1.0.2</span>
           <button id="upgradePill" class="upgrade-pill" style="display:none" onclick="openPlanModal()">Upgrade ✦</button>
           <div class="auth-bar" id="authBar">
             <span id="authStatus"></span>
@@ -1420,6 +1422,8 @@
           <button class="checkout-back-btn" onclick="showPlanCards()">← Back</button>
           <span class="checkout-title" id="checkoutTitle">Complete your upgrade</span>
         </div>
+        <div id="checkoutLoading" style="text-align:center;padding:48px 0;color:var(--muted);font-size:14px;display:none">Loading payment form…</div>
+        <div id="checkoutError" style="display:none"></div>
         <div id="stripeCheckoutContainer"></div>
       </div>
     </div>
@@ -3452,8 +3456,12 @@
       document.getElementById("planPhaseCards").style.display = "none";
       document.getElementById("planPhaseCheckout").style.display = "";
       document.getElementById("planModal").style.maxWidth = "520px";
-      document.getElementById("stripeCheckoutContainer").innerHTML =
-        '<div style="text-align:center;padding:48px 0;color:var(--muted);font-size:14px;">Loading payment form…</div>';
+
+      const loadingEl = document.getElementById("checkoutLoading");
+      const errorEl = document.getElementById("checkoutError");
+      loadingEl.style.display = "";
+      errorEl.style.display = "none";
+      errorEl.innerHTML = "";
 
       try {
         if (!stripePublishableKey) await fetchStripeConfig();
@@ -3475,10 +3483,12 @@
         if (!data.clientSecret) throw new Error(data.error || "Checkout failed.");
 
         embeddedCheckout = await stripeInstance.initEmbeddedCheckout({ clientSecret: data.clientSecret });
+        loadingEl.style.display = "none";
         embeddedCheckout.mount("#stripeCheckoutContainer");
       } catch (err) {
-        document.getElementById("stripeCheckoutContainer").innerHTML =
-          `<p style="color:var(--danger);text-align:center;padding:32px;font-size:14px;">${err.message}</p>`;
+        loadingEl.style.display = "none";
+        errorEl.innerHTML = `<p style="color:var(--danger);text-align:center;padding:32px;font-size:14px;">${err.message}</p>`;
+        errorEl.style.display = "";
       }
     }
 
