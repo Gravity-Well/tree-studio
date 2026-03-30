@@ -626,10 +626,85 @@
     }
     .upgrade-modal .btn-cancel:hover { background: #f0f5fa; }
 
+    /* ── Document title bar ── */
+    .doc-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 2px 4px 10px;
+    }
+
+    .doc-title-input {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--ink);
+      border: none;
+      background: transparent;
+      outline: none;
+      flex: 1;
+      min-width: 0;
+      padding: 4px 8px;
+      border-radius: 7px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      letter-spacing: -0.3px;
+      transition: background 0.15s;
+    }
+
+    .doc-title-input:hover { background: rgba(15,38,58,0.05); }
+    .doc-title-input:focus { background: rgba(15,38,58,0.06); }
+    .doc-title-input::placeholder { color: #b0bec8; font-weight: 500; }
+
+    .save-status {
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
+
+    .save-status.visible { opacity: 1; }
+    .save-status.unsaved { color: #b45309; }
+    .save-status.saved { color: var(--accent); }
+
+    .btn-title-save {
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-title-save.visible { opacity: 1; pointer-events: auto; }
+    .btn-title-save:hover { background: var(--accent-dark); }
+
+    body.embed-mode .doc-titlebar,
+    body.view-mode .doc-titlebar { display: none !important; }
+
+    /* ── JSON panel — de-emphasised ── */
+    .json-panel > summary {
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      color: var(--muted) !important;
+      letter-spacing: 0.2px;
+    }
+
     /* ── View-only (read-only) mode ── */
     body.view-mode .toolbar-secondary {
       display: none;
     }
+
+    body.view-mode .node-plus,
+    body.view-mode .node-delete,
+    body.view-mode .node-toggle { display: none !important; }
 
     body.view-mode #cloudPanelToggleBtn,
     body.view-mode #newTreeBtn,
@@ -1061,7 +1136,7 @@
     </details>
 
     <details class="json-panel">
-      <summary>Advanced: JSON and Layout Settings</summary>
+      <summary>Advanced</summary>
       <div class="row">
         <label>Horizontal <input id="xOffset" type="number" min="0" value="30" /></label>
         <label>Vertical <input id="yOffset" type="number" min="50" value="70" /></label>
@@ -1070,6 +1145,12 @@
       </div>
       <textarea id="jsonInput" aria-label="Tree JSON"></textarea>
     </details>
+
+    <div class="doc-titlebar" id="docTitlebar">
+      <input id="docTitle" class="doc-title-input" value="Untitled" placeholder="Name your tree..." autocomplete="off" spellcheck="false" maxlength="80" />
+      <span id="saveStatus" class="save-status"></span>
+      <button id="titleSaveBtn" class="btn-title-save" title="Save (Ctrl+S)">Save</button>
+    </div>
 
     <div id="treeViewport" class="canvas-wrap">
       <svg id="treeSvg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMin meet"></svg>
@@ -2176,6 +2257,8 @@
 
         await parseApiJson(res, "Save");
         currentLoadedTreeName = name;
+        setDocTitle(name);
+        markSaved();
         await refreshCloudList();
         toast(`"${name}" saved`);
       } catch (err) {
@@ -2280,6 +2363,8 @@
         currentLoadedTreeName = name;
         const displayName = name.replace(/\.json$/i, "");
         document.getElementById("cloudTreeName").value = displayName;
+        setDocTitle(displayName);
+        markClean();
         await refreshCloudList();
         toast(`"${displayName}" loaded`, "info");
       } catch (err) {
@@ -2342,6 +2427,10 @@
       selectedNode = currentRoot;
       updateSelectedInfo();
       syncJsonFromTree();
+      setDocTitle("Untitled");
+      document.getElementById("cloudTreeName").value = "";
+      currentLoadedTreeName = null;
+      markClean();
       run(currentRoot, true);
     }
 
@@ -2493,6 +2582,29 @@
     document.getElementById("zoomResetBtn").addEventListener("click", () => setZoom(1));
     document.getElementById("loadJson").addEventListener("click", loadJsonTree);
     document.getElementById("saveCloudBtn").addEventListener("click", saveTreeToCloud);
+
+    // ── Document title bar ────────────────────────────────────────────────────
+    document.getElementById("docTitle").addEventListener("input", () => {
+      const title = getDocTitle();
+      if (title) document.getElementById("cloudTreeName").value = title;
+    });
+
+    document.getElementById("titleSaveBtn").addEventListener("click", () => {
+      const title = getDocTitle();
+      if (title) document.getElementById("cloudTreeName").value = title;
+      saveTreeToCloud();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s" && !e.shiftKey) {
+        e.preventDefault();
+        if (currentUser) {
+          const title = getDocTitle();
+          if (title) document.getElementById("cloudTreeName").value = title;
+          saveTreeToCloud();
+        }
+      }
+    });
     document.getElementById("loadSample").addEventListener("click", () => {
       clearError();
       document.getElementById("jsonInput").value = sampleTreeJson();
@@ -2687,11 +2799,54 @@
     const redoStack = [];
     const MAX_UNDO = 50;
 
+    let _saveStatusTimer = null;
+
+    function markUnsaved() {
+      const status = document.getElementById("saveStatus");
+      const btn = document.getElementById("titleSaveBtn");
+      if (!status || !btn) return;
+      status.textContent = "● Unsaved changes";
+      status.className = "save-status visible unsaved";
+      btn.classList.add("visible");
+      clearTimeout(_saveStatusTimer);
+    }
+
+    function markSaved() {
+      const status = document.getElementById("saveStatus");
+      const btn = document.getElementById("titleSaveBtn");
+      if (!status || !btn) return;
+      status.textContent = "✓ Saved";
+      status.className = "save-status visible saved";
+      btn.classList.remove("visible");
+      clearTimeout(_saveStatusTimer);
+      _saveStatusTimer = setTimeout(() => { status.classList.remove("visible"); }, 2500);
+    }
+
+    function markClean() {
+      const status = document.getElementById("saveStatus");
+      const btn = document.getElementById("titleSaveBtn");
+      if (!status || !btn) return;
+      status.className = "save-status";
+      btn.classList.remove("visible");
+      clearTimeout(_saveStatusTimer);
+    }
+
+    function setDocTitle(name) {
+      const input = document.getElementById("docTitle");
+      if (input) input.value = name.replace(/\.json$/i, "");
+    }
+
+    function getDocTitle() {
+      const input = document.getElementById("docTitle");
+      return input ? input.value.trim() : "";
+    }
+
     function pushUndo() {
       if (!currentRoot) return;
       undoStack.push(JSON.stringify(serializeTree(currentRoot)));
       if (undoStack.length > MAX_UNDO) undoStack.shift();
       redoStack.length = 0;
+      markUnsaved();
       updateUndoButtons();
     }
 
