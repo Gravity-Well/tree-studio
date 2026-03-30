@@ -20,6 +20,10 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/stripeConfig",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "allowedRoles": ["authenticated"]
     },

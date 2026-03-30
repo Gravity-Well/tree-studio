@@ -9,6 +9,7 @@
   <meta property="og:description" content="Build, explore, and share hierarchical trees visually." />
   <meta property="og:url" content="https://treestudio.nusoftva.com" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script src="https://js.stripe.com/v3/"></script>
   <style>
     :root {
       --bg: #edf3f5;
@@ -586,45 +587,6 @@
       display: none;
     }
 
-    /* ── Upgrade modal ── */
-    .upgrade-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(10, 25, 40, 0.45);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .upgrade-overlay.open {
-      display: flex;
-    }
-
-    .upgrade-modal {
-      background: #fff;
-      border-radius: 16px;
-      padding: 36px 40px;
-      max-width: 440px;
-      width: calc(100% - 32px);
-      box-shadow: 0 24px 60px rgba(10,25,40,0.18);
-      text-align: center;
-    }
-
-    .upgrade-modal .upgrade-icon { font-size: 40px; margin-bottom: 12px; }
-    .upgrade-modal h2 { font-size: 22px; font-weight: 800; margin-bottom: 8px; color: var(--ink); }
-    .upgrade-modal p { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
-    .upgrade-modal .upgrade-actions { display: flex; gap: 10px; justify-content: center; }
-    .upgrade-modal .btn-upgrade {
-      background: var(--accent); color: #fff; border: none; border-radius: 8px;
-      padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer;
-    }
-    .upgrade-modal .btn-upgrade:hover { background: var(--accent-dark); }
-    .upgrade-modal .btn-cancel {
-      background: none; border: 1px solid #d2dde8; border-radius: 8px;
-      padding: 10px 18px; font-size: 14px; color: var(--muted); cursor: pointer;
-    }
-    .upgrade-modal .btn-cancel:hover { background: #f0f5fa; }
 
     /* ── Document title bar ── */
     .doc-titlebar {
@@ -1050,12 +1012,236 @@
 
       .copyright { font-size: 11px; text-align: center; padding: 8px; }
 
-      .upgrade-modal { padding: 28px 20px; }
-      .upgrade-modal h2 { font-size: 18px; }
-      .upgrade-modal .upgrade-actions { flex-direction: column; }
-
-      .toast-container { bottom: 16px; right: 12px; left: 12px; }
+.toast-container { bottom: 16px; right: 12px; left: 12px; }
       .toast { max-width: 100%; }
+    }
+
+    /* ── Plan comparison modal ── */
+    .plan-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 25, 40, 0.52);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .plan-overlay.open { display: flex; }
+
+    .plan-modal {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 28px 72px rgba(10,25,40,0.22);
+      width: 100%;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .plan-modal-inner {
+      padding: 36px 36px 28px;
+    }
+
+    .plan-modal h2 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--ink);
+      text-align: center;
+    }
+
+    .plan-modal .plan-subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .plan-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .plan-card {
+      border: 1.5px solid #d2dde8;
+      border-radius: 14px;
+      padding: 22px 20px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .plan-card-featured {
+      border-color: var(--accent);
+      background: #f8fefd;
+    }
+
+    .plan-card-badge {
+      position: absolute;
+      top: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+
+    .plan-card-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .plan-card-price {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 8px 0 4px;
+      line-height: 1;
+    }
+
+    .plan-card-price span {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .plan-card-features {
+      list-style: none;
+      margin: 12px 0 20px;
+      padding: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .plan-card-features li {
+      font-size: 13px;
+      color: var(--ink);
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      line-height: 1.35;
+    }
+
+    .plan-card-features li::before {
+      content: "✓";
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 0px;
+    }
+
+    .plan-card-features li.muted::before { color: #bac8d4; }
+    .plan-card-features li.muted { color: var(--muted); }
+
+    .btn-plan-select {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      transition: background 0.15s;
+    }
+
+    .btn-plan-select.primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-plan-select.primary:hover { background: var(--accent-dark); }
+
+    .btn-plan-select.outlined {
+      background: #fff;
+      color: var(--btn-muted);
+      border: 1.5px solid #d2dde8;
+    }
+    .btn-plan-select.outlined:hover { background: #f0f6fa; }
+
+    .btn-plan-select.current {
+      background: #f0f5fa;
+      color: var(--muted);
+      cursor: default;
+    }
+
+    .plan-modal-close {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .plan-modal-close:hover { color: var(--ink); }
+
+    /* Phase 2: embedded checkout */
+    #planPhaseCheckout {
+      padding: 0;
+    }
+
+    .checkout-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 28px 16px;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .checkout-back-btn {
+      background: none;
+      border: 1px solid #d2dde8;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+    .checkout-back-btn:hover { background: #f0f6fa; }
+
+    .checkout-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    #stripeCheckoutContainer {
+      min-height: 200px;
+    }
+
+    /* ── Upgrade pill ── */
+    .upgrade-pill {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 99px;
+      background: linear-gradient(135deg, #0f766e, #0b5f5d);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      letter-spacing: 0.2px;
+      transition: opacity 0.15s;
+    }
+    .upgrade-pill:hover { opacity: 0.85; }
+
+    @media (max-width: 640px) {
+      .plan-cards { grid-template-columns: 1fr; max-width: 340px; }
+      .plan-modal-inner { padding: 24px 18px 20px; }
+      .plan-modal h2 { font-size: 20px; }
     }
   </style>
 </head>
@@ -1080,8 +1266,11 @@
           </div>
           <button id="cloudPanelToggleBtn" class="btn-cloud">My Trees</button>
         </div>
-        <div class="auth-bar" id="authBar">
-          <span id="authStatus"></span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button id="upgradePill" class="upgrade-pill" style="display:none" onclick="openPlanModal()">Upgrade ✦</button>
+          <div class="auth-bar" id="authBar">
+            <span id="authStatus"></span>
+          </div>
         </div>
       </div>
       <div class="toolbar-secondary">
@@ -1173,16 +1362,66 @@
   </div>
   <div class="toast-container" id="toastContainer"></div>
 
-  <div class="upgrade-overlay" id="upgradeOverlay">
-    <div class="upgrade-modal">
-      <div class="upgrade-icon">🌳</div>
-      <h2>Free plan limit reached</h2>
-      <p>Free accounts can save up to 3 trees. Upgrade to <strong>Pro</strong> for unlimited trees, embeds, and priority support — or delete an existing tree to make room.</p>
-      <div class="upgrade-actions">
-        <button class="btn-upgrade" onclick="startCheckout('pro')">Upgrade to Pro — $9/mo</button>
-        <button class="btn-cancel" onclick="document.getElementById('upgradeOverlay').classList.remove('open');document.getElementById('cloudPanelToggleBtn').click();">Manage Trees</button>
+  <div class="plan-overlay" id="planOverlay" onclick="if(event.target===this)closePlanModal()">
+    <div class="plan-modal" id="planModal">
+      <!-- Phase 1: Plan cards -->
+      <div id="planPhaseCards">
+        <div class="plan-modal-inner">
+          <h2>Choose your plan</h2>
+          <p class="plan-subtitle">Start free. Upgrade when you're ready.</p>
+          <div class="plan-cards">
+            <!-- Free -->
+            <div class="plan-card">
+              <div class="plan-card-name">Free</div>
+              <div class="plan-card-price">$0 <span>/ mo</span></div>
+              <ul class="plan-card-features">
+                <li>Up to 3 saved trees</li>
+                <li>View &amp; share trees</li>
+                <li>SVG &amp; PNG export</li>
+                <li class="muted">Embed watermark</li>
+                <li class="muted">Priority support</li>
+              </ul>
+              <button class="btn-plan-select current" disabled id="freePlanBtn">Current plan</button>
+            </div>
+            <!-- Pro -->
+            <div class="plan-card plan-card-featured">
+              <div class="plan-card-badge">MOST POPULAR</div>
+              <div class="plan-card-name">Pro</div>
+              <div class="plan-card-price">$9 <span>/ mo</span></div>
+              <ul class="plan-card-features">
+                <li>Unlimited saved trees</li>
+                <li>Remove embed watermark</li>
+                <li>SVG &amp; PNG export</li>
+                <li>Priority support</li>
+                <li>JSON import &amp; export</li>
+              </ul>
+              <button class="btn-plan-select primary" onclick="selectCheckoutPlan('pro')">Get Pro — $9/mo</button>
+            </div>
+            <!-- Business -->
+            <div class="plan-card">
+              <div class="plan-card-name">Business</div>
+              <div class="plan-card-price">$29 <span>/ mo</span></div>
+              <ul class="plan-card-features">
+                <li>Everything in Pro</li>
+                <li>Team sharing <em style="font-size:11px;color:var(--muted)">(coming soon)</em></li>
+                <li>API access <em style="font-size:11px;color:var(--muted)">(coming soon)</em></li>
+                <li>Priority support</li>
+                <li>Bulk export</li>
+              </ul>
+              <button class="btn-plan-select outlined" onclick="selectCheckoutPlan('business')">Get Business — $29/mo</button>
+            </div>
+          </div>
+          <p class="plan-modal-close" onclick="closePlanModal()">No thanks, stay on Free</p>
+        </div>
       </div>
-      <p style="margin-top:14px;font-size:12px;color:var(--muted);cursor:pointer;" onclick="document.getElementById('upgradeOverlay').classList.remove('open')">Not now</p>
+      <!-- Phase 2: Embedded Stripe checkout -->
+      <div id="planPhaseCheckout" style="display:none">
+        <div class="checkout-header">
+          <button class="checkout-back-btn" onclick="showPlanCards()">← Back</button>
+          <span class="checkout-title" id="checkoutTitle">Complete your upgrade</span>
+        </div>
+        <div id="stripeCheckoutContainer"></div>
+      </div>
     </div>
   </div>
 
@@ -2250,7 +2489,7 @@
         if (res.status === 403) {
           const data = await res.json().catch(() => ({}));
           if (data && data.error === "FREE_TIER_LIMIT") {
-            document.getElementById("upgradeOverlay").classList.add("open");
+            openPlanModal();
             return;
           }
         }
@@ -3158,21 +3397,88 @@
     let currentUser = null;
     let currentPlan = "free";
 
-    async function startCheckout(tier) {
+    let stripePublishableKey = null;
+    let stripeInstance = null;
+    let embeddedCheckout = null;
+
+    async function fetchStripeConfig() {
       try {
-        const res = await fetch("/api/createCheckout", {
+        const res = await fetch("/api/stripeConfig");
+        if (res.ok) {
+          const data = await res.json();
+          stripePublishableKey = data.publishableKey || null;
+        }
+      } catch (_) {}
+    }
+
+    function openPlanModal(tier) {
+      // Update free plan button based on current plan
+      const freeBtn = document.getElementById("freePlanBtn");
+      if (freeBtn) {
+        const isPaid = currentPlan === "pro" || currentPlan === "business";
+        freeBtn.textContent = isPaid ? "Downgrade" : "Current plan";
+        freeBtn.disabled = !isPaid;
+        freeBtn.className = "btn-plan-select " + (isPaid ? "outlined" : "current");
+      }
+      showPlanCards();
+      document.getElementById("planOverlay").classList.add("open");
+      if (tier) selectCheckoutPlan(tier);
+    }
+
+    function closePlanModal() {
+      document.getElementById("planOverlay").classList.remove("open");
+      if (embeddedCheckout) {
+        embeddedCheckout.destroy();
+        embeddedCheckout = null;
+      }
+    }
+
+    function showPlanCards() {
+      document.getElementById("planPhaseCards").style.display = "";
+      document.getElementById("planPhaseCheckout").style.display = "none";
+      document.getElementById("planModal").style.maxWidth = "780px";
+    }
+
+    async function selectCheckoutPlan(tier) {
+      if (!currentUser) {
+        closePlanModal();
+        toast("Sign in first to upgrade.", "info");
+        setTimeout(() => { window.location.href = `/login?post_login_redirect=/app?checkout=${tier}`; }, 1400);
+        return;
+      }
+
+      const tierLabel = tier === "business" ? "Business — $29/mo" : "Pro — $9/mo";
+      document.getElementById("checkoutTitle").textContent = `Upgrade to ${tierLabel}`;
+      document.getElementById("planPhaseCards").style.display = "none";
+      document.getElementById("planPhaseCheckout").style.display = "";
+      document.getElementById("planModal").style.maxWidth = "520px";
+      document.getElementById("stripeCheckoutContainer").innerHTML =
+        '<div style="text-align:center;padding:48px 0;color:var(--muted);font-size:14px;">Loading payment form…</div>';
+
+      try {
+        if (!stripePublishableKey) await fetchStripeConfig();
+        if (!stripePublishableKey) throw new Error("Payment not configured. Please try again later.");
+
+        if (!stripeInstance) stripeInstance = Stripe(stripePublishableKey);
+
+        if (embeddedCheckout) {
+          embeddedCheckout.destroy();
+          embeddedCheckout = null;
+        }
+
+        const res = await fetch("/api/createEmbeddedCheckout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ tier })
         });
         const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          toast(data.error || "Could not start checkout.", "error");
-        }
+        if (!data.clientSecret) throw new Error(data.error || "Checkout failed.");
+
+        embeddedCheckout = await stripeInstance.initEmbeddedCheckout({ clientSecret: data.clientSecret });
+        embeddedCheckout.mount("#stripeCheckoutContainer");
       } catch (err) {
-        toast("Checkout failed. Please try again.", "error");
+        document.getElementById("stripeCheckoutContainer").innerHTML =
+          `<p style="color:var(--danger);text-align:center;padding:32px;font-size:14px;">${err.message}</p>`;
       }
     }
 
@@ -3238,6 +3544,8 @@
 
           const isPaid = currentPlan === "pro" || currentPlan === "business";
           if (isPaid) document.body.classList.add("paid-plan");
+          const upgradePill = document.getElementById("upgradePill");
+          if (upgradePill) upgradePill.style.display = isPaid ? "none" : "";
 
           authBar.innerHTML = `
             <div class="auth-avatar" id="authAvatar" title="${name}">${initial}</div>
@@ -3274,7 +3582,7 @@
             document.getElementById("upgradeProBtn").addEventListener("click", (e) => {
               e.preventDefault();
               document.getElementById("authDropdown").classList.remove("open");
-              document.getElementById("upgradeOverlay").classList.add("open");
+              openPlanModal();
             });
           }
 
@@ -3285,7 +3593,7 @@
           if (checkoutTier && (checkoutTier === "pro" || checkoutTier === "business")) {
             history.replaceState({}, "", "/app");
             if (!isPaid) {
-              setTimeout(() => startCheckout(checkoutTier), 600);
+              setTimeout(() => openPlanModal(checkoutTier), 600);
             } else {
               toast("You already have an active paid plan.", "info");
             }
@@ -3313,6 +3621,7 @@
     }
 
     initAuth();
+    fetchStripeConfig();
   </script>
 </body>
 </html>
