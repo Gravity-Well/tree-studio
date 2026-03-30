@@ -3208,6 +3208,7 @@
 
       // Handle post-checkout redirect params
       const urlParams = new URLSearchParams(location.search);
+      const checkoutTier = urlParams.get("checkout");
       if (urlParams.get("upgraded") === "1") {
         toast("🎉 Welcome to your new plan! It may take a moment to activate.", "info");
         history.replaceState({}, "", "/app");
@@ -3279,6 +3280,16 @@
 
           cloudBtn.disabled = false;
           cloudBtn.title = "";
+
+          // Auto-trigger checkout if coming from pricing page
+          if (checkoutTier && (checkoutTier === "pro" || checkoutTier === "business")) {
+            history.replaceState({}, "", "/app");
+            if (!isPaid) {
+              setTimeout(() => startCheckout(checkoutTier), 600);
+            } else {
+              toast("You already have an active paid plan.", "info");
+            }
+          }
         } else {
           currentUser = null;
           authBar.innerHTML = `
@@ -3288,6 +3299,15 @@
           cloudBtn.title = "Sign in to use cloud save";
           const panel = document.getElementById("cloudPanel");
           if (panel) panel.open = false;
+
+          // Not signed in — redirect to login then back to checkout
+          if (checkoutTier && (checkoutTier === "pro" || checkoutTier === "business")) {
+            history.replaceState({}, "", "/app");
+            toast("Sign in first to complete your purchase.", "info");
+            setTimeout(() => {
+              window.location.href = `/login?post_login_redirect=/app?checkout=${checkoutTier}`;
+            }, 1500);
+          }
         }
       } catch (_) { /* silent — auth unavailable locally */ }
     }
