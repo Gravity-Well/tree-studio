@@ -59,7 +59,7 @@ async function sendEmail(context, { name, email, message }) {
   const clientId = process.env.AZURE_CLIENT_ID;
   const clientSecret = process.env.AZURE_CLIENT_SECRET;
   const senderEmail = process.env.MAIL_SENDER || 'admin@nusoft2472aolcom.onmicrosoft.com';
-  const recipientEmail = process.env.RECIPIENT_EMAIL || 'hello@nusoftva.com';
+  const recipientEmail = process.env.RECIPIENT_EMAIL || 'contact@nusoftva.com';
 
   if (!tenantId || !clientId || !clientSecret) {
     throw new Error('Microsoft Graph credentials not configured. Set AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET.');
