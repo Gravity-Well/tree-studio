@@ -583,7 +583,7 @@
       display: flex;
     }
 
-    body.embed-mode.paid-plan .embed-watermark {
+    body.embed-mode.business-plan .embed-watermark {
       display: none;
     }
 
@@ -1222,10 +1222,14 @@
     }
 
     /* ── Upgrade pill ── */
+    @keyframes pill-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(15,118,110,0.45); }
+      60%       { box-shadow: 0 0 0 6px rgba(15,118,110,0); }
+    }
     .upgrade-pill {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 99px;
       background: linear-gradient(135deg, #0f766e, #0b5f5d);
       color: #fff;
@@ -1234,9 +1238,10 @@
       white-space: nowrap;
       font-family: "Segoe UI", Tahoma, sans-serif;
       letter-spacing: 0.2px;
-      transition: opacity 0.15s;
+      transition: opacity 0.15s, transform 0.15s;
+      animation: pill-pulse 2.4s ease-in-out infinite;
     }
-    .upgrade-pill:hover { opacity: 0.85; }
+    .upgrade-pill:hover { opacity: 0.9; transform: scale(1.04); animation: none; }
 
     @media (max-width: 640px) {
       .plan-cards { grid-template-columns: 1fr; max-width: 340px; }
@@ -1379,8 +1384,8 @@
                 <li>Up to 5 saved trees</li>
                 <li>View &amp; share trees</li>
                 <li>SVG &amp; PNG export</li>
-                <li class="muted">Embed watermark</li>
-                <li class="muted">Priority support</li>
+                <li>Embed on your site</li>
+                <li class="muted">Remove watermark</li>
               </ul>
               <button class="btn-plan-select current" disabled id="freePlanBtn">Current plan</button>
             </div>
@@ -1391,10 +1396,9 @@
               <div class="plan-card-price">$9 <span>/ mo</span></div>
               <ul class="plan-card-features">
                 <li>Unlimited saved trees</li>
-                <li>Remove embed watermark</li>
                 <li>SVG &amp; PNG export</li>
-                <li>Priority support</li>
                 <li>JSON import &amp; export</li>
+                <li>Embed on your site</li>
               </ul>
               <button class="btn-plan-select primary" onclick="selectCheckoutPlan('pro')">Get Pro — $9/mo</button>
             </div>
@@ -1404,9 +1408,9 @@
               <div class="plan-card-price">$29 <span>/ mo</span></div>
               <ul class="plan-card-features">
                 <li>Everything in Pro</li>
+                <li>Remove embed watermark</li>
                 <li>Priority support</li>
                 <li>Dedicated onboarding</li>
-                <li>Early access to new features</li>
               </ul>
               <button class="btn-plan-select outlined" onclick="selectCheckoutPlan('business')">Get Business — $29/mo</button>
             </div>
@@ -3524,6 +3528,7 @@
 
           const isPaid = currentPlan === "pro" || currentPlan === "business";
           if (isPaid) document.body.classList.add("paid-plan");
+          if (currentPlan === "business") document.body.classList.add("business-plan");
           const upgradePill = document.getElementById("upgradePill");
           if (upgradePill) upgradePill.style.display = isPaid ? "none" : "";
 
