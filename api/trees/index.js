@@ -51,10 +51,10 @@ module.exports = async function (context, req) {
       const tree = body.tree;
       validateTreePayload(tree);
 
-      // Enforce free-tier limit (3 trees max) — skip for paid plans
+      // Enforce free-tier limit (5 trees max) — skip for paid plans
       const planData = await getUserPlan(userId);
       const isPaid = planData && (planData.plan === "pro" || planData.plan === "business");
-      const FREE_LIMIT = 3;
+      const FREE_LIMIT = 5;
       let existingCount = 0;
       for await (const blob of container.listBlobsFlat({ prefix })) {
         if (blob.name.toLowerCase().endsWith(".json")) existingCount++;

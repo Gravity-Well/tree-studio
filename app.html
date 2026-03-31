@@ -1376,7 +1376,7 @@
               <div class="plan-card-name">Free</div>
               <div class="plan-card-price">$0 <span>/ mo</span></div>
               <ul class="plan-card-features">
-                <li>Up to 3 saved trees</li>
+                <li>Up to 5 saved trees</li>
                 <li>View &amp; share trees</li>
                 <li>SVG &amp; PNG export</li>
                 <li class="muted">Embed watermark</li>
@@ -1404,10 +1404,9 @@
               <div class="plan-card-price">$29 <span>/ mo</span></div>
               <ul class="plan-card-features">
                 <li>Everything in Pro</li>
-                <li>Team sharing <em style="font-size:11px;color:var(--muted)">(coming soon)</em></li>
-                <li>API access <em style="font-size:11px;color:var(--muted)">(coming soon)</em></li>
                 <li>Priority support</li>
-                <li>Bulk export</li>
+                <li>Dedicated onboarding</li>
+                <li>Early access to new features</li>
               </ul>
               <button class="btn-plan-select outlined" onclick="selectCheckoutPlan('business')">Get Business — $29/mo</button>
             </div>
@@ -2482,6 +2481,7 @@
         if (res.status === 403) {
           const data = await res.json().catch(() => ({}));
           if (data && data.error === "FREE_TIER_LIMIT") {
+            toast("Free plan limit reached — upgrade to save unlimited trees.", "info");
             openPlanModal();
             return;
           }
@@ -2512,8 +2512,8 @@
         const countEl = document.getElementById("cloudTreeCount");
         if (currentUser && items.length > 0) {
           const isPaid = currentPlan === "pro" || currentPlan === "business";
-          countEl.textContent = isPaid ? `${items.length} trees` : `${items.length} / 3`;
-          countEl.className = "cloud-tree-count" + (!isPaid && items.length >= 3 ? " at-limit" : "");
+          countEl.textContent = isPaid ? `${items.length} trees` : `${items.length} / 5`;
+          countEl.className = "cloud-tree-count" + (!isPaid && items.length >= 5 ? " at-limit" : "");
           countEl.style.display = "";
         } else {
           countEl.style.display = "none";
@@ -3385,6 +3385,19 @@
           setError(err.message || "Could not load shared tree.");
         }
       })();
+    } else if (!_embedMode) {
+      // Auto-load sample tree on first visit so users see the product immediately
+      // rather than a blank canvas. Uses buildSampleTree() which is defined below
+      // but this runs after DOMContentLoaded so it's available.
+      setTimeout(() => {
+        if (!currentRoot) {
+          currentRoot = buildSampleTree();
+          selectedNode = currentRoot;
+          updateSelectedInfo();
+          syncJsonFromTree();
+          run(currentRoot, true);
+        }
+      }, 0);
     }
 
     let currentUser = null;
