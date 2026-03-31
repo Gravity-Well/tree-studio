@@ -1326,6 +1326,7 @@
       <div id="shareLinkWrap" class="share-link-wrap" style="display:none">
         <input id="shareLinkInput" type="text" readonly />
         <button id="copyLinkBtn">Copy link</button>
+        <a id="embedLinkBtn" href="#" target="_blank" style="display:inline-block;margin-top:6px;font-size:12px;font-weight:600;color:var(--accent);">Embed on your site →</a>
       </div>
       <div id="error" class="error"></div>
     </details>
@@ -2627,10 +2628,12 @@
     function showShareLink(name) {
       clearError();
       if (!currentUser) { setError("Sign in to share trees."); return; }
-      const url = `${location.origin}?view=${encodeURIComponent(currentUser.userId)}/${encodeURIComponent(name)}`;
+      const viewParam = `${encodeURIComponent(currentUser.userId)}/${encodeURIComponent(name)}`;
+      const url = `${location.origin}?view=${viewParam}`;
       const wrap = document.getElementById("shareLinkWrap");
       const input = document.getElementById("shareLinkInput");
       input.value = url;
+      document.getElementById("embedLinkBtn").href = `/embed?view=${viewParam}`;
       wrap.style.display = "flex";
       input.select();
     }

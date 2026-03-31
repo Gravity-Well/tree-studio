@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Embed Generator — Tree Studio</title>
+  <meta name="description" content="Generate an embed code for your Tree Studio tree. Preview it live and copy the iframe snippet." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    :root {
+      --ink: #13273a;
+      --muted: #4a6170;
+      --accent: #0f766e;
+      --accent-dark: #0b5f5d;
+      --bg: #f7fbfd;
+      --panel: #ffffff;
+      --border: #d2dde8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .nav-brand span { color: var(--accent); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .nav-links a:hover { color: var(--ink); text-decoration: none; }
+    .nav-cta {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--accent-dark) !important; }
+
+    /* ── Page ── */
+    .page {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 52px 24px 80px;
+    }
+    .page-header {
+      margin-bottom: 36px;
+    }
+    .page-header h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 560px;
+    }
+
+    /* ── Controls card ── */
+    .controls-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+    .controls-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-end;
+      margin-bottom: 20px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .field input[type="text"],
+    .field input[type="number"] {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-size: 14px;
+      padding: 8px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input[type="text"] { width: 300px; }
+    .field input[type="number"] { width: 90px; }
+    .field input:focus { border-color: var(--accent); background: #fff; }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 10px;
+    }
+    .size-presets {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .preset-btn {
+      font-size: 12px;
+      padding: 5px 12px;
+      background: var(--bg);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-weight: 600;
+      transition: background 0.1s, color 0.1s;
+    }
+    .preset-btn:hover { background: #e2eaf2; color: var(--ink); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--accent-dark); }
+
+    /* ── Preview ── */
+    .preview-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-hint {
+      font-size: 11px;
+      font-weight: 400;
+      color: #9ab0c4;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .frame-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 32px rgba(17,50,74,0.08);
+      background: var(--panel);
+      resize: both;
+      overflow: auto;
+      min-width: 320px;
+      min-height: 200px;
+      margin-bottom: 24px;
+    }
+    iframe {
+      display: block;
+      border: none;
+      width: 100%;
+    }
+
+    /* ── Code output ── */
+    .code-card {
+      background: #0f2236;
+      border-radius: 12px;
+      padding: 22px 24px;
+      position: relative;
+    }
+    .code-card-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #4a7a96;
+      margin-bottom: 12px;
+    }
+    .code-card pre {
+      font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.75;
+      color: #a8d8ea;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #1a3a52;
+      color: #a8d8ea;
+      border: 1px solid #2a5070;
+      border-radius: 6px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: #224a68; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--muted);
+    }
+    .empty-state h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .empty-state p { font-size: 14px; }
+    .empty-state a { color: var(--accent); }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      padding: 28px 40px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--ink); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-brand">
+      <img src="/favicon.svg" width="22" height="22" alt="" />
+      Tree <span>Studio</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#pricing">Pricing</a>
+      <a href="/help">Help</a>
+      <a href="/app" class="nav-cta">Open App</a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="page-header">
+      <h1>Embed Generator</h1>
+      <p>Paste your tree's share link, choose a size, preview it live, then copy the embed code onto any webpage.</p>
+    </div>
+
+    <div class="controls-card">
+      <div class="controls-grid">
+        <div class="field">
+          <label>Share link or tree URL</label>
+          <input type="text" id="viewParam" placeholder="Paste your share link here…" />
+        </div>
+        <div class="field">
+          <label>Width</label>
+          <input type="text" id="frameWidth" value="100%" />
+        </div>
+        <div class="field">
+          <label>Height (px)</label>
+          <input type="number" id="frameHeight" value="520" min="100" max="2000" />
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="btn-primary" onclick="applyEmbed()">Preview</button>
+        </div>
+      </div>
+
+      <div class="section-label">Size presets</div>
+      <div class="size-presets">
+        <button class="preset-btn" onclick="setSize('100%', 400)">Full-width · 400px</button>
+        <button class="preset-btn" onclick="setSize('100%', 520)">Full-width · 520px</button>
+        <button class="preset-btn" onclick="setSize('100%', 700)">Full-width · 700px</button>
+        <button class="preset-btn" onclick="setSize('600', 480)">600 × 480</button>
+        <button class="preset-btn" onclick="setSize('800', 600)">800 × 600</button>
+      </div>
+    </div>
+
+    <div id="previewSection" style="display:none">
+      <div class="preview-label">
+        Live Preview
+        <span class="preview-hint">Drag the corner to resize</span>
+      </div>
+      <div class="frame-wrap" id="frameWrap">
+        <iframe id="embedFrame" src="" height="520" title="Tree Studio embed"></iframe>
+      </div>
+
+      <div class="code-card">
+        <div class="code-card-label">Embed code — paste this into your HTML</div>
+        <button class="copy-btn" onclick="copyCode()">Copy</button>
+        <pre id="codeOutput"></pre>
+      </div>
+    </div>
+
+    <div id="emptyState" class="empty-state">
+      <h3>No tree selected yet</h3>
+      <p>
+        Paste a share link above, or go to the <a href="/app">app</a>, save a tree,
+        click <strong>Share</strong>, then <strong>Embed</strong>.
+      </p>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      &copy; 2026 NuSoftVA, a division of Nilmot Solutions LLC. &nbsp;|&nbsp;
+      <a href="/terms">Terms</a> &nbsp;|&nbsp;
+      <a href="/privacy">Privacy</a> &nbsp;|&nbsp;
+      <a href="/help">Help</a>
+    </p>
+  </footer>
+
+  <script>
+    const BASE = location.origin + "/app";
+
+    function buildUrl() {
+      const raw = document.getElementById("viewParam").value.trim();
+      let viewValue = "";
+      if (raw) {
+        try {
+          const u = new URL(raw);
+          viewValue = u.searchParams.get("view") || "";
+        } catch (_) {
+          viewValue = raw;
+        }
+      }
+      const params = new URLSearchParams();
+      if (viewValue) params.set("view", viewValue);
+      params.set("embed", "1");
+      return BASE + "?" + params.toString();
+    }
+
+    function applyEmbed() {
+      const raw = document.getElementById("viewParam").value.trim();
+      if (!raw) {
+        document.getElementById("previewSection").style.display = "none";
+        document.getElementById("emptyState").style.display = "block";
+        return;
+      }
+
+      const url    = buildUrl();
+      const width  = document.getElementById("frameWidth").value.trim() || "100%";
+      const height = parseInt(document.getElementById("frameHeight").value, 10) || 520;
+      const widthAttr = width.endsWith("%") ? "100%" : width + "px";
+
+      const frame = document.getElementById("embedFrame");
+      frame.src = url;
+      frame.height = height;
+
+      const wrap = document.getElementById("frameWrap");
+      wrap.style.width = width.endsWith("%") ? width : width + "px";
+
+      document.getElementById("codeOutput").textContent =
+        `<iframe\n  src="${url}"\n  width="${widthAttr}"\n  height="${height}"\n  style="border:none;border-radius:8px;"\n  title="Tree Studio"\n  loading="lazy"\n></iframe>`;
+
+      document.getElementById("previewSection").style.display = "block";
+      document.getElementById("emptyState").style.display = "none";
+    }
+
+    function setSize(w, h) {
+      document.getElementById("frameWidth").value = w;
+      document.getElementById("frameHeight").value = h;
+      applyEmbed();
+    }
+
+    function copyCode() {
+      const text = document.getElementById("codeOutput").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector(".copy-btn");
+        const orig = btn.textContent;
+        btn.textContent = "Copied!";
+        setTimeout(() => btn.textContent = orig, 1800);
+      });
+    }
+
+    // Pre-populate from ?view= query param (linked from the app Share button)
+    const params = new URLSearchParams(location.search);
+    const preView = params.get("view");
+    if (preView) {
+      document.getElementById("viewParam").value = location.origin + "/app?view=" + preView;
+      applyEmbed();
+    }
+  </script>
+</body>
+</html>
