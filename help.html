@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Help Center — Tree Studio</title>
+  <meta name="description" content="Learn how to build, save, share, and embed trees with Tree Studio." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    :root {
+      --ink: #13273a;
+      --muted: #4a6170;
+      --accent: #0f766e;
+      --accent-dark: #0b5f5d;
+      --bg: #f7fbfd;
+      --panel: #ffffff;
+      --border: #d2dde8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .nav-brand span { color: var(--accent); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .nav-links a:hover { color: var(--ink); text-decoration: none; }
+    .nav-cta {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .nav-cta:hover { background: var(--accent-dark) !important; text-decoration: none !important; }
+
+    /* ── Layout ── */
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 24px 100px;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+    @media (max-width: 760px) {
+      .page { grid-template-columns: 1fr; gap: 32px; }
+      .sidebar { display: none; }
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: sticky;
+      top: 80px;
+    }
+    .sidebar-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .sidebar nav {
+      background: none;
+      border: none;
+      padding: 0;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: static;
+    }
+    .sidebar nav a {
+      font-size: 14px;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: background 0.1s, color 0.1s;
+      text-decoration: none;
+    }
+    .sidebar nav a:hover { background: #e8f0f6; color: var(--ink); }
+    .sidebar nav a.active { background: #e6f4f1; color: var(--accent); font-weight: 600; }
+
+    /* ── Content ── */
+    .content { min-width: 0; }
+    .page-title {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .page-sub {
+      font-size: 17px;
+      color: var(--muted);
+      margin-bottom: 56px;
+    }
+
+    .section {
+      margin-bottom: 56px;
+      scroll-margin-top: 80px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title .icon {
+      font-size: 20px;
+    }
+    .section p {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .section p:last-child { margin-bottom: 0; }
+    .section strong { color: var(--ink); }
+
+    /* ── Q&A ── */
+    .qa { margin-bottom: 20px; }
+    .qa-q {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .qa-a {
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    /* ── Shortcut table ── */
+    .shortcuts {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .shortcuts th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .shortcuts td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eef2f6;
+      color: var(--muted);
+    }
+    .shortcuts tr:last-child td { border-bottom: none; }
+    .shortcuts td:first-child { color: var(--ink); font-weight: 500; }
+    kbd {
+      background: #f0f4f8;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      color: var(--ink);
+    }
+
+    /* ── Code block ── */
+    .code-block {
+      background: #0f2236;
+      border-radius: 10px;
+      padding: 18px 20px;
+      font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #a8d8ea;
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+
+    /* ── Plan comparison ── */
+    .plan-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .plan-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: #f0f5fa;
+      font-size: 13px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+    }
+    .plan-table th:first-child { border-radius: 8px 0 0 0; }
+    .plan-table th:last-child { border-radius: 0 8px 0 0; }
+    .plan-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #eef2f6;
+      color: var(--muted);
+      vertical-align: top;
+    }
+    .plan-table tr:last-child td { border-bottom: none; }
+    .plan-table td:first-child { color: var(--ink); font-weight: 500; }
+    .check { color: var(--accent); font-weight: 700; }
+    .cross { color: #b0bec5; }
+
+    /* ── Contact form ── */
+    .contact-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 36px 40px;
+      margin-top: 8px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .form-field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .form-field input,
+    .form-field textarea {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-size: 14px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+      resize: vertical;
+    }
+    .form-field input:focus,
+    .form-field textarea:focus { border-color: var(--accent); background: #fff; }
+    .form-field textarea { min-height: 120px; }
+    .form-submit {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      transition: background 0.15s;
+    }
+    .form-submit:hover { background: var(--accent-dark); }
+    .form-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .form-msg {
+      margin-top: 14px;
+      font-size: 14px;
+      display: none;
+    }
+    .form-msg.success { color: var(--accent); }
+    .form-msg.error { color: #b42318; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      padding: 28px 40px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--ink); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-brand">
+      <img src="/favicon.svg" width="22" height="22" alt="" />
+      Tree <span>Studio</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#pricing">Pricing</a>
+      <a href="/help" style="color:var(--accent);font-weight:600;">Help</a>
+      <a href="/app" class="nav-cta">Open App</a>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-label">Topics</div>
+      <nav>
+        <a href="#getting-started" class="active">Getting Started</a>
+        <a href="#shortcuts">Keyboard Shortcuts</a>
+        <a href="#saving">Saving & Organizing</a>
+        <a href="#sharing">Sharing</a>
+        <a href="#embedding">Embedding</a>
+        <a href="#plans">Plans & Billing</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact Us</a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="content">
+      <h1 class="page-title">Help Center</h1>
+      <p class="page-sub">Everything you need to get the most out of Tree Studio.</p>
+
+      <!-- Getting Started -->
+      <section class="section" id="getting-started">
+        <h2 class="section-title"><span class="icon">🌱</span> Getting Started</h2>
+        <p>Tree Studio is a visual tool for building and sharing hierarchical trees — org charts, decision trees, knowledge maps, taxonomies, and anything else with a parent-child structure.</p>
+        <p><strong>To create your first tree:</strong> open the app, click <strong>New Tree</strong>, and you'll start with a single root node. Click the <strong>+ button</strong> on any node to add a child, or press <kbd>Tab</kbd> to add a child to the selected node.</p>
+        <p><strong>To edit a node label:</strong> double-click the node, or select it and start typing. Press <kbd>Enter</kbd> to save or <kbd>Esc</kbd> to cancel.</p>
+        <p><strong>To navigate the canvas:</strong> click and drag to pan, use <kbd>Ctrl</kbd> + scroll to zoom, or use the zoom controls in the toolbar.</p>
+        <p><strong>Templates:</strong> click the <strong>Templates</strong> button in the toolbar to load a pre-built example — great for seeing what's possible before building your own.</p>
+      </section>
+
+      <!-- Keyboard Shortcuts -->
+      <section class="section" id="shortcuts">
+        <h2 class="section-title"><span class="icon">⌨️</span> Keyboard Shortcuts</h2>
+        <table class="shortcuts">
+          <thead>
+            <tr><th>Action</th><th>Shortcut</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Add child to selected node</td><td><kbd>Tab</kbd></td></tr>
+            <tr><td>Save edit / confirm label</td><td><kbd>Enter</kbd></td></tr>
+            <tr><td>Cancel edit</td><td><kbd>Esc</kbd></td></tr>
+            <tr><td>Undo</td><td><kbd>Ctrl</kbd> + <kbd>Z</kbd></td></tr>
+            <tr><td>Redo</td><td><kbd>Ctrl</kbd> + <kbd>Y</kbd></td></tr>
+            <tr><td>Save to cloud</td><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td></tr>
+            <tr><td>Zoom in / out</td><td><kbd>Ctrl</kbd> + scroll</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Saving -->
+      <section class="section" id="saving">
+        <h2 class="section-title"><span class="icon">💾</span> Saving & Organizing</h2>
+        <p>To save a tree to the cloud, you need to be <strong>signed in</strong>. Click <strong>Sign in</strong> in the top right and authenticate with GitHub or Microsoft.</p>
+        <p>Once signed in, open the <strong>My Trees</strong> panel, type a name in the input field, and click <strong>Save</strong>. You can also press <kbd>Ctrl</kbd> + <kbd>S</kbd> at any time.</p>
+        <p>Your trees appear in the <strong>My Trees</strong> list. Click <strong>Load</strong> to open a saved tree, <strong>Share</strong> to get a shareable link, or <strong>Delete</strong> to remove it.</p>
+        <p><strong>Free plan:</strong> up to 5 saved trees. Upgrade to Pro for unlimited saves.</p>
+        <p>Trees are saved to your account and are private by default — no one can see them unless you share the link.</p>
+      </section>
+
+      <!-- Sharing -->
+      <section class="section" id="sharing">
+        <h2 class="section-title"><span class="icon">🔗</span> Sharing</h2>
+        <p>To share a tree, save it first, then click the <strong>Share</strong> button next to it in the My Trees panel. A shareable link will appear that you can copy and send to anyone.</p>
+        <p>Anyone with the link can <strong>view</strong> your tree — pan, zoom, expand and collapse nodes — but cannot edit it. They don't need an account.</p>
+        <p>Shared trees are <strong>read-only</strong>. To give someone an editable copy, they would need to create their own account and rebuild it, or you can export the JSON (via the Advanced panel) and send it to them.</p>
+        <p>You can revoke access at any time by deleting the tree from your account.</p>
+      </section>
+
+      <!-- Embedding -->
+      <section class="section" id="embedding">
+        <h2 class="section-title"><span class="icon">🔌</span> Embedding</h2>
+        <p>Any shared tree can be embedded in a website, blog, Notion page, or intranet using a standard HTML <code>&lt;iframe&gt;</code>. The embedded tree is fully interactive — viewers can pan, zoom, and expand/collapse nodes.</p>
+        <p><strong>Basic embed code:</strong></p>
+        <div class="code-block">&lt;iframe
+  src="https://treestudio.nusoftva.com/app?view=<em>userId/tree-name</em>&amp;embed=1"
+  width="100%"
+  height="520"
+  style="border:none;border-radius:8px;"
+  title="Tree Studio"
+  loading="lazy"
+&gt;&lt;/iframe&gt;</div>
+        <p>Replace <code>userId/tree-name</code> with the value from your share link. The <code>embed=1</code> parameter hides the toolbar and editing controls, leaving just the canvas.</p>
+        <p><strong>Sizing tips:</strong> set <code>width="100%"</code> for responsive layouts. Adjust <code>height</code> to fit your content — 400–600px works well for most trees.</p>
+        <p><strong>Watermark:</strong> embedded trees show a small "Built with Tree Studio" badge in the corner. Business plan subscribers can remove it.</p>
+      </section>
+
+      <!-- Plans & Billing -->
+      <section class="section" id="plans">
+        <h2 class="section-title"><span class="icon">💳</span> Plans & Billing</h2>
+        <table class="plan-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Free</th>
+              <th>Pro — $9/mo</th>
+              <th>Business — $29/mo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Saved trees</td><td>5</td><td class="check">Unlimited</td><td class="check">Unlimited</td></tr>
+            <tr><td>Share links</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>SVG &amp; PNG export</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>JSON import &amp; export</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>Embed on your site</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>Remove embed watermark</td><td class="cross">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+            <tr><td>Priority support</td><td class="cross">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+          </tbody>
+        </table>
+
+        <p style="margin-top:20px;"><strong>To upgrade:</strong> click the <strong>Upgrade</strong> button in the app toolbar, or click your avatar and select <strong>Upgrade to Pro</strong>. You'll be taken to a secure Stripe checkout.</p>
+        <p><strong>To manage or cancel your subscription:</strong> click your avatar in the app, then <strong>Manage subscription</strong>. This opens the Stripe billing portal where you can update payment details, change plans, or cancel.</p>
+        <p><strong>Cancellation:</strong> you can cancel at any time. Your plan remains active until the end of the billing period — there are no partial refunds.</p>
+        <p><strong>Payment security:</strong> all payments are processed by <a href="https://stripe.com" target="_blank" rel="noopener">Stripe</a>. Tree Studio never stores your card details.</p>
+      </section>
+
+      <!-- FAQ -->
+      <section class="section" id="faq">
+        <h2 class="section-title"><span class="icon">❓</span> Frequently Asked Questions</h2>
+
+        <div class="qa">
+          <div class="qa-q">Why can't I save my tree?</div>
+          <div class="qa-a">You need to be signed in to save. Click <strong>Sign in</strong> in the top right. If you're already signed in and still can't save, you may have reached the 5-tree limit on the Free plan — delete an existing tree or upgrade to Pro.</div>
+        </div>
+
+        <div class="qa">
+          <div class="qa-q">Is my tree private?</div>
+          <div class="qa-a">Yes. Saved trees are private by default. They are only visible to others if you share the link. Even then, viewers cannot edit the tree.</div>
+        </div>
+
+        <div class="qa">
+          <div class="qa-q">Can I use Tree Studio without signing in?</div>
+          <div class="qa-a">Yes — you can build and edit trees locally without an account. However, saving to the cloud, sharing, and embedding require signing in.</div>
+        </div>
+
+        <div class="qa">
+          <div class="qa-q">What login providers are supported?</div>
+          <div class="qa-a">GitHub and Microsoft (Azure AD / Outlook / Office 365). More providers may be added in the future.</div>
+        </div>
+
+        <div class="qa">
+          <div class="qa-q">Can I export my trees?</div>
+          <div class="qa-a">Yes. Use the <strong>SVG</strong> or <strong>PNG</strong> buttons in the toolbar to download an image. You can also export the raw JSON structure via the <strong>Advanced</strong> panel.</div>
+        </div>
+
+        <div class="qa">
+          <div class="qa-q">My embed isn't showing — what's wrong?</div>
+          <div class="qa-a">Make sure the tree is saved and the share link is valid. Some platforms (like Notion) restrict iframes — check your platform's embed documentation. Also confirm the URL includes <code>?embed=1</code> and the correct <code>view=</code> parameter.</div>
+        </div>
+
+        <div class="qa">
+          <div class="qa-q">How do I delete my account?</div>
+          <div class="qa-a">Email us at <a href="mailto:hello@nusoftva.com">hello@nusoftva.com</a> and we'll delete your account and all associated data within 5 business days.</div>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section class="section" id="contact">
+        <h2 class="section-title"><span class="icon">✉️</span> Contact Us</h2>
+        <p>Can't find what you're looking for? Send us a message and we'll get back to you within one business day.</p>
+        <div class="contact-card">
+          <form id="contactForm" onsubmit="submitContact(event)">
+            <div class="form-row">
+              <div class="form-field">
+                <label for="contactName">Your name <span style="color:#b42318;">*</span></label>
+                <input type="text" id="contactName" placeholder="Jane Smith" required autocomplete="name" />
+              </div>
+              <div class="form-field">
+                <label for="contactEmail">Email address <span style="color:#b42318;">*</span></label>
+                <input type="email" id="contactEmail" placeholder="jane@example.com" required autocomplete="email" />
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="contactMessage">Message <span style="color:#b42318;">*</span></label>
+              <textarea id="contactMessage" placeholder="Describe your question or issue..." required></textarea>
+            </div>
+            <button type="submit" class="form-submit" id="contactSubmit">Send Message</button>
+            <div class="form-msg" id="contactMsg"></div>
+          </form>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <p>
+      &copy; 2026 NuSoftVA, a division of Nilmot Solutions LLC. &nbsp;|&nbsp;
+      <a href="/terms">Terms</a> &nbsp;|&nbsp;
+      <a href="/privacy">Privacy</a> &nbsp;|&nbsp;
+      <a href="mailto:hello@nusoftva.com">hello@nusoftva.com</a>
+    </p>
+  </footer>
+
+  <script>
+    // Highlight active sidebar link on scroll
+    const sections = document.querySelectorAll(".section[id]");
+    const sidebarLinks = document.querySelectorAll(".sidebar nav a");
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          sidebarLinks.forEach(a => {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    sections.forEach(s => observer.observe(s));
+
+    // Contact form submission
+    async function submitContact(e) {
+      e.preventDefault();
+      const btn = document.getElementById("contactSubmit");
+      const msg = document.getElementById("contactMsg");
+      const name    = document.getElementById("contactName").value.trim();
+      const email   = document.getElementById("contactEmail").value.trim();
+      const message = document.getElementById("contactMessage").value.trim();
+
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+      msg.style.display = "none";
+
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, message })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Something went wrong.");
+        msg.textContent = "Message sent — we'll be in touch within one business day.";
+        msg.className = "form-msg success";
+        msg.style.display = "block";
+        document.getElementById("contactForm").reset();
+      } catch (err) {
+        msg.textContent = err.message || "Could not send your message. Please email us directly at hello@nusoftva.com.";
+        msg.className = "form-msg error";
+        msg.style.display = "block";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Send Message";
+      }
+    }
+  </script>
+</body>
+</html>

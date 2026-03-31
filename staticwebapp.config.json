@@ -6,6 +6,10 @@
       "allowedRoles": ["authenticated"]
     },
     {
+      "route": "/help",
+      "rewrite": "/help.html"
+    },
+    {
       "route": "/app",
       "rewrite": "/app.html"
     },
@@ -19,6 +23,10 @@
     },
     {
       "route": "/api/share/*"
+    },
+    {
+      "route": "/api/contact",
+      "allowedRoles": ["anonymous"]
     },
     {
       "route": "/api/stripeWebhook",
