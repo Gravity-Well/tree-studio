@@ -1,6 +1,8 @@
 "use strict";
 
-const nodemailer = require("nodemailer");
+const { ClientSecretCredential } = require('@azure/identity');
+const { Client } = require('@microsoft/microsoft-graph-client');
+const { TokenCredentialAuthenticationProvider } = require('@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials');
 
 function json(context, status, body) {
   context.res = {
@@ -36,7 +38,7 @@ module.exports = async function (context, req) {
     try {
       await sendEmail(context, { name, email, message });
       emailSent = true;
-      context.log("[contact] Email sent successfully");
+      context.log("[contact] Email sent successfully via Microsoft Graph");
     } catch (err) {
       emailError = err.message;
       context.log.error("[contact] Email failed:", err.message);
@@ -53,64 +55,54 @@ module.exports = async function (context, req) {
 };
 
 async function sendEmail(context, { name, email, message }) {
-  const smtpConfig = {
-    host: process.env.SMTP_HOST || "smtp.gmail.com",
-    port: parseInt(process.env.SMTP_PORT || "587", 10),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD
-    }
-  };
+  const tenantId = process.env.AZURE_TENANT_ID;
+  const clientId = process.env.AZURE_CLIENT_ID;
+  const clientSecret = process.env.AZURE_CLIENT_SECRET;
+  const senderEmail = process.env.MAIL_SENDER || 'admin@nusoft2472aolcom.onmicrosoft.com';
+  const recipientEmail = process.env.RECIPIENT_EMAIL || 'hello@nusoftva.com';
 
-  context.log("[contact] SMTP host:", smtpConfig.host, "user:", smtpConfig.auth.user);
-
-  if (!smtpConfig.auth.user || !smtpConfig.auth.pass) {
-    throw new Error("SMTP credentials not configured.");
+  if (!tenantId || !clientId || !clientSecret) {
+    throw new Error('Microsoft Graph credentials not configured. Set AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET.');
   }
 
-  const transporter = nodemailer.createTransport(smtpConfig);
-  await transporter.verify();
-  context.log("[contact] SMTP connection verified");
+  context.log(`[contact] Graph sender=${senderEmail} recipient=${recipientEmail}`);
 
-  const recipient = process.env.RECIPIENT_EMAIL || "hello@nusoftva.com";
+  const credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+  const authProvider = new TokenCredentialAuthenticationProvider(credential, {
+    scopes: ['https://graph.microsoft.com/.default']
+  });
+  const graphClient = Client.initWithMiddleware({ authProvider });
+
   const received = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
 
-  const mailOptions = {
-    from: `"${process.env.SMTP_FROM || "Tree Studio Contact"}" <${smtpConfig.auth.user}>`,
-    to: recipient,
-    replyTo: `"${name}" <${email}>`,
-    subject: `Tree Studio — message from ${name}`,
-    html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;color:#13273a;">
-        <h2 style="margin-bottom:4px;">New message from Tree Studio Help</h2>
-        <p style="color:#4a6170;font-size:13px;">Received: ${received}</p>
-        <hr style="border:none;border-top:1px solid #d2dde8;margin:16px 0;" />
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-        <p><strong>Message:</strong></p>
-        <div style="background:#f7fbfd;border:1px solid #d2dde8;border-radius:8px;padding:16px;white-space:pre-wrap;">${message}</div>
-        <hr style="border:none;border-top:1px solid #d2dde8;margin:16px 0;" />
-        <p style="font-size:12px;color:#4a6170;">Sent via treestudio.nusoftva.com contact form</p>
-      </div>`,
-    text: `New message from Tree Studio Help\n\nName: ${name}\nEmail: ${email}\nReceived: ${received}\n\nMessage:\n${message}`
+  const mailMessage = {
+    message: {
+      subject: `Tree Studio — message from ${name}`,
+      body: {
+        contentType: 'HTML',
+        content: `
+<div style="font-family:Arial,sans-serif;max-width:600px;color:#13273a;">
+  <h2 style="margin-bottom:4px;">New message from Tree Studio Help</h2>
+  <p style="color:#4a6170;font-size:13px;">Received: ${received}</p>
+  <hr style="border:none;border-top:1px solid #d2dde8;margin:16px 0;" />
+  <p><strong>Name:</strong> ${name}</p>
+  <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+  <p><strong>Message:</strong></p>
+  <div style="background:#f7fbfd;border:1px solid #d2dde8;border-radius:8px;padding:16px;white-space:pre-wrap;">${message}</div>
+  <hr style="border:none;border-top:1px solid #d2dde8;margin:16px 0;" />
+  <p style="font-size:12px;color:#4a6170;">Sent via treestudio.nusoftva.com contact form</p>
+</div>`
+      },
+      toRecipients: [
+        { emailAddress: { address: recipientEmail } }
+      ],
+      replyTo: [
+        { emailAddress: { address: email, name } }
+      ]
+    },
+    saveToSentItems: false
   };
 
-  const maxRetries = 3;
-  let lastError;
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      context.log(`[contact] Send attempt ${attempt}/${maxRetries}`);
-      const result = await transporter.sendMail(mailOptions);
-      context.log("[contact] Sent, messageId:", result.messageId);
-      return result;
-    } catch (err) {
-      lastError = err;
-      context.log.warn(`[contact] Attempt ${attempt} failed:`, err.message);
-      if (attempt < maxRetries) {
-        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
-      }
-    }
-  }
-  throw new Error(`Failed after ${maxRetries} attempts: ${lastError.message}`);
+  await graphClient.api(`/users/${senderEmail}/sendMail`).post(mailMessage);
+  context.log(`[contact] Sent via Graph to ${recipientEmail}`);
 }
