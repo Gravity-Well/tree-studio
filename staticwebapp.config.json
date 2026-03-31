@@ -3,7 +3,7 @@
     {
       "route": "/embed-test",
       "rewrite": "/embed-test.html",
-      "allowedRoles": ["owner"]
+      "allowedRoles": ["authenticated"]
     },
     {
       "route": "/app",
