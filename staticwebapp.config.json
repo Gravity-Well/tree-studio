@@ -1,6 +1,11 @@
 {
   "routes": [
     {
+      "route": "/embed-test",
+      "rewrite": "/embed-test.html",
+      "allowedRoles": ["owner"]
+    },
+    {
       "route": "/app",
       "rewrite": "/app.html"
     },

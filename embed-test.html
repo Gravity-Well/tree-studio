@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Embed Test — Tree Studio</title>
+  <style>
+    :root {
+      --ink: #13273a;
+      --muted: #4a6170;
+      --accent: #0f766e;
+      --bg: #edf3f5;
+      --panel: #ffffff;
+      --border: #d2dde8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      padding: 32px;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .controls {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-end;
+      margin-bottom: 24px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    input[type="text"], input[type="number"], select {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-size: 13px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      width: 220px;
+    }
+    input[type="number"] { width: 80px; }
+    input:focus, select:focus { border-color: var(--accent); }
+    .toggle-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle input { width: auto; cursor: pointer; }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      transition: background 0.15s;
+    }
+    button:hover { background: #0b5f5d; }
+    button.secondary {
+      background: #f0f4f8;
+      color: var(--ink);
+      border: 1px solid var(--border);
+    }
+    button.secondary:hover { background: #e4eaf0; }
+
+    .preview-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 10px;
+    }
+    .frame-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 32px rgba(17,50,74,0.1);
+      background: var(--panel);
+      resize: both;
+      overflow: auto;
+      min-width: 320px;
+      min-height: 200px;
+    }
+    iframe {
+      display: block;
+      border: none;
+      width: 100%;
+    }
+    .code-wrap {
+      margin-top: 24px;
+      background: #0f2236;
+      border-radius: 12px;
+      padding: 20px 24px;
+      position: relative;
+    }
+    .code-wrap pre {
+      font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #a8d8ea;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-size: 11px;
+      padding: 5px 12px;
+    }
+    .size-presets {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .preset-btn {
+      font-size: 11px;
+      padding: 4px 10px;
+      background: #f0f4f8;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-weight: 600;
+      transition: background 0.1s;
+    }
+    .preset-btn:hover { background: #e2eaf2; color: var(--ink); }
+  </style>
+</head>
+<body>
+  <h1>Embed Test Bench</h1>
+  <p class="subtitle">Owner-only page — test Tree Studio embeds before shipping.</p>
+
+  <div class="controls">
+    <div class="field">
+      <label>Tree share URL or ?view= param</label>
+      <input type="text" id="viewParam" placeholder="userId/tree-name  or  full ?view=... URL" />
+    </div>
+    <div class="field">
+      <label>Width (px or %)</label>
+      <input type="text" id="frameWidth" value="100%" />
+    </div>
+    <div class="field">
+      <label>Height (px)</label>
+      <input type="number" id="frameHeight" value="520" />
+    </div>
+    <div class="field">
+      <label>Options</label>
+      <div class="toggle-group">
+        <label class="toggle">
+          <input type="checkbox" id="embedMode" checked /> embed=1
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="viewMode" checked /> view= param
+        </label>
+      </div>
+    </div>
+    <div class="field">
+      <label>&nbsp;</label>
+      <div style="display:flex;gap:8px;">
+        <button onclick="applyEmbed()">Apply</button>
+        <button class="secondary" onclick="resetForm()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="field" style="margin-bottom:14px;">
+    <label>Size presets</label>
+    <div class="size-presets">
+      <button class="preset-btn" onclick="setSize('100%',400)">Full-width short (400px)</button>
+      <button class="preset-btn" onclick="setSize('100%',520)">Full-width medium (520px)</button>
+      <button class="preset-btn" onclick="setSize('100%',700)">Full-width tall (700px)</button>
+      <button class="preset-btn" onclick="setSize('600',480)">600×480 (card)</button>
+      <button class="preset-btn" onclick="setSize('800',600)">800×600 (blog)</button>
+    </div>
+  </div>
+
+  <div class="preview-label">Live Preview (drag corner to resize)</div>
+  <div class="frame-wrap" id="frameWrap">
+    <iframe id="embedFrame" src="" height="520" title="Tree Studio embed"></iframe>
+  </div>
+
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="copyCode()">Copy</button>
+    <pre id="codeOutput">&lt;!-- configure above and click Apply --&gt;</pre>
+  </div>
+
+  <script>
+    const BASE = "https://treestudio.nusoftva.com/app";
+
+    function buildUrl() {
+      const raw = document.getElementById("viewParam").value.trim();
+      const useEmbed = document.getElementById("embedMode").checked;
+      const useView  = document.getElementById("viewMode").checked;
+
+      let viewValue = "";
+      if (raw) {
+        // Accept full URL like https://treestudio.nusoftva.com/app?view=userId/name
+        // or just the view param value like userId/name
+        try {
+          const u = new URL(raw);
+          viewValue = u.searchParams.get("view") || "";
+        } catch (_) {
+          viewValue = raw; // treat as raw view= value
+        }
+      }
+
+      const params = new URLSearchParams();
+      if (useView && viewValue) params.set("view", viewValue);
+      if (useEmbed) params.set("embed", "1");
+
+      const qs = params.toString();
+      return BASE + (qs ? "?" + qs : "");
+    }
+
+    function applyEmbed() {
+      const url    = buildUrl();
+      const width  = document.getElementById("frameWidth").value.trim() || "100%";
+      const height = parseInt(document.getElementById("frameHeight").value, 10) || 520;
+
+      const frame = document.getElementById("embedFrame");
+      frame.src = url;
+      frame.height = height;
+
+      const wrap = document.getElementById("frameWrap");
+      wrap.style.width = width.endsWith("%") ? width : width + "px";
+
+      const widthAttr = width.endsWith("%") ? "100%" : width + "px";
+      document.getElementById("codeOutput").textContent =
+        `<iframe\n  src="${url}"\n  width="${widthAttr}"\n  height="${height}"\n  style="border:none;border-radius:8px;"\n  title="Tree Studio"\n  loading="lazy"\n></iframe>`;
+    }
+
+    function setSize(w, h) {
+      document.getElementById("frameWidth").value = w;
+      document.getElementById("frameHeight").value = h;
+      applyEmbed();
+    }
+
+    function resetForm() {
+      document.getElementById("viewParam").value = "";
+      document.getElementById("frameWidth").value = "100%";
+      document.getElementById("frameHeight").value = "520";
+      document.getElementById("embedMode").checked = true;
+      document.getElementById("viewMode").checked = true;
+      document.getElementById("embedFrame").src = "";
+      document.getElementById("codeOutput").textContent = "<!-- configure above and click Apply -->";
+      document.getElementById("frameWrap").style.width = "";
+    }
+
+    function copyCode() {
+      const text = document.getElementById("codeOutput").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector(".copy-btn");
+        btn.textContent = "Copied!";
+        setTimeout(() => btn.textContent = "Copy", 1800);
+      });
+    }
+  </script>
+</body>
+</html>
