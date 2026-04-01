@@ -3490,11 +3490,22 @@
       return data.result;
     }
 
+    const AI_TRIAL_KEY = "aiTrialUsed";
+
     async function aiGenerateTree() {
       const input = document.getElementById("aiPromptInput");
       const btn = document.getElementById("aiGenerateBtn");
       const prompt = input.value.trim();
       if (!prompt) { input.focus(); return; }
+
+      // Anonymous users get 1 free generation per session
+      if (!currentUser) {
+        const used = parseInt(sessionStorage.getItem(AI_TRIAL_KEY) || "0", 10);
+        if (used >= 1) {
+          showToast("Sign in for unlimited AI generation.");
+          return;
+        }
+      }
 
       btn.disabled = true;
       btn.textContent = "Generating…";
@@ -3507,13 +3518,14 @@
         pushUndo();
         run(currentRoot, true);
         updateSelectedInfo();
-        showToast("Tree generated!");
-      } catch (err) {
-        if (err.message.includes("authenticated")) {
-          showToast("Sign in to use AI features.");
+        if (!currentUser) {
+          sessionStorage.setItem(AI_TRIAL_KEY, "1");
+          showToast("Tree generated! Sign in to generate more.");
         } else {
-          showToast(err.message || "AI generation failed.");
+          showToast("Tree generated!");
         }
+      } catch (err) {
+        showToast(err.message || "AI generation failed.");
       } finally {
         btn.disabled = false;
         btn.textContent = "✦ Generate";
@@ -3522,6 +3534,10 @@
 
     async function aiExpandNode() {
       if (!selectedNode) return;
+      if (!currentUser) {
+        showToast("Sign in to use AI expand.");
+        return;
+      }
       const btn = document.getElementById("aiExpandBtn");
       btn.disabled = true;
       btn.textContent = "…";
@@ -3542,11 +3558,7 @@
         run(currentRoot, false);
         showToast(`Added ${children.length} nodes`);
       } catch (err) {
-        if (err.message.includes("authenticated")) {
-          showToast("Sign in to use AI features.");
-        } else {
-          showToast(err.message || "AI expand failed.");
-        }
+        showToast(err.message || "AI expand failed.");
       } finally {
         btn.disabled = !selectedNode;
         btn.textContent = "✦ Expand";

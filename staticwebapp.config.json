@@ -41,6 +41,10 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/aiGenerate",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "allowedRoles": ["authenticated"]
     },

@@ -56,7 +56,6 @@ module.exports = async function (context, req) {
   }
 
   const userId = getUserId(req);
-  if (!userId) return json(context, 401, { error: "Not authenticated." });
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return json(context, 500, { error: "AI not configured." });
@@ -81,7 +80,7 @@ module.exports = async function (context, req) {
   const systemPrompt = mode === "tree" ? SYSTEM_PROMPT : EXPAND_SYSTEM_PROMPT;
 
   try {
-    context.log(`[aiGenerate] mode=${mode} userId=${userId}`);
+    context.log(`[aiGenerate] mode=${mode} userId=${userId || "anonymous"}`);
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
