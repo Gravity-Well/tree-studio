@@ -3512,7 +3512,7 @@
       if (!currentUser) {
         const used = parseInt(sessionStorage.getItem(AI_TRIAL_KEY) || "0", 10);
         if (used >= 1) {
-          showToast("Sign in for unlimited AI generation.");
+          toast("Sign in for unlimited AI generation.");
           return;
         }
       }
@@ -3530,12 +3530,12 @@
         updateSelectedInfo();
         if (!currentUser) {
           sessionStorage.setItem(AI_TRIAL_KEY, "1");
-          showToast("Tree generated! Sign in to generate more.");
+          toast("Tree generated! Sign in to generate more.");
         } else {
-          showToast("Tree generated!");
+          toast("Tree generated!");
         }
       } catch (err) {
-        showToast(err.message || "AI generation failed.");
+        toast(err.message || "AI generation failed.");
       } finally {
         btn.disabled = false;
         btn.textContent = "✦ Generate";
@@ -3545,7 +3545,7 @@
     async function aiExpandNode() {
       if (!selectedNode) return;
       if (!currentUser) {
-        showToast("Sign in to use AI expand.");
+        toast("Sign in to use AI expand.");
         return;
       }
       const btn = document.getElementById("aiExpandBtn");
@@ -3566,9 +3566,9 @@
         }
         selectedNode.expanded = true;
         run(currentRoot, false);
-        showToast(`Added ${children.length} nodes`);
+        toast(`Added ${children.length} nodes`);
       } catch (err) {
-        showToast(err.message || "AI expand failed.");
+        toast(err.message || "AI expand failed.");
       } finally {
         btn.disabled = !selectedNode;
         btn.textContent = "✦ Expand";
@@ -3601,7 +3601,7 @@
       if (!currentUser) {
         const used = parseInt(sessionStorage.getItem(AI_TRIAL_KEY) || "0", 10);
         if (used >= 1) {
-          showToast("Sign in for unlimited AI generation.");
+          toast("Sign in for unlimited AI generation.");
           closeAiBar();
           return;
         }
@@ -3623,12 +3623,12 @@
         updateSelectedInfo();
         if (!currentUser) {
           sessionStorage.setItem(AI_TRIAL_KEY, "1");
-          showToast("Tree generated! Sign in to generate more.");
+          toast("Tree generated! Sign in to generate more.");
         } else {
-          showToast("Tree generated!");
+          toast("Tree generated!");
         }
       } catch (err) {
-        showToast(err.message || "AI generation failed.");
+        toast(err.message || "AI generation failed.");
       } finally {
         goBtn.disabled = false;
         goBtn.textContent = "Generate";

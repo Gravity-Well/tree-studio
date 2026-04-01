@@ -101,8 +101,8 @@ module.exports = async function (context, req) {
 
     if (!response.ok) {
       const err = await response.text();
-      context.log.error("[aiGenerate] OpenAI error:", err);
-      return json(context, 502, { error: "AI request failed. Please try again." });
+      context.log.error("[aiGenerate] OpenAI error status:", response.status, "body:", err);
+      return json(context, 502, { error: `AI request failed (${response.status}). Please try again.` });
     }
 
     const data = await response.json();
