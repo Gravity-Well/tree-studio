@@ -762,6 +762,57 @@
       border-color: #9ab0c4 !important;
     }
 
+    .help-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #dce8f2;
+      color: #4a6170;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: default;
+      position: relative;
+      user-select: none;
+      flex-shrink: 0;
+      font-style: normal;
+      line-height: 1;
+    }
+    .help-icon:hover { background: #b8d0e8; color: #1e3a54; }
+    .help-tip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a2e42;
+      color: #e8f0f8;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.5;
+      padding: 8px 12px;
+      border-radius: 8px;
+      width: 230px;
+      text-align: left;
+      pointer-events: none;
+      opacity: 0;
+      white-space: normal;
+      z-index: 9999;
+      transition: opacity 0.15s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+    .help-tip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #1a2e42;
+    }
+    .help-icon:hover .help-tip { opacity: 1; }
+
     .canvas-wrap {
       background: var(--panel);
       border: 1px solid #d9e2ec;
@@ -1377,6 +1428,7 @@
           <button id="collapseAllBtn" class="btn-subtle" title="Collapse all nodes">Collapse All</button>
           <button id="expandLevelBtn" class="btn-subtle" title="Expand one more level">+1 Level</button>
           <button id="collapseLevelBtn" class="btn-subtle" title="Collapse one level">−1 Level</button>
+          <i class="help-icon">?<span class="help-tip">Expand All / Collapse All shows or hides every branch at once. +1 Level / −1 Level adjusts the visible depth one step at a time.</span></i>
         </div>
         <div class="tb-divider"></div>
         <div class="tb-group">
@@ -1394,6 +1446,7 @@
           <button id="aiExpandBtn" class="btn-ai" title="Expand selected node with AI" disabled style="padding:6px 12px;font-size:13px;">✦ Expand</button>
           <button id="undoBtn" class="btn-subtle" title="Undo (Ctrl+Z)" disabled>↩ Undo</button>
           <button id="redoBtn" class="btn-subtle" title="Redo (Ctrl+Y)" disabled>↪ Redo</button>
+          <i class="help-icon">?<span class="help-tip">Select a node to activate editing. + Child adds a child node (Tab). ✦ Expand uses AI to generate child ideas. Undo / Redo step through your edit history (Ctrl+Z / Ctrl+Y).</span></i>
         </div>
         <div class="tb-divider"></div>
         <div class="tb-group">
@@ -1402,6 +1455,7 @@
           <button id="cleanViewBtn" class="btn-subtle" title="Clean presentation view">Clean View</button>
           <button id="printBtn" class="btn-subtle" title="Print tree">Print</button>
           <button id="searchBtn" class="btn-subtle" title="Search nodes (Ctrl+F)">⌕ Find</button>
+          <i class="help-icon">?<span class="help-tip">Export your tree as SVG (vector, any size) or PNG (2× retina). Clean View hides the toolbar for presentations. Print sends the tree to your browser's print dialog. ⌕ Find searches node text (Ctrl+F).</span></i>
         </div>
         <span id="selectedInfo" class="selected-info" style="margin-left:auto;"></span>
       </div>
