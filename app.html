@@ -1386,6 +1386,7 @@
             <button id="zoomInBtn" title="Zoom in (Ctrl+scroll)">+</button>
           </div>
           <button id="zoomResetBtn" class="btn-subtle" title="Reset zoom to 100%">Reset</button>
+          <button id="recenterBtn" class="btn-subtle" title="Snap view back to tree">⌖ Find Tree</button>
         </div>
         <div class="tb-divider"></div>
         <div class="tb-group">
@@ -1418,9 +1419,12 @@
       </div>
       <div id="cloudTreeList" class="cloud-tree-list"></div>
       <div id="shareLinkWrap" class="share-link-wrap" style="display:none">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Share link</div>
         <input id="shareLinkInput" type="text" readonly />
         <button id="copyLinkBtn">Copy link</button>
-        <a id="embedLinkBtn" href="#" target="_blank" style="display:inline-block;margin-top:6px;font-size:12px;font-weight:600;color:var(--accent);">Embed on your site →</a>
+        <div style="font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px;">Embed code</div>
+        <textarea id="embedCodeOutput" readonly style="width:100%;font-size:11px;font-family:monospace;border:1px solid #d2dde8;border-radius:6px;padding:8px;resize:vertical;min-height:72px;color:var(--ink);background:#f7fbfd;"></textarea>
+        <button id="copyEmbedBtn" style="margin-top:6px;">Copy embed code</button>
       </div>
       <div id="error" class="error"></div>
     </details>
@@ -2760,12 +2764,13 @@
       if (!currentUser) { setError("Sign in to share trees."); return; }
       const viewParam = `${encodeURIComponent(currentUser.userId)}/${encodeURIComponent(name)}`;
       const url = `${location.origin}?view=${viewParam}`;
+      const embedUrl = `${location.origin}/app?view=${viewParam}&embed=1`;
+      const embedCode = `<iframe src="${embedUrl}" width="100%" height="500" style="border:none;border-radius:8px;" allowfullscreen></iframe>`;
       const wrap = document.getElementById("shareLinkWrap");
-      const input = document.getElementById("shareLinkInput");
-      input.value = url;
-      document.getElementById("embedLinkBtn").href = `/embed?view=${viewParam}`;
+      document.getElementById("shareLinkInput").value = url;
+      document.getElementById("embedCodeOutput").value = embedCode;
       wrap.style.display = "flex";
-      input.select();
+      document.getElementById("shareLinkInput").select();
     }
 
     function rerenderCurrent() {
@@ -2948,6 +2953,9 @@
     document.getElementById("zoomInBtn").addEventListener("click", () => setZoom(zoomScale + zoomStep));
     document.getElementById("zoomOutBtn").addEventListener("click", () => setZoom(zoomScale - zoomStep));
     document.getElementById("zoomResetBtn").addEventListener("click", () => setZoom(1));
+    document.getElementById("recenterBtn").addEventListener("click", () => {
+      if (currentRoot) run(currentRoot, true, false);
+    });
     document.getElementById("loadJson").addEventListener("click", loadJsonTree);
     document.getElementById("saveCloudBtn").addEventListener("click", saveTreeToCloud);
 
@@ -3692,7 +3700,16 @@
       navigator.clipboard.writeText(input.value).then(() => {
         const btn = document.getElementById("copyLinkBtn");
         btn.textContent = "Copied!";
-        setTimeout(() => { btn.textContent = "Copy"; }, 2000);
+        setTimeout(() => { btn.textContent = "Copy link"; }, 2000);
+      });
+    });
+
+    document.getElementById("copyEmbedBtn").addEventListener("click", () => {
+      const code = document.getElementById("embedCodeOutput").value;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById("copyEmbedBtn");
+        btn.textContent = "Copied!";
+        setTimeout(() => { btn.textContent = "Copy embed code"; }, 2000);
       });
     });
 
