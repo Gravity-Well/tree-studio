@@ -21,9 +21,9 @@ jobs:
           lfs: false
       - name: Stamp version
         run: |
-          SHA=$(git rev-parse --short HEAD)
-          sed -i "s/content=\"[^\"]*\"/content=\"$SHA\"/" app.html
-          sed -i "s/>v[0-9][^<]*<\/span>/>$SHA<\/span>/" app.html
+          VER=$(date -u +"%Y.%m.%d")
+          sed -i "s/content=\"[^\"]*\"/content=\"$VER\"/" app.html
+          sed -i "s/>v[0-9][^<]*<\/span>/>$VER<\/span>/" app.html
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
