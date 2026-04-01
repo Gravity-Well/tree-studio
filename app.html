@@ -3495,6 +3495,7 @@
         body: JSON.stringify(payload)
       });
       const data = await res.json();
+      console.log("[aiGenerate] status:", res.status, "data:", JSON.stringify(data));
       if (!res.ok) throw new Error(data.error || "AI request failed.");
       return data.result;
     }
