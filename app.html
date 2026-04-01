@@ -3590,12 +3590,46 @@
     }
     async function aiBarGenerate() {
       const input = document.getElementById("aiBarInput");
+      const goBtn = document.getElementById("aiBarGoBtn");
+      const toolbarBtn = document.getElementById("aiToolbarGenerateBtn");
       const prompt = input.value.trim();
       if (!prompt) { input.focus(); return; }
-      // Reuse aiGenerateTree logic by syncing the hidden empty-state input
-      document.getElementById("aiPromptInput").value = prompt;
-      closeAiBar();
-      await aiGenerateTree();
+
+      if (!currentUser) {
+        const used = parseInt(sessionStorage.getItem(AI_TRIAL_KEY) || "0", 10);
+        if (used >= 1) {
+          showToast("Sign in for unlimited AI generation.");
+          closeAiBar();
+          return;
+        }
+      }
+
+      goBtn.disabled = true;
+      goBtn.textContent = "…";
+      toolbarBtn.disabled = true;
+      try {
+        const result = await callAiGenerate({ mode: "tree", prompt });
+        const newRoot = buildTreeFromJsonNode(result);
+        currentRoot = newRoot;
+        selectedNode = newRoot;
+        document.getElementById("docTitle").value = prompt.slice(0, 60);
+        pushUndo();
+        run(currentRoot, true);
+        updateSelectedInfo();
+        if (!currentUser) {
+          sessionStorage.setItem(AI_TRIAL_KEY, "1");
+          showToast("Tree generated! Sign in to generate more.");
+        } else {
+          showToast("Tree generated!");
+        }
+        closeAiBar();
+      } catch (err) {
+        showToast(err.message || "AI generation failed.");
+      } finally {
+        goBtn.disabled = false;
+        goBtn.textContent = "Generate";
+        toolbarBtn.disabled = false;
+      }
     }
     document.getElementById("aiToolbarGenerateBtn").addEventListener("click", openAiBar);
     document.getElementById("aiBarGoBtn").addEventListener("click", aiBarGenerate);
