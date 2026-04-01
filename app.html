@@ -1443,6 +1443,7 @@
         <div class="tb-divider"></div>
         <div class="tb-group">
           <button id="addChildBtn" class="btn-primary" title="Add child to selected node (Tab)">+ Child</button>
+          <button id="aiToolbarGenerateBtn" class="btn-ai" title="Generate a new tree with AI" style="padding:6px 12px;font-size:13px;">✦ Generate</button>
           <button id="aiExpandBtn" class="btn-ai" title="Expand selected node with AI" disabled style="padding:6px 12px;font-size:13px;">✦ Expand</button>
           <button id="undoBtn" class="btn-subtle" title="Undo (Ctrl+Z)" disabled>↩ Undo</button>
           <button id="redoBtn" class="btn-subtle" title="Redo (Ctrl+Y)" disabled>↪ Redo</button>
@@ -1501,6 +1502,12 @@
     </div>
 
     <div id="treeViewport" class="canvas-wrap">
+      <div id="aiGenerateBar" class="node-search-bar" style="display:none;min-width:360px;">
+        <span style="font-size:12px;color:var(--muted);white-space:nowrap;">✦ AI:</span>
+        <input id="aiBarInput" type="text" placeholder="Describe your tree…" autocomplete="off" spellcheck="false" maxlength="200" />
+        <button id="aiBarGoBtn" class="btn-ai" style="padding:3px 10px;font-size:12px;white-space:nowrap;">Generate</button>
+        <button id="aiBarCloseBtn" class="node-search-close" title="Close (Esc)">✕</button>
+      </div>
       <div id="nodeSearchBar" class="node-search-bar" style="display:none">
         <input id="nodeSearchInput" type="text" placeholder="Search nodes…" autocomplete="off" spellcheck="false" />
         <span id="nodeSearchCount" class="node-search-count"></span>
@@ -3570,6 +3577,33 @@
       if (e.key === "Enter") { e.preventDefault(); aiGenerateTree(); }
     });
     document.getElementById("aiExpandBtn").addEventListener("click", aiExpandNode);
+
+    // ── AI toolbar bar ────────────────────────────────────────────────────────
+    function openAiBar() {
+      const bar = document.getElementById("aiGenerateBar");
+      bar.style.display = "flex";
+      document.getElementById("aiBarInput").focus();
+    }
+    function closeAiBar() {
+      document.getElementById("aiGenerateBar").style.display = "none";
+      document.getElementById("aiBarInput").value = "";
+    }
+    async function aiBarGenerate() {
+      const input = document.getElementById("aiBarInput");
+      const prompt = input.value.trim();
+      if (!prompt) { input.focus(); return; }
+      // Reuse aiGenerateTree logic by syncing the hidden empty-state input
+      document.getElementById("aiPromptInput").value = prompt;
+      closeAiBar();
+      await aiGenerateTree();
+    }
+    document.getElementById("aiToolbarGenerateBtn").addEventListener("click", openAiBar);
+    document.getElementById("aiBarGoBtn").addEventListener("click", aiBarGenerate);
+    document.getElementById("aiBarCloseBtn").addEventListener("click", closeAiBar);
+    document.getElementById("aiBarInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); aiBarGenerate(); }
+      if (e.key === "Escape") closeAiBar();
+    });
 
     window.addEventListener("tree-node-selected", (e) => {
       document.getElementById("aiExpandBtn").disabled = !e.detail.node;
