@@ -2591,7 +2591,9 @@
 
     function IfNeededCenter(recenter) {
       if (!recenter) return;
-      window.requestAnimationFrame(centerViewport);
+      // Double rAF: first frame lets the browser apply new SVG dimensions,
+      // second frame scrolls after layout is fully settled.
+      window.requestAnimationFrame(() => window.requestAnimationFrame(centerViewport));
     }
 
     currentRoot = new WNode("Root", null);
@@ -3614,6 +3616,8 @@
         selectedNode = newRoot;
         document.getElementById("docTitle").value = prompt.slice(0, 60);
         pushUndo();
+        closeAiBar();
+        setZoom(1);
         run(currentRoot, true);
         updateSelectedInfo();
         if (!currentUser) {
@@ -3622,7 +3626,6 @@
         } else {
           showToast("Tree generated!");
         }
-        closeAiBar();
       } catch (err) {
         showToast(err.message || "AI generation failed.");
       } finally {
