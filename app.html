@@ -1009,6 +1009,44 @@
       margin-top: 6px;
     }
 
+    .ai-prompt-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .ai-prompt-row input {
+      flex: 1;
+      border: 1.5px solid #b0c4d8;
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-size: 14px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+      outline: none;
+      background: #fff;
+    }
+
+    .ai-prompt-row input:focus {
+      border-color: var(--accent);
+    }
+
+    .btn-ai {
+      background: linear-gradient(135deg, #0f766e, #0891b2);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-ai:hover { opacity: 0.9; }
+    .btn-ai:disabled { opacity: 0.5; cursor: not-allowed; }
+
     .btn-ghost-sm {
       background: transparent;
       color: var(--ink);
@@ -1352,6 +1390,7 @@
         <div class="tb-divider"></div>
         <div class="tb-group">
           <button id="addChildBtn" class="btn-primary" title="Add child to selected node (Tab)">+ Child</button>
+          <button id="aiExpandBtn" class="btn-ai" title="Expand selected node with AI" disabled style="padding:6px 12px;font-size:13px;">✦ Expand</button>
           <button id="undoBtn" class="btn-subtle" title="Undo (Ctrl+Z)" disabled>↩ Undo</button>
           <button id="redoBtn" class="btn-subtle" title="Redo (Ctrl+Y)" disabled>↪ Redo</button>
         </div>
@@ -1417,11 +1456,15 @@
         Built with Tree Studio
       </a>
       <div id="emptyState" class="empty-state">
-        <h2>Start your first tree</h2>
-        <p>Click <strong>New Tree</strong> to start from scratch, or pick a template to see what's possible.</p>
+        <h2>What would you like to map?</h2>
+        <p>Describe a topic and AI will build the tree — or start manually.</p>
+        <div class="ai-prompt-row">
+          <input id="aiPromptInput" type="text" placeholder="e.g. product roadmap for a SaaS startup" autocomplete="off" spellcheck="false" maxlength="200" />
+          <button id="aiGenerateBtn" class="btn-ai">✦ Generate</button>
+        </div>
         <div class="empty-actions">
-          <button id="emptyNewBtn" class="btn-primary">New Tree</button>
-          <button id="emptyTemplateBtn" class="btn-ghost-sm">Browse Templates</button>
+          <button id="emptyNewBtn" class="btn-ghost-sm">Blank tree</button>
+          <button id="emptyTemplateBtn" class="btn-ghost-sm">Templates</button>
         </div>
       </div>
     </div>
@@ -3354,6 +3397,109 @@
     });
 
     // ── Keyboard Shortcuts ────────────────────────────────────────────────────
+
+    // ── AI Generation ────────────────────────────────────────────────────────
+
+    function getNodePath(node) {
+      const path = [];
+      let n = node;
+      while (n) { path.unshift(n.label); n = n.parent; }
+      return path.join(" > ");
+    }
+
+    function getTreeSummary(root) {
+      const lines = [];
+      function walk(n, depth) {
+        lines.push("  ".repeat(depth) + n.label);
+        if (depth < 2) n.children.forEach(c => walk(c, depth + 1));
+      }
+      if (root) walk(root, 0);
+      return lines.slice(0, 40).join("\n");
+    }
+
+    async function callAiGenerate(payload) {
+      const res = await fetch("/api/aiGenerate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "AI request failed.");
+      return data.result;
+    }
+
+    async function aiGenerateTree() {
+      const input = document.getElementById("aiPromptInput");
+      const btn = document.getElementById("aiGenerateBtn");
+      const prompt = input.value.trim();
+      if (!prompt) { input.focus(); return; }
+
+      btn.disabled = true;
+      btn.textContent = "Generating…";
+      try {
+        const result = await callAiGenerate({ mode: "tree", prompt });
+        const newRoot = buildTreeFromJsonNode(result);
+        currentRoot = newRoot;
+        selectedNode = newRoot;
+        document.getElementById("docTitle").value = prompt.slice(0, 60);
+        pushUndo();
+        run(currentRoot, true);
+        updateSelectedInfo();
+        showToast("Tree generated!");
+      } catch (err) {
+        if (err.message.includes("authenticated")) {
+          showToast("Sign in to use AI features.");
+        } else {
+          showToast(err.message || "AI generation failed.");
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "✦ Generate";
+      }
+    }
+
+    async function aiExpandNode() {
+      if (!selectedNode) return;
+      const btn = document.getElementById("aiExpandBtn");
+      btn.disabled = true;
+      btn.textContent = "…";
+      try {
+        const children = await callAiGenerate({
+          mode: "expand",
+          nodeLabel: selectedNode.label,
+          treeSummary: getTreeSummary(currentRoot)
+        });
+        if (!Array.isArray(children) || children.length === 0) throw new Error("No suggestions returned.");
+        pushUndo();
+        for (const childData of children) {
+          const child = buildTreeFromJsonNode(childData);
+          child.parent = selectedNode;
+          selectedNode.children.push(child);
+        }
+        selectedNode.expanded = true;
+        run(currentRoot, false);
+        showToast(`Added ${children.length} nodes`);
+      } catch (err) {
+        if (err.message.includes("authenticated")) {
+          showToast("Sign in to use AI features.");
+        } else {
+          showToast(err.message || "AI expand failed.");
+        }
+      } finally {
+        btn.disabled = !selectedNode;
+        btn.textContent = "✦ Expand";
+      }
+    }
+
+    document.getElementById("aiGenerateBtn").addEventListener("click", aiGenerateTree);
+    document.getElementById("aiPromptInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); aiGenerateTree(); }
+    });
+    document.getElementById("aiExpandBtn").addEventListener("click", aiExpandNode);
+
+    window.addEventListener("tree-node-selected", (e) => {
+      document.getElementById("aiExpandBtn").disabled = !e.detail.node;
+    });
 
     // ── Node Search ──────────────────────────────────────────────────────────
 
