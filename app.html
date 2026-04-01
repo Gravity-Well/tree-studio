@@ -3421,11 +3421,12 @@
 
     function panToNode(node) {
       const viewport = document.getElementById("treeViewport");
-      const svgEl = document.getElementById("treeSvg");
-      const svgW = svgEl.getBoundingClientRect().width || svgEl.clientWidth;
-      const svgH = svgEl.getBoundingClientRect().height || svgEl.clientHeight;
-      const nodeCX = (node.position.x + node.width / 2) * zoomScale;
-      const nodeCY = (node.position.y + node.height / 2) * zoomScale;
+      const bounds = getTreeBounds(currentRoot);
+      const panPadding = 2000;
+      const offsetX = panPadding - bounds.minX;
+      const offsetY = panPadding - bounds.minY;
+      const nodeCX = (node.position.x + offsetX + node.width / 2) * zoomScale;
+      const nodeCY = (node.position.y + offsetY + node.height / 2) * zoomScale;
       viewport.scrollLeft = nodeCX - viewport.clientWidth / 2;
       viewport.scrollTop = nodeCY - viewport.clientHeight / 2;
     }
