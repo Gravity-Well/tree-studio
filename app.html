@@ -2438,8 +2438,8 @@
       const offsetY = panPadding - bounds.minY;
       const treeCenterX = ((bounds.minX + bounds.maxX) / 2) + offsetX;
       const treeTopY = bounds.minY + offsetY;
-      preferredInitialScrollLeft = Math.floor(treeCenterX - (viewport.clientWidth / 2));
-      preferredInitialScrollTop = Math.floor(treeTopY - 20);
+      preferredInitialScrollLeft = Math.floor(treeCenterX * zoomScale - (viewport.clientWidth / 2));
+      preferredInitialScrollTop = Math.floor(treeTopY * zoomScale - 20);
 
       svg.setAttribute("viewBox", `0 0 ${canvasWidth} ${canvasHeight}`);
       svg.style.width = `${Math.floor(canvasWidth * zoomScale)}px`;
