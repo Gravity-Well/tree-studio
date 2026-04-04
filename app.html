@@ -1146,26 +1146,25 @@
 
     /* ── Mobile ── */
     @media (max-width: 640px) {
-      /* True full-screen native app layout */
+      /* Prevent body from scrolling behind the fixed layout */
       html, body {
-        height: 100dvh;
-        max-height: 100dvh;
-        min-height: unset;
         overflow: hidden;
         margin: 0;
         padding: 0;
+        height: 100%;
       }
 
+      /* Fixed full-screen layout — most reliable cross-browser approach */
       .layout {
+        position: fixed !important;
+        inset: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
         max-width: 100% !important;
-        width: 100%;
-        height: 100dvh;
-        max-height: 100dvh;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
       }
 
       /* Toolbar: slim, no radius, flush top */
@@ -1199,14 +1198,14 @@
 
       /* Canvas outer fills ALL remaining space */
       .canvas-outer {
-        flex: 1 1 0;
-        min-height: 0;
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
         border-radius: 0;
         overflow: hidden;
       }
       .canvas-wrap {
-        width: 100%;
-        height: 100%;
+        width: 100% !important;
+        height: 100% !important;
         border-radius: 0;
         border: none;
       }
@@ -2901,7 +2900,7 @@
       viewport.scrollTop = Math.max(0, (contentY * ratio) - anchorYInViewport);
     }
 
-    function fitTreeToViewport() {
+    function fitTreeToViewport(retryCount) {
       if (!currentRoot) return;
       const viewport = document.getElementById("treeViewport");
       const bounds = getTreeBounds(currentRoot);
@@ -2909,10 +2908,18 @@
       const treeH = bounds.maxY - bounds.minY;
       const vw = viewport.clientWidth;
       const vh = viewport.clientHeight;
-      if (!vw || !vh || !treeW || !treeH) return;
-      const padding = 40;
-      const zoom = Math.min((vw - padding) / treeW, (vh - padding) / treeH, 1.2);
-      setZoom(Math.max(0.3, zoom));
+      // Retry up to 3 times if layout hasn't settled yet
+      if (!vw || !vh) {
+        if ((retryCount || 0) < 3) setTimeout(() => fitTreeToViewport((retryCount || 0) + 1), 200);
+        return;
+      }
+      if (!treeW || !treeH) return;
+      const padding = 60;
+      const isMobile = window.innerWidth <= 640;
+      const rawZoom = Math.min((vw - padding) / treeW, (vh - padding) / treeH, 1.2);
+      // On mobile, never zoom below 0.6 — keep text readable; user can pinch to zoom out
+      const minFit = isMobile ? 0.6 : 0.3;
+      setZoom(Math.max(minFit, rawZoom));
       run(currentRoot, true);
     }
 
@@ -3865,6 +3872,7 @@
         pushUndo();
         run(currentRoot, true);
         updateSelectedInfo();
+        if (window.innerWidth <= 640) setTimeout(() => fitTreeToViewport(0), 400);
         if (!currentUser) {
           sessionStorage.setItem(AI_TRIAL_KEY, "1");
           toast("Tree generated! Sign in to generate more.");
@@ -3959,6 +3967,7 @@
         setZoom(1);
         run(currentRoot, true);
         updateSelectedInfo();
+        if (window.innerWidth <= 640) setTimeout(() => fitTreeToViewport(0), 400);
         if (!currentUser) {
           sessionStorage.setItem(AI_TRIAL_KEY, "1");
           toast("Tree generated! Sign in to generate more.");
@@ -4290,7 +4299,7 @@
         }
         // On mobile, auto-fit tree to viewport after layout fully settles
         if (window.innerWidth <= 640) {
-          setTimeout(() => fitTreeToViewport(), 150);
+          setTimeout(() => fitTreeToViewport(0), 400);
         }
       }, 0);
     }
