@@ -1232,6 +1232,9 @@
       /* Hide desktop clutter */
       .tb-divider, .help-icon { display: none !important; }
       #meta, .meta, .copyright { display: none !important; }
+
+      /* Larger SVG node text on mobile */
+      #treeSvg text { font-size: 14px !important; }
       .toast-container { bottom: 20px; right: 10px; left: 10px; }
       .toast { max-width: 100%; font-size: 13px; }
     }
@@ -2843,7 +2846,10 @@
       const svg = document.getElementById("treeSvg");
       const viewport = document.getElementById("treeViewport");
       if (recomputeLayout) {
-        layoutTreeWalker(root, 600, 50, xOffset, yOffset);
+        const centerX = window.innerWidth <= 640
+          ? Math.round(viewport.clientWidth / 2 / zoomScale)
+          : 600;
+        layoutTreeWalker(root, centerX, 50, xOffset, yOffset);
         ensureTreeInBounds(root, 20, 20, 100000, 100000);
       }
 
@@ -4282,11 +4288,9 @@
           syncJsonFromTree();
           run(currentRoot, true);
         }
-        // On mobile, auto-fit tree to viewport after layout settles
+        // On mobile, auto-fit tree to viewport after layout fully settles
         if (window.innerWidth <= 640) {
-          window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-            fitTreeToViewport();
-          }));
+          setTimeout(() => fitTreeToViewport(), 150);
         }
       }, 0);
     }
@@ -4525,10 +4529,10 @@
       let left = screenX - barW / 2;
       let top = screenY + 6;
 
-      // Clamp to viewport
+      // Clamp to canvas bounds, not window bounds
       const margin = 8;
-      left = Math.max(margin, Math.min(left, window.innerWidth - barW - margin));
-      top = Math.max(margin, Math.min(top, window.innerHeight - barH - margin));
+      left = Math.max(vRect.left + margin, Math.min(left, vRect.right - barW - margin));
+      top = Math.max(vRect.top + margin, Math.min(top, vRect.bottom - barH - margin));
 
       bar.style.left = left + "px";
       bar.style.top = top + "px";
@@ -4539,7 +4543,8 @@
     }
 
     // Update context bar on viewport scroll
-    document.getElementById("treeViewport").addEventListener("scroll", positionContextBar);
+    const _vp = document.getElementById("treeViewport");
+    if (_vp) _vp.addEventListener("scroll", positionContextBar);
 
     // Hide context bar when clicking canvas background
     document.getElementById("treeViewport").addEventListener("mousedown", (e) => {
