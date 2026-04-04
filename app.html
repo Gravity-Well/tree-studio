@@ -134,6 +134,19 @@
 
     .cloud-panel summary::-webkit-details-marker { display: none; }
 
+    .panel-close-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--muted);
+      padding: 2px 4px;
+      border-radius: 4px;
+      line-height: 1;
+    }
+    .panel-close-btn:hover { background: #f0f5fa; color: var(--ink); }
+
     .cloud-panel summary::before {
       content: "▸";
       font-size: 11px;
@@ -1651,7 +1664,7 @@
     </div>
 
     <details id="cloudPanel" class="cloud-panel" style="display:none">
-      <summary>My Trees <span id="cloudTreeCount" class="cloud-tree-count" style="display:none"></span></summary>
+      <summary>My Trees <span id="cloudTreeCount" class="cloud-tree-count" style="display:none"></span><button class="panel-close-btn" onclick="event.preventDefault();event.stopPropagation();document.getElementById('cloudPanel').style.display='none';" title="Close">✕</button></summary>
       <div class="cloud-save-row">
         <input id="cloudTreeName" type="text" placeholder="tree-name" autocomplete="off" spellcheck="false" />
         <button id="saveCloudBtn">Save</button>
@@ -1669,7 +1682,7 @@
     </details>
 
     <details class="json-panel" style="display:none">
-      <summary>Advanced</summary>
+      <summary>Advanced<button class="panel-close-btn" onclick="event.preventDefault();event.stopPropagation();this.closest('details').style.display='none';" title="Close">✕</button></summary>
       <div class="row">
         <label>Horizontal <input id="xOffset" type="number" min="0" value="30" /></label>
         <label>Vertical <input id="yOffset" type="number" min="50" value="70" /></label>
