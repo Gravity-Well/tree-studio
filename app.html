@@ -1605,7 +1605,7 @@
             </div>
           </div>
           <span style="font-size:10px;color:var(--muted);opacity:0.5;user-select:none;" title="App version">v1.0.3</span>
-          <button id="upgradePill" class="upgrade-pill" style="display:none" onclick="openPlanModal()">Upgrade ✦</button>
+          <button id="upgradePill" class="upgrade-pill" style="display:none">Upgrade ✦</button>
           <div class="auth-bar" id="authBar">
             <span id="authStatus"></span>
           </div>
@@ -4133,6 +4133,8 @@
 
     let currentUser = null;
     let currentPlan = "free";
+
+    document.getElementById("upgradePill").addEventListener("click", () => openPlanModal());
 
     function openPlanModal(tier) {
       // If a specific tier is already chosen (e.g. from pricing page), skip the
