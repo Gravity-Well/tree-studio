@@ -1145,14 +1145,8 @@
       .toolbar-actions .btn-subtle,
       .toolbar-actions .btn-ai { font-size: 12px; padding: 5px 8px; }
 
-      /* Hide lower-priority controls on mobile */
-      #expandAllBtn, #collapseAllBtn, #expandLevelBtn, #collapseLevelBtn,
-      #zoomOutBtn, #zoomInBtn, #zoomResetBtn, #zoomInfo, #recenterBtn,
-      #exportSvgBtn, #exportPngBtn, #cleanViewBtn, #printBtn,
+      /* Overflow dropdown full-width on mobile */
       .tb-divider, .help-icon { display: none; }
-
-      .toolbar-secondary { padding-top: 6px; gap: 5px; }
-      .toolbar-secondary button { font-size: 12px; padding: 5px 8px; }
 
       .canvas-wrap { height: calc(100vh - 160px); border-radius: 8px; }
 
@@ -1165,6 +1159,177 @@
 
       /* AI bar full width on mobile */
       #aiGenerateBar { min-width: unset !important; width: calc(100vw - 48px); }
+    }
+
+    /* ── Overflow menu ── */
+    .overflow-menu-wrap {
+      position: relative;
+    }
+
+    .overflow-btn {
+      background: #fff !important;
+      color: var(--btn-muted) !important;
+      border: 1px solid #ccd8e4 !important;
+      box-shadow: none;
+      font-size: 18px !important;
+      padding: 6px 11px !important;
+      line-height: 1;
+      letter-spacing: 1px;
+    }
+
+    .overflow-btn:hover {
+      background: #f0f6fa !important;
+      border-color: #9ab0c4 !important;
+    }
+
+    .overflow-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: var(--panel);
+      border: 1px solid #d2dde8;
+      border-radius: 12px;
+      box-shadow: 0 8px 28px rgba(17,50,74,0.14);
+      z-index: 150;
+      min-width: 190px;
+      overflow: hidden;
+    }
+
+    .overflow-dropdown.open {
+      display: block;
+    }
+
+    .overflow-dropdown button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 8px 14px;
+      border: none;
+      background: transparent;
+      color: var(--ink);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      transition: background 0.1s;
+    }
+
+    .overflow-dropdown button:hover {
+      background: #f0f5fa;
+    }
+
+    .overflow-dropdown .menu-divider {
+      height: 1px;
+      background: #e4ebf2;
+      margin: 3px 0;
+    }
+
+    .overflow-dropdown .menu-sub {
+      padding-left: 26px !important;
+      font-size: 12px !important;
+      color: var(--muted) !important;
+    }
+
+    .overflow-dropdown .menu-sub:hover {
+      background: #f0f5fa;
+      color: var(--ink) !important;
+    }
+
+    /* ── Contextual node toolbar ── */
+    #nodeContextBar {
+      position: fixed;
+      background: #ffffff;
+      border: 1px solid #d2dde8;
+      border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(17,50,74,0.15);
+      padding: 4px 6px;
+      display: none;
+      flex-direction: row;
+      gap: 4px;
+      z-index: 200;
+      align-items: center;
+    }
+
+    #nodeContextBar.visible {
+      display: flex;
+    }
+
+    #nodeContextBar button {
+      border: none;
+      background: transparent;
+      color: var(--btn-muted);
+      padding: 5px 8px;
+      font-size: 13px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.1s;
+    }
+
+    #nodeContextBar button:hover {
+      background: #f0f5fa;
+      color: var(--ink);
+    }
+
+    #nodeContextBar button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* ── Floating zoom controls ── */
+    #zoomFloat {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      background: #ffffff;
+      border: 1px solid #d2dde8;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(17,50,74,0.12);
+      padding: 3px 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 50;
+    }
+
+    #zoomFloat button {
+      border: none;
+      background: transparent;
+      color: var(--btn-muted);
+      padding: 4px 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 5px;
+      line-height: 1;
+      transition: background 0.1s;
+    }
+
+    #zoomFloat button:hover {
+      background: #f0f5fa;
+    }
+
+    #zoomFloat #zoomInfo {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 0 4px;
+      min-width: 44px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #zoomFloat #zoomInfo:hover {
+      color: var(--ink);
+    }
+
+    @media (max-width: 640px) {
+      .overflow-dropdown {
+        min-width: calc(100vw - 32px);
+        right: -8px;
+      }
     }
 
     /* ── Plan comparison modal ── */
@@ -1409,20 +1574,36 @@
           <h1><a href="/" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:8px;"><img src="/favicon.svg" width="22" height="22" alt="" style="border-radius:5px;" />Tree Studio</a></h1>
           <p>Build and explore logic trees visually.</p>
         </div>
-        <div class="toolbar-actions">
-          <button id="newTreeBtn" class="btn-primary">New Tree</button>
-          <div class="templates-wrap">
-            <button id="templatesBtn" class="btn-subtle">Templates ▾</button>
-            <div class="templates-dropdown" id="templatesDropdown">
-              <button id="loadSample">Sample Tree</button>
-              <button id="loadPackedSample">Deep Tree</button>
-              <button id="loadTaxonomy">Taxonomy</button>
-              <button id="loadLineage">Human Lineage</button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button id="aiToolbarGenerateBtn" class="btn-ai" title="Generate a new tree with AI" style="padding:6px 12px;font-size:13px;">✦ Use AI</button>
+          <div class="overflow-menu-wrap">
+            <button id="overflowBtn" class="overflow-btn toolbar-btn" title="More options">⋯</button>
+            <div class="overflow-dropdown" id="overflowDropdown">
+              <button id="newTreeBtn">New Tree</button>
+              <button id="templatesBtn" style="display:flex;justify-content:space-between;align-items:center;">Templates <span>▾</span></button>
+              <div id="templatesDropdown" style="background:#f7fafd;border-top:1px solid #edf2f7;border-bottom:1px solid #edf2f7;display:none;">
+                <button id="loadSample" class="menu-sub">Sample Tree</button>
+                <button id="loadPackedSample" class="menu-sub">Deep Tree</button>
+                <button id="loadTaxonomy" class="menu-sub">Taxonomy</button>
+                <button id="loadLineage" class="menu-sub">Human Lineage</button>
+              </div>
+              <button id="cloudPanelToggleBtn">My Trees</button>
+              <div class="menu-divider"></div>
+              <button id="expandAllBtn">Expand All</button>
+              <button id="collapseAllBtn">Collapse All</button>
+              <button id="expandLevelBtn">+1 Level</button>
+              <button id="collapseLevelBtn">−1 Level</button>
+              <div class="menu-divider"></div>
+              <button id="exportSvgBtn">SVG</button>
+              <button id="exportPngBtn">PNG</button>
+              <button id="printBtn">Print</button>
+              <button id="cleanViewBtn">Clean View</button>
+              <button id="searchBtn">⌕ Find</button>
+              <div class="menu-divider"></div>
+              <button id="undoBtn" disabled>↩ Undo</button>
+              <button id="redoBtn" disabled>↪ Redo</button>
             </div>
           </div>
-          <button id="cloudPanelToggleBtn" class="btn-cloud">My Trees</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
           <span style="font-size:10px;color:var(--muted);opacity:0.5;user-select:none;" title="App version">v1.0.3</span>
           <button id="upgradePill" class="upgrade-pill" style="display:none" onclick="openPlanModal()">Upgrade ✦</button>
           <div class="auth-bar" id="authBar">
@@ -1430,44 +1611,12 @@
           </div>
         </div>
       </div>
-      <div class="toolbar-secondary">
-        <div class="tb-group">
-          <button id="expandAllBtn" class="btn-subtle" title="Expand all nodes">Expand All</button>
-          <button id="collapseAllBtn" class="btn-subtle" title="Collapse all nodes">Collapse All</button>
-          <button id="expandLevelBtn" class="btn-subtle" title="Expand one more level">+1 Level</button>
-          <button id="collapseLevelBtn" class="btn-subtle" title="Collapse one level">−1 Level</button>
-          <i class="help-icon">?<span class="help-tip">Expand All / Collapse All shows or hides every branch at once. +1 Level / −1 Level adjusts the visible depth one step at a time.</span></i>
-        </div>
-        <div class="tb-divider"></div>
-        <div class="tb-group">
-          <div class="zoom-pill">
-            <button id="zoomOutBtn" title="Zoom out (Ctrl+scroll)">−</button>
-            <span id="zoomInfo" class="zoom-pill-val">100%</span>
-            <button id="zoomInBtn" title="Zoom in (Ctrl+scroll)">+</button>
-          </div>
-          <button id="zoomResetBtn" class="btn-subtle" title="Reset zoom to 100%">Reset</button>
-          <button id="recenterBtn" class="btn-subtle" title="Snap view back to tree">⌖ Find Tree</button>
-        </div>
-        <div class="tb-divider"></div>
-        <div class="tb-group">
-          <button id="addChildBtn" class="btn-primary" title="Add child to selected node (Tab)">+ Child</button>
-          <button id="aiToolbarGenerateBtn" class="btn-ai" title="Generate a new tree with AI" style="padding:6px 12px;font-size:13px;">✦ Use AI</button>
-          <button id="aiExpandBtn" class="btn-ai" title="Expand selected node with AI" disabled style="padding:6px 12px;font-size:13px;">✦ Expand</button>
-          <button id="undoBtn" class="btn-subtle" title="Undo (Ctrl+Z)" disabled>↩ Undo</button>
-          <button id="redoBtn" class="btn-subtle" title="Redo (Ctrl+Y)" disabled>↪ Redo</button>
-          <i class="help-icon">?<span class="help-tip">Select a node to activate editing. + Child adds a child node (Tab). ✦ Expand uses AI to generate child ideas. Undo / Redo step through your edit history (Ctrl+Z / Ctrl+Y).</span></i>
-        </div>
-        <div class="tb-divider"></div>
-        <div class="tb-group">
-          <button id="exportSvgBtn" class="btn-subtle" title="Download as SVG">SVG</button>
-          <button id="exportPngBtn" class="btn-subtle" title="Download as PNG (2× retina)">PNG</button>
-          <button id="cleanViewBtn" class="btn-subtle" title="Clean presentation view">Clean View</button>
-          <button id="printBtn" class="btn-subtle" title="Print tree">Print</button>
-          <button id="searchBtn" class="btn-subtle" title="Search nodes (Ctrl+F)">⌕ Find</button>
-          <i class="help-icon">?<span class="help-tip">Export your tree as SVG (vector, any size) or PNG (2× retina). Clean View hides the toolbar for presentations. Print sends the tree to your browser's print dialog. ⌕ Find searches node text (Ctrl+F).</span></i>
-        </div>
-        <span id="selectedInfo" class="selected-info" style="margin-left:auto;"></span>
-      </div>
+      <!-- Hidden compatibility elements (preserve IDs for JS listeners) -->
+      <button id="addChildBtn" style="display:none"></button>
+      <button id="aiExpandBtn" style="display:none" disabled></button>
+      <span id="selectedInfo" style="display:none"></span>
+      <button id="zoomResetBtn" style="display:none"></button>
+      <button id="recenterBtn" style="display:none"></button>
     </div>
 
     <div id="viewBanner" class="view-banner" style="display:none">
@@ -1524,6 +1673,20 @@
         <button id="nodeSearchClose" class="node-search-close" title="Close (Esc)">✕</button>
       </div>
       <svg id="treeSvg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMin meet"></svg>
+      <!-- Contextual node toolbar -->
+      <div id="nodeContextBar">
+        <button id="ctxAddChild" title="Add child (Tab)">+ Child</button>
+        <button id="ctxExpand" title="Expand with AI">✦ Expand</button>
+        <button id="ctxUndo" title="Undo (Ctrl+Z)" disabled>↩</button>
+        <button id="ctxRedo" title="Redo (Ctrl+Y)" disabled>↪</button>
+        <button id="ctxDelete" title="Delete node" style="color:#b42318;">🗑</button>
+      </div>
+      <!-- Floating zoom controls -->
+      <div id="zoomFloat">
+        <button id="zoomOutBtn" title="Zoom out (Ctrl+scroll)">−</button>
+        <span id="zoomInfo">100%</span>
+        <button id="zoomInBtn" title="Zoom in (Ctrl+scroll)">+</button>
+      </div>
       <a href="https://treestudio.nusoftva.com" target="_blank" class="embed-watermark" title="Built with Tree Studio">
         <img src="/favicon.svg" width="14" height="14" alt="" style="border-radius:3px;" />
         Built with Tree Studio
@@ -1623,6 +1786,8 @@
     let searchActiveIndex = -1;
     let preferredInitialScrollLeft = 0;
     let preferredInitialScrollTop = 0;
+    let currentOffsetX = 0;
+    let currentOffsetY = 0;
     const minZoom = 0.4;
     const maxZoom = 2.5;
     const zoomStep = 0.1;
@@ -2204,6 +2369,7 @@
       updateSelectedInfo();
       onNodeSelected(node);
       if (rerender) run(currentRoot, false);
+      else positionContextBar();
     }
 
     function startNodeEdit(node) {
@@ -2552,6 +2718,8 @@
       const canvasHeight = Math.max(700, treeHeight + panPadding * 2);
       const offsetX = panPadding - bounds.minX;
       const offsetY = panPadding - bounds.minY;
+      currentOffsetX = offsetX;
+      currentOffsetY = offsetY;
       const treeCenterX = ((bounds.minX + bounds.maxX) / 2) + offsetX;
       const treeTopY = bounds.minY + offsetY;
       preferredInitialScrollLeft = Math.floor(treeCenterX * zoomScale - (viewport.clientWidth / 2));
@@ -2566,6 +2734,7 @@
         `mode=walker xOffset=${xOffset} yOffset=${yOffset} nodes=${meta.nodeCount} edges=${meta.lineCount} canvas=${canvasWidth}x${canvasHeight} zoom=${Math.round(zoomScale * 100)}%`;
 
       IfNeededCenter(recenter);
+      positionContextBar();
     }
 
     function applyZoom(newZoom, anchorClientX, anchorClientY) {
@@ -3024,6 +3193,7 @@
     document.getElementById("zoomInBtn").addEventListener("click", () => setZoom(zoomScale + zoomStep));
     document.getElementById("zoomOutBtn").addEventListener("click", () => setZoom(zoomScale - zoomStep));
     document.getElementById("zoomResetBtn").addEventListener("click", () => setZoom(1));
+    document.getElementById("zoomInfo").addEventListener("click", () => setZoom(1));
     document.getElementById("recenterBtn").addEventListener("click", () => {
       if (currentRoot) run(currentRoot, true, false);
     });
@@ -3206,28 +3376,20 @@
       clearError();
       document.getElementById("jsonInput").value = taxonomyTreeJson();
       loadJsonTree();
-      document.getElementById("templatesDropdown").classList.remove("open");
+      document.getElementById("templatesDropdown").style.display = "none";
     });
     document.getElementById("loadLineage").addEventListener("click", () => {
       clearError();
       document.getElementById("jsonInput").value = humanLineageTreeJson();
       loadJsonTree();
-      document.getElementById("templatesDropdown").classList.remove("open");
+      document.getElementById("templatesDropdown").style.display = "none";
     });
 
-    // ── Templates dropdown ────────────────────────────────────────────────────
-    document.getElementById("templatesBtn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      document.getElementById("templatesDropdown").classList.toggle("open");
-    });
-    document.addEventListener("click", () => {
-      const d = document.getElementById("templatesDropdown");
-      if (d) d.classList.remove("open");
-    });
+    // ── Templates dropdown (legacy close handlers) ───────────────────────────
     ["loadSample", "loadPackedSample"].forEach((id) => {
       const btn = document.getElementById(id);
       if (btn) btn.addEventListener("click", () => {
-        document.getElementById("templatesDropdown").classList.remove("open");
+        document.getElementById("templatesDropdown").style.display = "none";
       }, true);
     });
 
@@ -3241,7 +3403,10 @@
     // ── Empty state buttons ───────────────────────────────────────────────────
     document.getElementById("emptyNewBtn").addEventListener("click", newTree);
     document.getElementById("emptyTemplateBtn").addEventListener("click", () => {
-      document.getElementById("templatesDropdown").classList.toggle("open");
+      const dd = document.getElementById("overflowDropdown");
+      if (dd) dd.classList.add("open");
+      const td = document.getElementById("templatesDropdown");
+      if (td) td.style.display = "block";
     });
 
     // ── Undo / Redo ──────────────────────────────────────────────────────────
@@ -3330,6 +3495,10 @@
       const r = document.getElementById("redoBtn");
       if (u) u.disabled = undoStack.length === 0;
       if (r) r.disabled = redoStack.length === 0;
+      const cu = document.getElementById("ctxUndo");
+      const cr = document.getElementById("ctxRedo");
+      if (cu) cu.disabled = undoStack.length === 0;
+      if (cr) cr.disabled = redoStack.length === 0;
     }
 
     // ── Export ────────────────────────────────────────────────────────────────
@@ -3557,8 +3726,9 @@
         return;
       }
       const btn = document.getElementById("aiExpandBtn");
-      btn.disabled = true;
-      btn.textContent = "…";
+      const ctxBtn = document.getElementById("ctxExpand");
+      if (btn) { btn.disabled = true; btn.textContent = "…"; }
+      if (ctxBtn) { ctxBtn.disabled = true; ctxBtn.textContent = "…"; }
       try {
         const children = await callAiGenerate({
           mode: "expand",
@@ -3578,8 +3748,8 @@
       } catch (err) {
         toast(err.message || "AI expand failed.");
       } finally {
-        btn.disabled = !selectedNode;
-        btn.textContent = "✦ Expand";
+        if (btn) { btn.disabled = !selectedNode; btn.textContent = "✦ Expand"; }
+        if (ctxBtn) { ctxBtn.disabled = !selectedNode; ctxBtn.textContent = "✦ Expand"; }
       }
     }
 
@@ -3652,7 +3822,14 @@
     });
 
     window.addEventListener("tree-node-selected", (e) => {
-      document.getElementById("aiExpandBtn").disabled = !e.detail.node;
+      const hasNode = !!e.detail.node;
+      const aiExpand = document.getElementById("aiExpandBtn");
+      const ctxExpand = document.getElementById("ctxExpand");
+      const ctxAddChild = document.getElementById("ctxAddChild");
+      if (aiExpand) aiExpand.disabled = !hasNode;
+      if (ctxExpand) ctxExpand.disabled = !hasNode;
+      if (ctxAddChild) ctxAddChild.disabled = !hasNode;
+      positionContextBar();
     });
 
     // ── Node Search ──────────────────────────────────────────────────────────
@@ -4156,6 +4333,114 @@
         }
       } catch (_) { /* silent — auth unavailable locally */ }
     }
+
+    // ── Contextual node bar positioning ──────────────────────────────────────
+
+    function positionContextBar() {
+      const bar = document.getElementById("nodeContextBar");
+      if (!bar) return;
+      if (!selectedNode) {
+        bar.classList.remove("visible");
+        return;
+      }
+      const viewport = document.getElementById("treeViewport");
+      if (!viewport) return;
+      const vRect = viewport.getBoundingClientRect();
+      const svgX = (selectedNode.position.x + currentOffsetX + selectedNode.width / 2) * zoomScale;
+      const svgY = (selectedNode.position.y + currentOffsetY + selectedNode.height) * zoomScale;
+      const screenX = vRect.left + svgX - viewport.scrollLeft;
+      const screenY = vRect.top + svgY - viewport.scrollTop;
+
+      bar.classList.add("visible");
+      const barW = bar.offsetWidth || 240;
+      const barH = bar.offsetHeight || 40;
+      let left = screenX - barW / 2;
+      let top = screenY + 6;
+
+      // Clamp to viewport
+      const margin = 8;
+      left = Math.max(margin, Math.min(left, window.innerWidth - barW - margin));
+      top = Math.max(margin, Math.min(top, window.innerHeight - barH - margin));
+
+      bar.style.left = left + "px";
+      bar.style.top = top + "px";
+
+      // Show/hide delete for root
+      const ctxDelete = document.getElementById("ctxDelete");
+      if (ctxDelete) ctxDelete.style.display = selectedNode.parent ? "" : "none";
+    }
+
+    // Update context bar on viewport scroll
+    document.getElementById("treeViewport").addEventListener("scroll", positionContextBar);
+
+    // Hide context bar when clicking canvas background
+    document.getElementById("treeViewport").addEventListener("mousedown", (e) => {
+      // If click lands on SVG background (not a node), deselect handled by svg.onclick
+      // positionContextBar will be called after selectNode(null)
+    });
+
+    // ── Overflow menu wiring ──────────────────────────────────────────────────
+
+    document.getElementById("overflowBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.getElementById("overflowDropdown").classList.toggle("open");
+    });
+
+    document.addEventListener("click", (e) => {
+      const dd = document.getElementById("overflowDropdown");
+      const wrap = document.querySelector(".overflow-menu-wrap");
+      if (dd && wrap && !wrap.contains(e.target)) {
+        dd.classList.remove("open");
+      }
+    });
+
+    // Close overflow dropdown when any item (except templates toggle) is clicked
+    document.getElementById("overflowDropdown").addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      if (btn.id === "templatesBtn") return; // templates toggle stays open
+      // Don't close for template sub-buttons — let them handle it
+      if (btn.classList.contains("menu-sub")) {
+        document.getElementById("overflowDropdown").classList.remove("open");
+        document.getElementById("templatesDropdown").style.display = "none";
+        return;
+      }
+      document.getElementById("overflowDropdown").classList.remove("open");
+    });
+
+    // Templates sub-menu toggle inside overflow
+    document.getElementById("templatesBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const td = document.getElementById("templatesDropdown");
+      td.style.display = td.style.display === "none" || td.style.display === "" ? "block" : "none";
+    });
+
+    // ── Contextual bar button wiring ──────────────────────────────────────────
+
+    document.getElementById("ctxAddChild").addEventListener("click", (e) => {
+      e.stopPropagation();
+      addChildBelowSelected();
+    });
+
+    document.getElementById("ctxExpand").addEventListener("click", (e) => {
+      e.stopPropagation();
+      aiExpandNode();
+    });
+
+    document.getElementById("ctxUndo").addEventListener("click", (e) => {
+      e.stopPropagation();
+      undo();
+    });
+
+    document.getElementById("ctxRedo").addEventListener("click", (e) => {
+      e.stopPropagation();
+      redo();
+    });
+
+    document.getElementById("ctxDelete").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (selectedNode) deleteNode(selectedNode);
+    });
 
     initAuth();
   </script>
