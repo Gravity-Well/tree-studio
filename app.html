@@ -1196,9 +1196,10 @@
         margin: 0;
       }
 
-      /* Canvas outer + wrap: heights set by JS applyMobileLayout() */
-      .canvas-outer { border-radius: 0; overflow: hidden; }
+      /* Canvas outer fills all remaining vertical space — no JS needed */
+      .canvas-outer { border-radius: 0; overflow: hidden; flex: 1; min-height: 0; position: relative; }
       .canvas-wrap  { border-radius: 0; border: none; }
+      #treeViewport { position: absolute; inset: 0; width: auto; height: auto; overflow: auto; }
 
       /* Drawer wider, bigger text */
       #leftDrawer { width: 280px; }
@@ -2915,33 +2916,10 @@
 
     function applyMobileLayout() {
       if (window.innerWidth > 640) return;
-
-      const layout   = document.querySelector('.layout');
-      const toolbar  = document.querySelector('.toolbar');
-      const titlebar = document.getElementById('docTitlebar');
-      const outer    = document.querySelector('.canvas-outer');
-      const viewport = document.getElementById('treeViewport');
-
-      // Force layout to fill screen — inline styles win over everything
-      Object.assign(layout.style, {
-        position: 'fixed', top: '0', left: '0', right: '0', bottom: '0',
-        margin: '0', padding: '0', maxWidth: '100%', width: '100%',
-        display: 'flex', flexDirection: 'column', overflow: 'hidden'
-      });
-
-      // Compute canvas height = viewport - toolbar - titlebar
-      const totalH    = window.innerHeight;
-      const toolbarH  = toolbar  ? toolbar.offsetHeight  : 0;
-      const titlebarH = titlebar ? titlebar.offsetHeight : 0;
-      const canvasH   = Math.max(100, totalH - toolbarH - titlebarH);
-
-      Object.assign(outer.style, {
-        height: canvasH + 'px', flex: 'none', overflow: 'hidden', position: 'relative'
-      });
-      Object.assign(viewport.style, {
-        position: 'absolute', top: '0', left: '0', right: '0', bottom: '0',
-        width: 'auto', height: 'auto', overflow: 'auto'
-      });
+      // CSS handles the full-screen flex layout and canvas sizing.
+      // JS only needs to clear any stale inline heights from previous calls.
+      const outer = document.querySelector('.canvas-outer');
+      if (outer) { outer.style.height = ''; outer.style.flex = ''; }
     }
 
     function mobileFitAfterLayout() {
