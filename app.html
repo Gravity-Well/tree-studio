@@ -1163,6 +1163,17 @@
     }
 
     /* ── Left drawer ── */
+    .canvas-outer {
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    .canvas-outer .canvas-wrap {
+      border-radius: 0;
+      border: none;
+    }
+
     #leftDrawer {
       position: absolute;
       top: 0;
@@ -1674,7 +1685,7 @@
       <button id="titleSaveBtn" class="btn-title-save" title="Save (Ctrl+S)">Save</button>
     </div>
 
-    <div id="treeViewport" class="canvas-wrap">
+    <div class="canvas-outer">
       <!-- Left sliding drawer -->
       <div id="leftDrawer">
         <div class="drawer-content">
@@ -1709,6 +1720,7 @@
       </div>
       <!-- Drawer tab trigger -->
       <div id="drawerTab" title="Toggle menu">›</div>
+      <div id="treeViewport" class="canvas-wrap">
       <div id="aiGenerateBar" class="node-search-bar" style="display:none;min-width:360px;">
         <span style="font-size:12px;color:var(--muted);white-space:nowrap;">✦ AI:</span>
         <input id="aiBarInput" type="text" placeholder="Describe your tree…" autocomplete="off" spellcheck="false" maxlength="200" />
@@ -1753,7 +1765,8 @@
           <button id="emptyTemplateBtn" class="btn-ghost-sm">Templates</button>
         </div>
       </div>
-    </div>
+      </div><!-- end treeViewport -->
+    </div><!-- end canvas-outer -->
     <div id="meta" class="meta"></div>
     <div class="copyright">Copyright &copy; 2026 NuSoftVA, a division of Nilmot Solutions LLC. All rights reserved. &nbsp;|&nbsp; <a href="/terms" style="color:inherit;">Terms</a> &nbsp;|&nbsp; <a href="/privacy" style="color:inherit;">Privacy</a> &nbsp;|&nbsp; <a href="/help" style="color:inherit;">Help</a></div>
   </div>
@@ -4204,6 +4217,13 @@
       }
       showPlanCards();
       document.getElementById("planOverlay").classList.add("open");
+    }
+
+    function showPlanCards() {
+      const cards = document.getElementById("planPhaseCards");
+      const checkout = document.getElementById("planPhaseCheckout");
+      if (cards) cards.style.display = "";
+      if (checkout) checkout.style.display = "none";
     }
 
     function closePlanModal() {
