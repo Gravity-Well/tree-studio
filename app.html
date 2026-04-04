@@ -33,6 +33,7 @@
         radial-gradient(circle at 16% 12%, #f7fbfd 0%, #edf4f7 38%, #e7eef2 100%);
       color: var(--ink);
       min-height: 100vh;
+      overflow-x: hidden; /* prevent wide SVG canvas from blowing out layout viewport */
     }
 
     .layout {
