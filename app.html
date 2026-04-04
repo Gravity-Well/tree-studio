@@ -2891,6 +2891,21 @@
       viewport.scrollTop = Math.max(0, (contentY * ratio) - anchorYInViewport);
     }
 
+    function fitTreeToViewport() {
+      if (!currentRoot) return;
+      const viewport = document.getElementById("treeViewport");
+      const bounds = getTreeBounds(currentRoot);
+      const treeW = bounds.maxX - bounds.minX;
+      const treeH = bounds.maxY - bounds.minY;
+      const vw = viewport.clientWidth;
+      const vh = viewport.clientHeight;
+      if (!vw || !vh || !treeW || !treeH) return;
+      const padding = 40;
+      const zoom = Math.min((vw - padding) / treeW, (vh - padding) / treeH, 1.2);
+      setZoom(Math.max(0.3, zoom));
+      run(currentRoot, true);
+    }
+
     function setZoom(newZoom) {
       const viewport = document.getElementById("treeViewport");
       const rect = viewport.getBoundingClientRect();
@@ -4262,6 +4277,12 @@
           updateSelectedInfo();
           syncJsonFromTree();
           run(currentRoot, true);
+        }
+        // On mobile, auto-fit tree to viewport after layout settles
+        if (window.innerWidth <= 640) {
+          window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+            fitTreeToViewport();
+          }));
         }
       }, 0);
     }
