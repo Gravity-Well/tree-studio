@@ -1179,14 +1179,14 @@
         margin-bottom: 0;
         box-shadow: 0 2px 6px rgba(17,50,74,0.10);
       }
-      .brand h1 { font-size: 16px; }
+      .brand h1 { font-size: 18px; }
       .brand p, .brand .algorithm-note { display: none; }
-      .toolbar-main { gap: 8px; }
-      .btn-ai, .btn-subtle, .btn-primary { font-size: 13px; padding: 7px 11px; }
+      .toolbar-main { gap: 10px; }
+      .btn-ai, .btn-subtle, .btn-primary { font-size: 15px; padding: 10px 16px; }
 
       /* Title bar */
-      .doc-titlebar { flex-shrink: 0; padding: 4px 12px 6px; }
-      .doc-title-input { font-size: 16px; }
+      .doc-titlebar { flex-shrink: 0; padding: 6px 14px 8px; }
+      .doc-title-input { font-size: 18px; }
 
       /* Panels sit above canvas, no radius */
       .cloud-panel, .json-panel {
@@ -1211,15 +1211,19 @@
         border: none;
       }
 
-      /* Drawer wider */
-      #leftDrawer { width: 260px; }
-      #drawerTab.open { left: 260px; }
+      /* Drawer wider, bigger text */
+      #leftDrawer { width: 280px; }
+      #drawerTab.open { left: 280px; }
+      .drawer-btn { font-size: 16px; height: 48px; line-height: 48px; padding: 0 14px; }
+      .drawer-btn.drawer-sub { font-size: 15px; height: 44px; line-height: 44px; }
+      .drawer-heading { font-size: 15px; padding: 14px 14px 8px; }
 
       /* Bigger touch targets */
-      #nodeContextBar button { padding: 8px 12px; font-size: 14px; }
-      #zoomFloat { bottom: 20px; right: 12px; }
-      #zoomFloat button { padding: 6px 12px; font-size: 15px; }
-      #zoomFloat #zoomInfo { font-size: 13px; padding: 0 6px; }
+      #nodeContextBar { padding: 6px 10px; gap: 6px; }
+      #nodeContextBar button { padding: 10px 14px; font-size: 16px; }
+      #zoomFloat { bottom: 24px; right: 14px; padding: 4px 8px; }
+      #zoomFloat button { padding: 8px 14px; font-size: 18px; }
+      #zoomFloat #zoomInfo { font-size: 15px; padding: 0 8px; min-width: 44px; text-align: center; }
 
       /* Full-width bars */
       #aiGenerateBar { min-width: unset !important; width: calc(100vw - 32px); }
