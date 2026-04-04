@@ -1665,10 +1665,8 @@
 
     <details id="cloudPanel" class="cloud-panel" style="display:none">
       <summary>My Trees <span id="cloudTreeCount" class="cloud-tree-count" style="display:none"></span><button class="panel-close-btn" onclick="event.preventDefault();event.stopPropagation();document.getElementById('cloudPanel').style.display='none';" title="Close">✕</button></summary>
-      <div class="cloud-save-row">
-        <input id="cloudTreeName" type="text" placeholder="tree-name" autocomplete="off" spellcheck="false" />
-        <button id="saveCloudBtn">Save</button>
-      </div>
+      <input id="cloudTreeName" type="text" style="display:none" />
+      <button id="saveCloudBtn" style="display:none"></button>
       <div id="cloudTreeList" class="cloud-tree-list"></div>
       <div id="shareLinkWrap" class="share-link-wrap" style="display:none">
         <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">Share link</div>
