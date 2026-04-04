@@ -1162,78 +1162,128 @@
       #aiGenerateBar { min-width: unset !important; width: calc(100vw - 48px); }
     }
 
-    /* ── Overflow menu ── */
-    .overflow-menu-wrap {
-      position: relative;
-    }
-
-    .overflow-btn {
-      background: #fff !important;
-      color: var(--btn-muted) !important;
-      border: 1px solid #ccd8e4 !important;
-      box-shadow: none;
-      font-size: 18px !important;
-      padding: 6px 11px !important;
-      line-height: 1;
-      letter-spacing: 1px;
-    }
-
-    .overflow-btn:hover {
-      background: #f0f6fa !important;
-      border-color: #9ab0c4 !important;
-    }
-
-    .overflow-dropdown {
-      display: none;
+    /* ── Left drawer ── */
+    #leftDrawer {
       position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      background: var(--panel);
-      border: 1px solid #d2dde8;
-      border-radius: 12px;
-      box-shadow: 0 8px 28px rgba(17,50,74,0.14);
+      top: 0;
+      left: 0;
+      width: 220px;
+      height: 100%;
+      background: #fff;
+      border-right: 1px solid #d2dde8;
+      box-shadow: 4px 0 16px rgba(17,50,74,0.10);
       z-index: 150;
-      min-width: 190px;
-      overflow: hidden;
+      transform: translateX(-100%);
+      transition: transform 0.22s ease;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
 
-    .overflow-dropdown.open {
-      display: block;
+    #leftDrawer.open {
+      transform: translateX(0);
     }
 
-    .overflow-dropdown button {
+    #drawerTab {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 60px;
+      background: #fff;
+      border: 1px solid #d2dde8;
+      border-left: none;
+      border-radius: 0 8px 8px 0;
+      box-shadow: 3px 0 8px rgba(17,50,74,0.10);
+      z-index: 151;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--btn-muted);
+      transition: left 0.22s ease;
+      user-select: none;
+      padding: 0;
+    }
+
+    #drawerTab.open {
+      left: 220px;
+    }
+
+    #drawerTab:hover {
+      background: #f0f5fa;
+    }
+
+    .drawer-content {
+      padding: 12px;
+      flex: 1;
+    }
+
+    .drawer-heading {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 4px 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.2px;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .drawer-divider {
+      height: 1px;
+      background: #e4ebf2;
+      margin: 4px 0;
+    }
+
+    .drawer-btn {
       display: block;
       width: 100%;
       text-align: left;
-      padding: 8px 14px;
+      padding: 0 10px;
+      height: 36px;
+      line-height: 36px;
       border: none;
       background: transparent;
       color: var(--ink);
       font-size: 13px;
-      cursor: pointer;
       font-family: "Segoe UI", Tahoma, sans-serif;
+      cursor: pointer;
+      border-radius: 6px;
+      white-space: nowrap;
       transition: background 0.1s;
     }
 
-    .overflow-dropdown button:hover {
+    .drawer-btn:hover {
       background: #f0f5fa;
     }
 
-    .overflow-dropdown .menu-divider {
-      height: 1px;
-      background: #e4ebf2;
-      margin: 3px 0;
+    .drawer-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
 
-    .overflow-dropdown .menu-sub {
-      padding-left: 26px !important;
-      font-size: 12px !important;
-      color: var(--muted) !important;
+    .drawer-btn.drawer-sub {
+      padding-left: 22px;
+      font-size: 12px;
+      color: var(--muted);
     }
 
-    .overflow-dropdown .menu-sub:hover {
+    .drawer-btn.drawer-sub:hover {
       background: #f0f5fa;
-      color: var(--ink) !important;
+      color: var(--ink);
+    }
+
+    #drawerTemplatesMenu {
+      display: none;
+    }
+
+    #drawerTemplatesMenu.open {
+      display: block;
     }
 
     /* ── Contextual node toolbar ── */
@@ -1324,13 +1374,6 @@
 
     #zoomFloat #zoomInfo:hover {
       color: var(--ink);
-    }
-
-    @media (max-width: 640px) {
-      .overflow-dropdown {
-        min-width: calc(100vw - 32px);
-        right: -8px;
-      }
     }
 
     /* ── Plan comparison modal ── */
@@ -1577,34 +1620,6 @@
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
           <button id="aiToolbarGenerateBtn" class="btn-ai" title="Generate a new tree with AI" style="padding:6px 12px;font-size:13px;">✦ Use AI</button>
-          <div class="overflow-menu-wrap">
-            <button id="overflowBtn" class="overflow-btn toolbar-btn" title="More options">⋯</button>
-            <div class="overflow-dropdown" id="overflowDropdown">
-              <button id="newTreeBtn">New Tree</button>
-              <button id="templatesBtn" style="display:flex;justify-content:space-between;align-items:center;">Templates <span>▾</span></button>
-              <div id="templatesDropdown" style="background:#f7fafd;border-top:1px solid #edf2f7;border-bottom:1px solid #edf2f7;display:none;">
-                <button id="loadSample" class="menu-sub">Sample Tree</button>
-                <button id="loadPackedSample" class="menu-sub">Deep Tree</button>
-                <button id="loadTaxonomy" class="menu-sub">Taxonomy</button>
-                <button id="loadLineage" class="menu-sub">Human Lineage</button>
-              </div>
-              <button id="cloudPanelToggleBtn">My Trees</button>
-              <div class="menu-divider"></div>
-              <button id="expandAllBtn">Expand All</button>
-              <button id="collapseAllBtn">Collapse All</button>
-              <button id="expandLevelBtn">+1 Level</button>
-              <button id="collapseLevelBtn">−1 Level</button>
-              <div class="menu-divider"></div>
-              <button id="exportSvgBtn">SVG</button>
-              <button id="exportPngBtn">PNG</button>
-              <button id="printBtn">Print</button>
-              <button id="cleanViewBtn">Clean View</button>
-              <button id="searchBtn">⌕ Find</button>
-              <div class="menu-divider"></div>
-              <button id="undoBtn" disabled>↩ Undo</button>
-              <button id="redoBtn" disabled>↪ Redo</button>
-            </div>
-          </div>
           <span style="font-size:10px;color:var(--muted);opacity:0.5;user-select:none;" title="App version">v1.0.3</span>
           <button id="upgradePill" class="upgrade-pill" style="display:none">Upgrade ✦</button>
           <div class="auth-bar" id="authBar">
@@ -1660,6 +1675,40 @@
     </div>
 
     <div id="treeViewport" class="canvas-wrap">
+      <!-- Left sliding drawer -->
+      <div id="leftDrawer">
+        <div class="drawer-content">
+          <div class="drawer-heading">
+            <img src="/favicon.svg" width="16" height="16" alt="" style="border-radius:3px;opacity:0.7;" />
+            Menu
+          </div>
+          <button id="newTreeBtn" class="drawer-btn">New Tree</button>
+          <button id="templatesBtn" class="drawer-btn" style="display:flex;justify-content:space-between;align-items:center;">Templates <span>▾</span></button>
+          <div id="templatesDropdown" class="drawer-sub-group" style="display:none;">
+            <button id="loadSample" class="drawer-btn drawer-sub">Sample Tree</button>
+            <button id="loadPackedSample" class="drawer-btn drawer-sub">Deep Tree</button>
+            <button id="loadTaxonomy" class="drawer-btn drawer-sub">Taxonomy</button>
+            <button id="loadLineage" class="drawer-btn drawer-sub">Human Lineage</button>
+          </div>
+          <button id="cloudPanelToggleBtn" class="drawer-btn">My Trees</button>
+          <div class="drawer-divider"></div>
+          <button id="expandAllBtn" class="drawer-btn">Expand All</button>
+          <button id="collapseAllBtn" class="drawer-btn">Collapse All</button>
+          <button id="expandLevelBtn" class="drawer-btn">+1 Level</button>
+          <button id="collapseLevelBtn" class="drawer-btn">−1 Level</button>
+          <div class="drawer-divider"></div>
+          <button id="exportSvgBtn" class="drawer-btn">SVG</button>
+          <button id="exportPngBtn" class="drawer-btn">PNG</button>
+          <button id="printBtn" class="drawer-btn">Print</button>
+          <button id="cleanViewBtn" class="drawer-btn">Clean View</button>
+          <button id="searchBtn" class="drawer-btn">⌕ Find</button>
+          <div class="drawer-divider"></div>
+          <button id="undoBtn" class="drawer-btn" disabled>↩ Undo</button>
+          <button id="redoBtn" class="drawer-btn" disabled>↪ Redo</button>
+        </div>
+      </div>
+      <!-- Drawer tab trigger -->
+      <div id="drawerTab" title="Toggle menu">›</div>
       <div id="aiGenerateBar" class="node-search-bar" style="display:none;min-width:360px;">
         <span style="font-size:12px;color:var(--muted);white-space:nowrap;">✦ AI:</span>
         <input id="aiBarInput" type="text" placeholder="Describe your tree…" autocomplete="off" spellcheck="false" maxlength="200" />
@@ -3406,8 +3455,7 @@
     // ── Empty state buttons ───────────────────────────────────────────────────
     document.getElementById("emptyNewBtn").addEventListener("click", newTree);
     document.getElementById("emptyTemplateBtn").addEventListener("click", () => {
-      const dd = document.getElementById("overflowDropdown");
-      if (dd) dd.classList.add("open");
+      openDrawer();
       const td = document.getElementById("templatesDropdown");
       if (td) td.style.display = "block";
     });
@@ -4384,36 +4432,59 @@
       // positionContextBar will be called after selectNode(null)
     });
 
-    // ── Overflow menu wiring ──────────────────────────────────────────────────
+    // ── Left drawer wiring ──────────────────────────────────────────────────
 
-    document.getElementById("overflowBtn").addEventListener("click", (e) => {
+    function openDrawer() {
+      document.getElementById("leftDrawer").classList.add("open");
+      document.getElementById("drawerTab").classList.add("open");
+      document.getElementById("drawerTab").textContent = "‹";
+    }
+
+    function closeDrawer() {
+      document.getElementById("leftDrawer").classList.remove("open");
+      document.getElementById("drawerTab").classList.remove("open");
+      document.getElementById("drawerTab").textContent = "›";
+      document.getElementById("templatesDropdown").style.display = "none";
+    }
+
+    document.getElementById("drawerTab").addEventListener("click", (e) => {
       e.stopPropagation();
-      document.getElementById("overflowDropdown").classList.toggle("open");
-    });
-
-    document.addEventListener("click", (e) => {
-      const dd = document.getElementById("overflowDropdown");
-      const wrap = document.querySelector(".overflow-menu-wrap");
-      if (dd && wrap && !wrap.contains(e.target)) {
-        dd.classList.remove("open");
+      const drawer = document.getElementById("leftDrawer");
+      if (drawer.classList.contains("open")) {
+        closeDrawer();
+      } else {
+        openDrawer();
       }
     });
 
-    // Close overflow dropdown when any item (except templates toggle) is clicked
-    document.getElementById("overflowDropdown").addEventListener("click", (e) => {
+    // Close drawer when clicking canvas background (outside drawer/tab)
+    document.getElementById("treeViewport").addEventListener("click", (e) => {
+      const drawer = document.getElementById("leftDrawer");
+      const tab = document.getElementById("drawerTab");
+      if (drawer.classList.contains("open") && !drawer.contains(e.target) && !tab.contains(e.target)) {
+        closeDrawer();
+      }
+    });
+
+    // Escape key closes drawer
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        const drawer = document.getElementById("leftDrawer");
+        if (drawer && drawer.classList.contains("open")) {
+          closeDrawer();
+        }
+      }
+    });
+
+    // Close drawer when any drawer item is clicked (except Templates toggle)
+    document.getElementById("leftDrawer").addEventListener("click", (e) => {
       const btn = e.target.closest("button");
       if (!btn) return;
-      if (btn.id === "templatesBtn") return; // templates toggle stays open
-      // Don't close for template sub-buttons — let them handle it
-      if (btn.classList.contains("menu-sub")) {
-        document.getElementById("overflowDropdown").classList.remove("open");
-        document.getElementById("templatesDropdown").style.display = "none";
-        return;
-      }
-      document.getElementById("overflowDropdown").classList.remove("open");
+      if (btn.id === "templatesBtn") return; // templates toggles sub-items inline
+      closeDrawer();
     });
 
-    // Templates sub-menu toggle inside overflow
+    // Templates sub-menu toggle inside drawer
     document.getElementById("templatesBtn").addEventListener("click", (e) => {
       e.stopPropagation();
       const td = document.getElementById("templatesDropdown");
