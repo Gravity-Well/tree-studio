@@ -66,6 +66,7 @@
       display: flex;
       flex-direction: column;
       gap: 2px;
+      flex-shrink: 0;
     }
 
     .brand h1 {
@@ -1623,7 +1624,7 @@
       Viewing a shared tree — <a href="/login">Sign in</a> to build and save your own
     </div>
 
-    <details id="cloudPanel" class="cloud-panel">
+    <details id="cloudPanel" class="cloud-panel" style="display:none">
       <summary>My Trees <span id="cloudTreeCount" class="cloud-tree-count" style="display:none"></span></summary>
       <div class="cloud-save-row">
         <input id="cloudTreeName" type="text" placeholder="tree-name" autocomplete="off" spellcheck="false" />
@@ -1641,7 +1642,7 @@
       <div id="error" class="error"></div>
     </details>
 
-    <details class="json-panel">
+    <details class="json-panel" style="display:none">
       <summary>Advanced</summary>
       <div class="row">
         <label>Horizontal <input id="xOffset" type="number" min="0" value="30" /></label>
@@ -3184,7 +3185,9 @@
     document.getElementById("newTreeBtn").addEventListener("click", newTree);
     document.getElementById("cloudPanelToggleBtn").addEventListener("click", () => {
       const panel = document.getElementById("cloudPanel");
-      panel.open = !panel.open;
+      const isHidden = panel.style.display === "none";
+      panel.style.display = isHidden ? "" : "none";
+      if (isHidden) panel.open = true;
     });
     document.getElementById("expandAllBtn").addEventListener("click", expandAll);
     document.getElementById("collapseAllBtn").addEventListener("click", collapseAll);
@@ -4341,7 +4344,7 @@
     function positionContextBar() {
       const bar = document.getElementById("nodeContextBar");
       if (!bar) return;
-      if (!selectedNode) {
+      if (!selectedNode || !selectedNode.position) {
         bar.classList.remove("visible");
         return;
       }
