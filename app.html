@@ -1196,23 +1196,9 @@
         margin: 0;
       }
 
-      /* Canvas outer fills ALL remaining flex space */
-      .canvas-outer {
-        flex: 1 1 0 !important;
-        min-height: 0 !important;
-        border-radius: 0;
-        overflow: hidden;
-        position: relative !important;
-      }
-      /* Absolute fill — bypasses height:% flex resolution bugs in mobile Safari */
-      .canvas-wrap {
-        position: absolute !important;
-        inset: 0 !important;
-        width: auto !important;
-        height: auto !important;
-        border-radius: 0;
-        border: none;
-      }
+      /* Canvas outer + wrap: heights set by JS applyMobileLayout() */
+      .canvas-outer { border-radius: 0; overflow: hidden; }
+      .canvas-wrap  { border-radius: 0; border: none; }
 
       /* Drawer wider, bigger text */
       #leftDrawer { width: 280px; }
@@ -2927,9 +2913,41 @@
       run(currentRoot, true);
     }
 
+    function applyMobileLayout() {
+      if (window.innerWidth > 640) return;
+
+      const layout   = document.querySelector('.layout');
+      const toolbar  = document.querySelector('.toolbar');
+      const titlebar = document.getElementById('docTitlebar');
+      const outer    = document.querySelector('.canvas-outer');
+      const viewport = document.getElementById('treeViewport');
+
+      // Force layout to fill screen — inline styles win over everything
+      Object.assign(layout.style, {
+        position: 'fixed', top: '0', left: '0', right: '0', bottom: '0',
+        margin: '0', padding: '0', maxWidth: '100%', width: '100%',
+        display: 'flex', flexDirection: 'column', overflow: 'hidden'
+      });
+
+      // Compute canvas height = viewport - toolbar - titlebar
+      const totalH    = window.innerHeight;
+      const toolbarH  = toolbar  ? toolbar.offsetHeight  : 0;
+      const titlebarH = titlebar ? titlebar.offsetHeight : 0;
+      const canvasH   = Math.max(100, totalH - toolbarH - titlebarH);
+
+      Object.assign(outer.style, {
+        height: canvasH + 'px', flex: 'none', overflow: 'hidden', position: 'relative'
+      });
+      Object.assign(viewport.style, {
+        position: 'absolute', top: '0', left: '0', right: '0', bottom: '0',
+        width: 'auto', height: 'auto', overflow: 'auto'
+      });
+    }
+
     function mobileFitAfterLayout() {
       if (window.innerWidth > 640) return;
-      // Double rAF: browser fully resolves flex + absolute positioning before fitting
+      applyMobileLayout();
+      // Double rAF: browser finalises layout before we compute zoom
       requestAnimationFrame(() => requestAnimationFrame(() => fitTreeToViewport(0)));
     }
 
@@ -4277,6 +4295,7 @@
     if (_viewParam) {
       document.body.classList.add("view-mode");
       document.getElementById("viewBanner").style.display = "block";
+      applyMobileLayout();
       (async () => {
         try {
           const parts = _viewParam.split("/");
@@ -4291,6 +4310,7 @@
           updateSelectedInfo();
           syncJsonFromTree();
           run(currentRoot, true);
+          mobileFitAfterLayout();
         } catch (err) {
           setError(err.message || "Could not load shared tree.");
         }
@@ -4299,6 +4319,8 @@
       // Auto-load sample tree on first visit so users see the product immediately
       // rather than a blank canvas. Uses buildSampleTree() which is defined below
       // but this runs after DOMContentLoaded so it's available.
+      // Apply mobile layout immediately so run() sees correct dimensions
+      applyMobileLayout();
       setTimeout(() => {
         if (!currentRoot) {
           currentRoot = buildSampleTree();
