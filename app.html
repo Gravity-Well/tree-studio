@@ -1146,33 +1146,75 @@
 
     /* ── Mobile ── */
     @media (max-width: 640px) {
-      .layout { margin: 6px auto; padding: 0 6px; }
+      /* Layout */
+      .layout { margin: 0; padding: 0; }
 
-      .toolbar { border-radius: 10px; padding: 8px 10px; gap: 6px; }
-
-      .brand h1 { font-size: 15px; }
+      /* Toolbar */
+      .toolbar {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        padding: 8px 12px;
+        margin-bottom: 0;
+        box-shadow: 0 2px 8px rgba(17,50,74,0.08);
+      }
+      .brand h1 { font-size: 16px; }
       .brand p, .brand .algorithm-note { display: none; }
+      .toolbar-main { gap: 8px; }
 
-      .toolbar-main { gap: 6px; }
-      .toolbar-actions { gap: 5px; }
-      .toolbar-actions .btn-primary,
-      .toolbar-actions .btn-subtle,
-      .toolbar-actions .btn-ai { font-size: 12px; padding: 5px 8px; }
+      /* Buttons in toolbar */
+      .btn-ai, .btn-subtle, .btn-primary {
+        font-size: 13px;
+        padding: 7px 12px;
+      }
 
-      /* Overflow dropdown full-width on mobile */
+      /* Canvas fills remaining screen height */
+      .canvas-outer {
+        border-radius: 0;
+        height: calc(100dvh - 56px);
+      }
+      .canvas-wrap {
+        height: 100%;
+        border-radius: 0;
+        border: none;
+      }
+
+      /* Drawer full height, wider on mobile */
+      #leftDrawer { width: 260px; }
+      #drawerTab.open { left: 260px; }
+
+      /* Doc titlebar */
+      .doc-title-input { font-size: 16px; }
+
+      /* Panels */
+      .cloud-panel, .json-panel {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        margin: 0;
+      }
+
+      /* Context bar bigger touch targets */
+      #nodeContextBar button { padding: 8px 12px; font-size: 14px; }
+
+      /* Zoom float bigger */
+      #zoomFloat { bottom: 20px; right: 12px; }
+      #zoomFloat button { padding: 6px 12px; font-size: 15px; }
+      #zoomFloat #zoomInfo { font-size: 13px; padding: 0 6px; }
+
+      /* AI bar full width */
+      #aiGenerateBar { min-width: unset !important; width: calc(100vw - 32px); }
+
+      /* Search bar full width */
+      .node-search-bar { min-width: unset; width: calc(100vw - 48px); }
+
+      /* Misc */
       .tb-divider, .help-icon { display: none; }
-
-      .canvas-wrap { height: calc(100vh - 160px); border-radius: 8px; }
-
-      .cloud-panel, .json-panel { border-radius: 10px; }
-
-      .copyright { font-size: 11px; text-align: center; padding: 8px; }
-
-      .toast-container { bottom: 16px; right: 12px; left: 12px; }
-      .toast { max-width: 100%; }
-
-      /* AI bar full width on mobile */
-      #aiGenerateBar { min-width: unset !important; width: calc(100vw - 48px); }
+      .copyright { font-size: 11px; text-align: center; padding: 8px 12px; }
+      .toast-container { bottom: 20px; right: 10px; left: 10px; }
+      .toast { max-width: 100%; font-size: 13px; }
+      .meta { display: none; }
     }
 
     /* ── Left drawer ── */
