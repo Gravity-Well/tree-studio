@@ -26,6 +26,7 @@
     }
 
     * { box-sizing: border-box; }
+    html { overflow-x: hidden; } /* clamp layout viewport so mobile media queries fire */
     body {
       margin: 0;
       font-family: "Segoe UI", Tahoma, sans-serif;
@@ -33,7 +34,7 @@
         radial-gradient(circle at 16% 12%, #f7fbfd 0%, #edf4f7 38%, #e7eef2 100%);
       color: var(--ink);
       min-height: 100vh;
-      overflow-x: hidden; /* prevent wide SVG canvas from blowing out layout viewport */
+      overflow-x: hidden;
     }
 
     .layout {
@@ -834,6 +835,7 @@
       border-radius: 10px;
       overflow: auto;
       height: 700px;
+      max-width: 100%;
       cursor: grab;
       user-select: none;
       position: relative;
