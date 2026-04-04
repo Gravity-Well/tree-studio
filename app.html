@@ -1196,16 +1196,20 @@
         margin: 0;
       }
 
-      /* Canvas outer fills ALL remaining space */
+      /* Canvas outer fills ALL remaining flex space */
       .canvas-outer {
         flex: 1 1 0 !important;
         min-height: 0 !important;
         border-radius: 0;
         overflow: hidden;
+        position: relative !important;
       }
+      /* Absolute fill — bypasses height:% flex resolution bugs in mobile Safari */
       .canvas-wrap {
-        width: 100% !important;
-        height: 100% !important;
+        position: absolute !important;
+        inset: 0 !important;
+        width: auto !important;
+        height: auto !important;
         border-radius: 0;
         border: none;
       }
@@ -2846,7 +2850,7 @@
       const viewport = document.getElementById("treeViewport");
       if (recomputeLayout) {
         const centerX = window.innerWidth <= 640
-          ? Math.round(viewport.clientWidth / 2 / zoomScale)
+          ? Math.round((viewport.clientWidth || window.innerWidth) / 2 / zoomScale)
           : 600;
         layoutTreeWalker(root, centerX, 50, xOffset, yOffset);
         ensureTreeInBounds(root, 20, 20, 100000, 100000);
@@ -2921,6 +2925,12 @@
       const minFit = isMobile ? 0.6 : 0.3;
       setZoom(Math.max(minFit, rawZoom));
       run(currentRoot, true);
+    }
+
+    function mobileFitAfterLayout() {
+      if (window.innerWidth > 640) return;
+      // Double rAF: browser fully resolves flex + absolute positioning before fitting
+      requestAnimationFrame(() => requestAnimationFrame(() => fitTreeToViewport(0)));
     }
 
     function setZoom(newZoom) {
@@ -3872,7 +3882,7 @@
         pushUndo();
         run(currentRoot, true);
         updateSelectedInfo();
-        if (window.innerWidth <= 640) setTimeout(() => fitTreeToViewport(0), 400);
+        mobileFitAfterLayout();
         if (!currentUser) {
           sessionStorage.setItem(AI_TRIAL_KEY, "1");
           toast("Tree generated! Sign in to generate more.");
@@ -3967,7 +3977,7 @@
         setZoom(1);
         run(currentRoot, true);
         updateSelectedInfo();
-        if (window.innerWidth <= 640) setTimeout(() => fitTreeToViewport(0), 400);
+        mobileFitAfterLayout();
         if (!currentUser) {
           sessionStorage.setItem(AI_TRIAL_KEY, "1");
           toast("Tree generated! Sign in to generate more.");
@@ -4297,12 +4307,16 @@
           syncJsonFromTree();
           run(currentRoot, true);
         }
-        // On mobile, auto-fit tree to viewport after layout fully settles
-        if (window.innerWidth <= 640) {
-          setTimeout(() => fitTreeToViewport(0), 400);
-        }
+        mobileFitAfterLayout();
       }, 0);
     }
+
+    // Re-fit on orientation change or address-bar hide/show
+    let _resizeFitTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(_resizeFitTimer);
+      _resizeFitTimer = setTimeout(() => { if (currentRoot) mobileFitAfterLayout(); }, 200);
+    });
 
     let currentPlan = "free";
 
