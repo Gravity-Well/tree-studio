@@ -1214,8 +1214,8 @@
       .drawer-heading { font-size: 15px; padding: 14px 14px 8px; }
 
       /* Bigger touch targets */
-      #nodeContextBar { padding: 6px 10px; gap: 6px; }
-      #nodeContextBar button { padding: 10px 14px; font-size: 16px; }
+      #nodeContextBar { padding: 4px 8px; gap: 2px; }
+      #nodeContextBar button { padding: 8px 12px; font-size: 14px; }
       #zoomFloat { bottom: 24px; right: 14px; padding: 4px 8px; }
       #zoomFloat button { padding: 8px 14px; font-size: 18px; }
       #zoomFloat #zoomInfo { font-size: 15px; padding: 0 8px; min-width: 44px; text-align: center; }
@@ -1373,13 +1373,13 @@
     #nodeContextBar {
       position: fixed;
       background: #ffffff;
-      border: 1px solid #d2dde8;
-      border-radius: 10px;
-      box-shadow: 0 4px 18px rgba(17,50,74,0.15);
-      padding: 4px 6px;
+      border: 1px solid #dce6f0;
+      border-radius: 999px;
+      box-shadow: 0 4px 20px rgba(17,50,74,0.13), 0 1px 4px rgba(17,50,74,0.07);
+      padding: 3px 6px;
       display: none;
       flex-direction: row;
-      gap: 4px;
+      gap: 1px;
       z-index: 200;
       align-items: center;
     }
@@ -1391,14 +1391,17 @@
     #nodeContextBar button {
       border: none;
       background: transparent;
-      color: var(--btn-muted);
-      padding: 5px 8px;
-      font-size: 13px;
+      color: #3f617a;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 500;
       font-family: "Segoe UI", Tahoma, sans-serif;
-      border-radius: 6px;
+      border-radius: 999px;
       cursor: pointer;
       white-space: nowrap;
-      transition: background 0.1s;
+      transition: background 0.12s, color 0.12s;
+      line-height: 1.4;
+      letter-spacing: 0.1px;
     }
 
     #nodeContextBar button:hover {
@@ -1407,18 +1410,52 @@
     }
 
     #nodeContextBar button:disabled {
-      opacity: 0.35;
+      opacity: 0.3;
       cursor: not-allowed;
     }
 
+    #ctxDelete {
+      color: #c0392b !important;
+    }
+    #ctxDelete:hover {
+      background: #fef2f2 !important;
+      color: #b42318 !important;
+    }
+
+    #ctxMore {
+      font-size: 15px;
+      padding: 4px 8px;
+      letter-spacing: 1px;
+      color: #8aa4b8;
+    }
+    #ctxMore:hover { color: var(--ink); }
+    #nodeContextBar.expanded #ctxMore { color: var(--accent); background: #f0faf8; }
+
     /* Overflow items hidden by default */
     .ctx-overflow { display: none !important; }
-    .ctx-divider  { display: none; width: 1px; background: #d2dde8; margin: 4px 2px; align-self: stretch; }
+    .ctx-divider  {
+      display: none;
+      width: 1px;
+      background: #e4ecf3;
+      margin: 4px 3px;
+      align-self: stretch;
+      flex-shrink: 0;
+    }
 
     /* Show overflow items when expanded */
     #nodeContextBar.expanded .ctx-overflow { display: inline-flex !important; }
     #nodeContextBar.expanded .ctx-divider  { display: block; }
-    #nodeContextBar.expanded #ctxMore      { color: var(--accent); }
+
+    /* Separator between primary group and ••• */
+    #ctxMore::before {
+      content: '';
+      display: inline-block;
+      width: 1px;
+      height: 14px;
+      background: #e4ecf3;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
 
     /* ── Node color palette popup ── */
     #colorPalette {
@@ -2004,19 +2041,19 @@
       <!-- Contextual node toolbar -->
       <div id="nodeContextBar">
         <!-- Primary tools — always visible -->
-        <button id="ctxAddChild" title="Add child (Tab)">+ Child</button>
-        <button id="ctxColor" title="Change node color">🎨</button>
+        <button id="ctxAddChild" title="Add child (Tab)">＋ Child</button>
+        <button id="ctxColor" title="Change node color">● Color</button>
         <button id="ctxUndo" title="Undo (Ctrl+Z)" disabled>↩</button>
         <button id="ctxRedo" title="Redo (Ctrl+Y)" disabled>↪</button>
-        <button id="ctxDelete" title="Delete node" style="color:#b42318;">🗑</button>
+        <button id="ctxDelete" title="Delete node">⌫ Delete</button>
         <!-- Overflow toggle -->
         <button id="ctxMore" title="More options">•••</button>
         <!-- Overflow tools — hidden until expanded -->
         <span class="ctx-divider"></span>
-        <button id="ctxExpand" class="ctx-overflow" title="Expand with AI">✦ Expand</button>
-        <button id="ctxCopy" class="ctx-overflow" title="Copy subtree (Ctrl+C)">Copy</button>
-        <button id="ctxCut" class="ctx-overflow" title="Cut subtree (Ctrl+X)">Cut</button>
-        <button id="ctxPaste" class="ctx-overflow" title="Paste subtree as child (Ctrl+V)" disabled>Paste</button>
+        <button id="ctxExpand" class="ctx-overflow" title="Expand with AI">✦ AI Expand</button>
+        <button id="ctxCopy" class="ctx-overflow" title="Copy subtree (Ctrl+C)">⎘ Copy</button>
+        <button id="ctxCut" class="ctx-overflow" title="Cut subtree (Ctrl+X)">✂ Cut</button>
+        <button id="ctxPaste" class="ctx-overflow" title="Paste subtree as child (Ctrl+V)" disabled>⎗ Paste</button>
       </div>
       <!-- Color palette popup -->
       <div id="colorPalette"></div>
