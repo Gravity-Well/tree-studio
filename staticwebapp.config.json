@@ -49,6 +49,10 @@
       "allowedRoles": ["authenticated"]
     },
     {
+      "route": "/api/profile",
+      "allowedRoles": ["authenticated"]
+    },
+    {
       "route": "/api/*",
       "allowedRoles": ["authenticated"]
     },

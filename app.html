@@ -1861,6 +1861,28 @@
       border: 1px solid #f5c6c3;
     }
     .profile-btn-danger:hover { background: #fff5f5; }
+    .profile-field-label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .profile-field-input {
+      padding: 7px 10px;
+      border: 1px solid #d2dde8;
+      border-radius: 7px;
+      font-size: 13px;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+      background: #fafcff;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .profile-field-input:focus { border-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -5098,7 +5120,43 @@
     initAuth();
 
     // ── Profile modal ──────────────────────────────────────────────────────────
-    function openProfileModal() {
+    let _profileData = {};
+
+    function showProfileView() {
+      document.getElementById("profileView").style.display = "";
+      document.getElementById("profileEdit").style.display = "none";
+    }
+    function showProfileEditMode() {
+      document.getElementById("profileView").style.display = "none";
+      document.getElementById("profileEdit").style.display = "";
+      document.getElementById("pfDisplayName").value = _profileData.displayName || "";
+      document.getElementById("pfEmail").value       = _profileData.email       || "";
+      document.getElementById("pfCompany").value     = _profileData.company     || "";
+      document.getElementById("pfWebsite").value     = _profileData.website     || "";
+      document.getElementById("pfBio").value         = _profileData.bio         || "";
+      document.getElementById("profileEditError").style.display = "none";
+      document.getElementById("pfDisplayName").focus();
+    }
+
+    function renderProfileFields(profile) {
+      _profileData = profile || {};
+      const fields = [
+        { id: "profileDisplayNameRow", valId: "profileDisplayNameVal", key: "displayName" },
+        { id: "profileEmailRow",       valId: "profileEmailVal",       key: "email" },
+        { id: "profileCompanyRow",     valId: "profileCompanyVal",     key: "company" },
+        { id: "profileWebsiteRow",     valId: "profileWebsiteVal",     key: "website" },
+        { id: "profileBioRow",         valId: "profileBioVal",         key: "bio" },
+      ];
+      for (const f of fields) {
+        const val = _profileData[f.key] || "";
+        const row = document.getElementById(f.id);
+        const el  = document.getElementById(f.valId);
+        row.style.display = val ? "" : "none";
+        el.textContent = val;
+      }
+    }
+
+    async function openProfileModal() {
       if (!currentUser) return;
       const name = currentUser.userDetails || currentUser.userId;
       const initial = name.charAt(0).toUpperCase();
@@ -5123,10 +5181,21 @@
         countEl.textContent = isPaid ? count : `${count} / 5`;
       }).catch(() => { countEl.textContent = "—"; });
 
+      // Load profile data
+      renderProfileFields({});
+      fetch("/api/profile").then(r => r.ok ? r.json() : {}).then(p => renderProfileFields(p)).catch(() => {});
+
       // Action buttons
       const actions = document.getElementById("profileActions");
       actions.innerHTML = "";
       const isPaid = currentPlan === "pro" || currentPlan === "business";
+
+      const editBtn = document.createElement("button");
+      editBtn.className = "profile-btn-outline";
+      editBtn.textContent = "Edit profile";
+      editBtn.addEventListener("click", showProfileEditMode);
+      actions.appendChild(editBtn);
+
       if (isPaid) {
         const manageBtn = document.createElement("button");
         manageBtn.className = "profile-btn-outline";
@@ -5140,13 +5209,14 @@
         upgradeBtn.addEventListener("click", () => { closeProfileModal(); openPlanModal(); });
         actions.appendChild(upgradeBtn);
       }
+
       const signOutLink = document.createElement("a");
       signOutLink.href = "/logout";
       signOutLink.className = "profile-btn-outline";
       signOutLink.textContent = "Sign out";
       actions.appendChild(signOutLink);
 
-      // Delete account (only for free users — paid must cancel sub first)
+      // Delete account
       const deleteBtn = document.createElement("button");
       deleteBtn.className = "profile-btn-danger";
       deleteBtn.textContent = isPaid ? "Cancel subscription to delete account" : "Delete account";
@@ -5158,7 +5228,6 @@
       });
       actions.appendChild(deleteBtn);
 
-      // Confirmation row (hidden by default)
       const confirmRow = document.createElement("div");
       confirmRow.id = "profileDeleteConfirm";
       confirmRow.style.cssText = "display:none;background:#fff5f5;border:1px solid #f5c6c3;border-radius:8px;padding:10px 12px;font-size:12px;color:#b42318;";
@@ -5169,19 +5238,58 @@
         </div>`;
       actions.appendChild(confirmRow);
 
+      showProfileView();
       document.getElementById("profileOverlay").classList.add("open");
 
-      // Wire confirm/cancel after adding to DOM
       setTimeout(() => {
         const confirmBtn = document.getElementById("profileDeleteConfirmBtn");
-        const cancelBtn = document.getElementById("profileDeleteCancelBtn");
+        const cancelBtn  = document.getElementById("profileDeleteCancelBtn");
         if (confirmBtn) confirmBtn.addEventListener("click", deleteAccount);
-        if (cancelBtn) cancelBtn.addEventListener("click", () => {
+        if (cancelBtn)  cancelBtn.addEventListener("click", () => {
           document.getElementById("profileDeleteConfirm").style.display = "none";
           deleteBtn.style.display = "";
         });
       }, 0);
     }
+
+    document.getElementById("profileSaveBtn").addEventListener("click", async () => {
+      const saveBtn = document.getElementById("profileSaveBtn");
+      const errEl   = document.getElementById("profileEditError");
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving…";
+      errEl.style.display = "none";
+      try {
+        const payload = {
+          displayName: document.getElementById("pfDisplayName").value,
+          email:       document.getElementById("pfEmail").value,
+          company:     document.getElementById("pfCompany").value,
+          website:     document.getElementById("pfWebsite").value,
+          bio:         document.getElementById("pfBio").value,
+        };
+        const res  = await fetch("/api/profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          errEl.textContent = data.error || "Save failed.";
+          errEl.style.display = "block";
+          return;
+        }
+        renderProfileFields(data.profile);
+        showProfileView();
+        toast("Profile saved");
+      } catch (err) {
+        errEl.textContent = "Save failed. Please try again.";
+        errEl.style.display = "block";
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save";
+      }
+    });
+
+    document.getElementById("profileCancelBtn").addEventListener("click", showProfileView);
 
     async function deleteAccount() {
       const confirmBtn = document.getElementById("profileDeleteConfirmBtn");
@@ -5227,7 +5335,8 @@
         </div>
         <button class="profile-close-btn" onclick="closeProfileModal()">✕</button>
       </div>
-      <div class="profile-body">
+      <!-- View mode -->
+      <div class="profile-body" id="profileView">
         <div class="profile-row">
           <span class="profile-row-label">Plan</span>
           <span id="profilePlanBadge" class="profile-plan-badge"></span>
@@ -5236,7 +5345,52 @@
           <span class="profile-row-label">Saved trees</span>
           <span class="profile-row-value" id="profileTreeCount">…</span>
         </div>
+        <div class="profile-row" id="profileDisplayNameRow" style="display:none">
+          <span class="profile-row-label">Name</span>
+          <span class="profile-row-value" id="profileDisplayNameVal"></span>
+        </div>
+        <div class="profile-row" id="profileEmailRow" style="display:none">
+          <span class="profile-row-label">Email</span>
+          <span class="profile-row-value" id="profileEmailVal"></span>
+        </div>
+        <div class="profile-row" id="profileCompanyRow" style="display:none">
+          <span class="profile-row-label">Company</span>
+          <span class="profile-row-value" id="profileCompanyVal"></span>
+        </div>
+        <div class="profile-row" id="profileWebsiteRow" style="display:none">
+          <span class="profile-row-label">Website</span>
+          <span class="profile-row-value" id="profileWebsiteVal"></span>
+        </div>
+        <div class="profile-row" id="profileBioRow" style="display:none">
+          <span class="profile-row-label">Bio</span>
+          <span class="profile-row-value" id="profileBioVal" style="font-weight:400;font-size:12px;max-width:220px;text-align:right;"></span>
+        </div>
         <div class="profile-actions" id="profileActions"></div>
+      </div>
+      <!-- Edit mode -->
+      <div class="profile-body" id="profileEdit" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <label class="profile-field-label">Display name
+            <input id="pfDisplayName" type="text" maxlength="80" placeholder="Your name" class="profile-field-input" />
+          </label>
+          <label class="profile-field-label">Email
+            <input id="pfEmail" type="email" maxlength="200" placeholder="you@example.com" class="profile-field-input" />
+          </label>
+          <label class="profile-field-label">Company
+            <input id="pfCompany" type="text" maxlength="100" placeholder="Company or organization" class="profile-field-input" />
+          </label>
+          <label class="profile-field-label">Website
+            <input id="pfWebsite" type="url" maxlength="200" placeholder="https://yoursite.com" class="profile-field-input" />
+          </label>
+          <label class="profile-field-label">Bio
+            <textarea id="pfBio" maxlength="300" placeholder="A short bio…" class="profile-field-input" rows="2" style="resize:vertical;"></textarea>
+          </label>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button id="profileSaveBtn" class="profile-btn-primary" style="flex:1;">Save</button>
+          <button id="profileCancelBtn" class="profile-btn-outline" style="flex:1;">Cancel</button>
+        </div>
+        <div id="profileEditError" style="font-size:12px;color:#b42318;margin-top:6px;display:none;"></div>
       </div>
     </div>
   </div>

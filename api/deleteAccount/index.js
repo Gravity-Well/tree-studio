@@ -36,8 +36,9 @@ module.exports = async function (context, req) {
       deleted++;
     }
 
-    // Delete plan blob
+    // Delete plan + profile blobs
     await container.getBlockBlobClient(`plans/${userPrefix(userId)}.json`).deleteIfExists();
+    await container.getBlockBlobClient(`profiles/${userPrefix(userId)}.json`).deleteIfExists();
 
     return json(context, 200, { ok: true, deleted });
   } catch (err) {
