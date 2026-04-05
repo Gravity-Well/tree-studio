@@ -111,6 +111,7 @@
       padding: 12px;
       margin-bottom: 12px;
       box-shadow: 0 6px 20px rgba(17, 50, 74, 0.06);
+      position: relative;
     }
 
     .cloud-panel {
@@ -119,6 +120,7 @@
       border-radius: 14px;
       padding: 14px 16px;
       margin-bottom: 12px;
+      position: relative;
       box-shadow: 0 6px 20px rgba(17, 50, 74, 0.06);
     }
 
@@ -1915,7 +1917,8 @@
     </div>
 
     <details id="cloudPanel" class="cloud-panel" style="display:none">
-      <summary>My Trees <span id="cloudTreeCount" class="cloud-tree-count" style="display:none"></span><button class="panel-close-btn" onclick="event.preventDefault();event.stopPropagation();document.getElementById('cloudPanel').style.display='none';" title="Close">✕</button></summary>
+      <summary>My Trees <span id="cloudTreeCount" class="cloud-tree-count" style="display:none"></span></summary>
+      <button class="panel-close-btn" onclick="document.getElementById('cloudPanel').style.display='none';" title="Close" style="position:absolute;top:10px;right:10px;">✕</button>
       <input id="cloudTreeName" type="text" style="display:none" />
       <button id="saveCloudBtn" style="display:none"></button>
       <div id="cloudTreeList" class="cloud-tree-list"></div>
@@ -1931,7 +1934,8 @@
     </details>
 
     <details class="json-panel" style="display:none">
-      <summary>Advanced<button class="panel-close-btn" onclick="event.preventDefault();event.stopPropagation();this.closest('details').style.display='none';" title="Close">✕</button></summary>
+      <summary>Advanced</summary>
+      <button class="panel-close-btn" onclick="this.closest('details').style.display='none';" title="Close" style="position:absolute;top:10px;right:10px;">✕</button>
       <div class="row">
         <label>Horizontal <input id="xOffset" type="number" min="0" value="30" /></label>
         <label>Vertical <input id="yOffset" type="number" min="50" value="70" /></label>
