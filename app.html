@@ -1807,6 +1807,9 @@
       <div id="nodeContextBar">
         <button id="ctxAddChild" title="Add child (Tab)">+ Child</button>
         <button id="ctxExpand" title="Expand with AI">✦ Expand</button>
+        <button id="ctxCopy" title="Copy subtree (Ctrl+C)">Copy</button>
+        <button id="ctxCut" title="Cut subtree (Ctrl+X)">Cut</button>
+        <button id="ctxPaste" title="Paste subtree as child (Ctrl+V)" disabled>Paste</button>
         <button id="ctxUndo" title="Undo (Ctrl+Z)" disabled>↩</button>
         <button id="ctxRedo" title="Redo (Ctrl+Y)" disabled>↪</button>
         <button id="ctxDelete" title="Delete node" style="color:#b42318;">🗑</button>
@@ -2540,6 +2543,7 @@
     }
 
     function onNodeSelected(node) {
+      updateClipboardButtons();
       window.dispatchEvent(new CustomEvent("tree-node-selected", {
         detail: { node }
       }));
@@ -3280,6 +3284,64 @@
       syncJsonFromTree();
       run(currentRoot, false);
     }
+
+    // ── Clipboard (copy / cut / paste subtree) ────────────────────────────────
+    let _clipboard = null; // serialized subtree JSON
+
+    function isAncestorOf(ancestor, node) {
+      let n = node;
+      while (n) { if (n === ancestor) return true; n = n.parent; }
+      return false;
+    }
+
+    function copySubtree() {
+      if (!selectedNode) return;
+      _clipboard = serializeTree(selectedNode);
+      updateClipboardButtons();
+      toast("Copied");
+    }
+
+    function cutSubtree() {
+      if (!selectedNode || !selectedNode.parent) {
+        toast("Can't cut the root node", "error");
+        return;
+      }
+      _clipboard = serializeTree(selectedNode);
+      updateClipboardButtons();
+      deleteNode(selectedNode); // handles pushUndo internally
+      toast("Cut");
+    }
+
+    function pasteSubtree() {
+      if (!_clipboard || !selectedNode) return;
+      try {
+        const pasted = buildTreeFromJsonNode(_clipboard, selectedNode);
+        if (isAncestorOf(pasted, selectedNode)) {
+          toast("Can't paste onto itself", "error");
+          return;
+        }
+        pushUndo();
+        selectedNode.children.push(pasted);
+        selectedNode.expanded = true;
+        syncJsonFromTree();
+        run(currentRoot, false);
+        toast("Pasted");
+      } catch (err) {
+        toast("Paste failed: " + err.message, "error");
+      }
+    }
+
+    function updateClipboardButtons() {
+      const hasSel = !!selectedNode;
+      const hasClip = !!_clipboard;
+      document.getElementById("ctxCopy").disabled = !hasSel;
+      document.getElementById("ctxCut").disabled = !hasSel || !selectedNode.parent;
+      document.getElementById("ctxPaste").disabled = !hasClip || !hasSel;
+    }
+
+    document.getElementById("ctxCopy").addEventListener("click", copySubtree);
+    document.getElementById("ctxCut").addEventListener("click", cutSubtree);
+    document.getElementById("ctxPaste").addEventListener("click", pasteSubtree);
 
     function setExpandedRecursive(node, expanded) {
       if (!node) return;
@@ -4136,6 +4198,22 @@
         return;
       }
       if (editingNode) return;
+
+      if ((e.ctrlKey || e.metaKey) && e.key === "c" && !e.shiftKey && selectedNode) {
+        e.preventDefault();
+        copySubtree();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "x" && !e.shiftKey && selectedNode) {
+        e.preventDefault();
+        cutSubtree();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "v" && !e.shiftKey && selectedNode) {
+        e.preventDefault();
+        pasteSubtree();
+        return;
+      }
 
       if (e.key === "Tab" && !e.ctrlKey && !e.altKey && selectedNode) {
         e.preventDefault();
