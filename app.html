@@ -1409,6 +1409,43 @@
       cursor: not-allowed;
     }
 
+    /* ── Node color palette popup ── */
+    #colorPalette {
+      position: fixed;
+      background: #fff;
+      border: 1px solid #d2dde8;
+      border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(17,50,74,0.15);
+      padding: 8px;
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      width: 168px;
+      z-index: 300;
+    }
+    #colorPalette.visible { display: flex; }
+    .color-swatch {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.1s;
+      flex-shrink: 0;
+    }
+    .color-swatch:hover { transform: scale(1.15); border-color: #666; }
+    .color-swatch.active { border-color: #333; }
+    .color-swatch-reset {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      border: 2px dashed #aaa;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      color: #888;
+      flex-shrink: 0;
+    }
+    .color-swatch-reset:hover { border-color: #555; color: #333; }
+
     /* ── Floating zoom controls ── */
     #zoomFloat {
       position: absolute;
@@ -1810,10 +1847,13 @@
         <button id="ctxCopy" title="Copy subtree (Ctrl+C)">Copy</button>
         <button id="ctxCut" title="Cut subtree (Ctrl+X)">Cut</button>
         <button id="ctxPaste" title="Paste subtree as child (Ctrl+V)" disabled>Paste</button>
+        <button id="ctxColor" title="Change node color">🎨</button>
         <button id="ctxUndo" title="Undo (Ctrl+Z)" disabled>↩</button>
         <button id="ctxRedo" title="Redo (Ctrl+Y)" disabled>↪</button>
         <button id="ctxDelete" title="Delete node" style="color:#b42318;">🗑</button>
       </div>
+      <!-- Color palette popup -->
+      <div id="colorPalette"></div>
       <!-- Floating zoom controls -->
       <div id="zoomFloat">
         <button id="zoomOutBtn" title="Zoom out (Ctrl+scroll)">−</button>
@@ -1908,6 +1948,7 @@
         this.position = { x: 0, y: 0 };
         this.width = 100;
         this.height = 50;
+        this.color = null; // null = use depth palette; string = user-chosen hex
       }
     }
 
@@ -2164,6 +2205,7 @@
       if (Number.isInteger(data.width) && data.width > 0) node.width = data.width;
       if (Number.isInteger(data.height) && data.height > 0) node.height = data.height;
       if (typeof data.expanded === "boolean") node.expanded = data.expanded;
+      if (typeof data.color === "string" && /^#[0-9a-fA-F]{3,6}$/.test(data.color)) node.color = data.color;
 
       if (data.children !== undefined) {
         if (!Array.isArray(data.children)) {
@@ -2398,11 +2440,13 @@
 
     function serializeTree(node) {
       if (!node) return null;
-      return {
+      const obj = {
         label: node.label,
         expanded: node.expanded !== false,
         children: node.children.map((child) => serializeTree(child))
       };
+      if (node.color) obj.color = node.color;
+      return obj;
     }
 
     function getVisibleChildren(node) {
@@ -2461,6 +2505,16 @@
         current = current.parent;
       }
       return d;
+    }
+
+    function darkenHex(hex, amount) {
+      // Darken a hex color by reducing each channel by `amount`
+      const h = hex.replace("#", "");
+      const full = h.length === 3 ? h.split("").map(c => c + c).join("") : h;
+      const r = Math.max(0, parseInt(full.slice(0, 2), 16) - amount);
+      const g = Math.max(0, parseInt(full.slice(2, 4), 16) - amount);
+      const b = Math.max(0, parseInt(full.slice(4, 6), 16) - amount);
+      return `#${r.toString(16).padStart(2,"0")}${g.toString(16).padStart(2,"0")}${b.toString(16).padStart(2,"0")}`;
     }
 
     function getNodeFillByDepth(node) {
@@ -2609,8 +2663,8 @@
         rect.setAttribute("width", String(node.width));
         rect.setAttribute("height", String(node.height));
 
-        let fill = node === selectedNode ? "#ffe2a6" : getNodeFillByDepth(node);
-        let stroke = node === selectedNode ? "#8a5a14" : "var(--node-border)";
+        let fill = node === selectedNode ? "#ffe2a6" : (node.color || getNodeFillByDepth(node));
+        let stroke = node === selectedNode ? "#8a5a14" : (node.color ? darkenHex(node.color, 40) : "var(--node-border)");
         let strokeWidth = node === selectedNode ? "3" : "2";
 
         if (isActiveMatch) {
@@ -3342,6 +3396,86 @@
     document.getElementById("ctxCopy").addEventListener("click", copySubtree);
     document.getElementById("ctxCut").addEventListener("click", cutSubtree);
     document.getElementById("ctxPaste").addEventListener("click", pasteSubtree);
+
+    // ── Node color palette ─────────────────────────────────────────────────────
+    const NODE_COLORS = [
+      "#d7ecfa", "#dff4ec", "#f6ecd8", "#eadff7", "#f9e0e0", "#dfeaf8",
+      "#fef9c3", "#d1fae5", "#fce7f3", "#e0e7ff",
+      "#f97316", "#22c55e", "#3b82f6", "#a855f7", "#ec4899", "#14b8a6",
+      "#ef4444", "#f59e0b", "#6366f1", "#84cc16"
+    ];
+
+    (function buildColorPalette() {
+      const palette = document.getElementById("colorPalette");
+
+      // Reset swatch
+      const reset = document.createElement("div");
+      reset.className = "color-swatch-reset";
+      reset.title = "Reset to default";
+      reset.textContent = "✕";
+      reset.addEventListener("click", () => {
+        if (!selectedNode) return;
+        pushUndo();
+        selectedNode.color = null;
+        syncJsonFromTree();
+        run(currentRoot, false);
+        closeColorPalette();
+      });
+      palette.appendChild(reset);
+
+      for (const color of NODE_COLORS) {
+        const swatch = document.createElement("div");
+        swatch.className = "color-swatch";
+        swatch.style.background = color;
+        swatch.title = color;
+        swatch.addEventListener("click", () => {
+          if (!selectedNode) return;
+          pushUndo();
+          selectedNode.color = color;
+          syncJsonFromTree();
+          run(currentRoot, false);
+          closeColorPalette();
+        });
+        palette.appendChild(swatch);
+      }
+    })();
+
+    function openColorPalette() {
+      if (!selectedNode) return;
+      const palette = document.getElementById("colorPalette");
+      const btn = document.getElementById("ctxColor");
+      const rect = btn.getBoundingClientRect();
+      palette.style.left = rect.left + "px";
+      palette.style.top = (rect.bottom + 6) + "px";
+      // Mark active swatch
+      palette.querySelectorAll(".color-swatch").forEach(s => {
+        s.classList.toggle("active", s.style.background === selectedNode.color ||
+          s.title === selectedNode.color);
+      });
+      palette.classList.add("visible");
+    }
+
+    function closeColorPalette() {
+      document.getElementById("colorPalette").classList.remove("visible");
+    }
+
+    document.getElementById("ctxColor").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const palette = document.getElementById("colorPalette");
+      if (palette.classList.contains("visible")) {
+        closeColorPalette();
+      } else {
+        openColorPalette();
+      }
+    });
+
+    // Close palette on click outside
+    document.addEventListener("click", (e) => {
+      const palette = document.getElementById("colorPalette");
+      if (!palette.contains(e.target) && e.target.id !== "ctxColor") {
+        closeColorPalette();
+      }
+    });
 
     function setExpandedRecursive(node, expanded) {
       if (!node) return;
