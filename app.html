@@ -3,12 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tree Studio</title>
+  <title>Tree Studio — Hierarchical Tree Diagram Editor</title>
   <meta name="app-version" content="1.0.2" />
-  <meta name="description" content="Build, explore, and share hierarchical trees visually. Embed in any site or use as a standalone tool." />
-  <meta property="og:title" content="Tree Studio" />
-  <meta property="og:description" content="Build, explore, and share hierarchical trees visually." />
-  <meta property="og:url" content="https://treestudio.nusoftva.com" />
+  <meta name="description" content="Build, share, and embed hierarchical tree diagrams online. AI-powered generation, cloud save, SVG/PNG export." />
+  <link rel="canonical" href="https://treestudio.nusoftva.com/app" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Tree Studio" />
+  <meta property="og:title" content="Tree Studio — Hierarchical Tree Diagram Editor" />
+  <meta property="og:description" content="Build, share, and embed hierarchical tree diagrams online. AI-powered generation, cloud save, SVG/PNG export." />
+  <meta property="og:url" content="https://treestudio.nusoftva.com/app" />
+  <meta property="og:image" content="https://treestudio.nusoftva.com/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://treestudio.nusoftva.com/og-image.png" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style>
     :root {
@@ -3450,8 +3456,8 @@
       clearError();
       if (!currentUser) { setError("Sign in to share trees."); return; }
       const viewParam = `${encodeURIComponent(currentUser.userId)}/${encodeURIComponent(name)}`;
-      const url = `${location.origin}?view=${viewParam}`;
-      const embedUrl = `${location.origin}/app?view=${viewParam}&embed=1`;
+      const url = `${location.origin}/tree/${viewParam}`;
+      const embedUrl = `${location.origin}/tree/${viewParam}?embed=1`;
       const embedCode = `<iframe src="${embedUrl}" width="100%" height="500" style="border:none;border-radius:8px;" allowfullscreen></iframe>`;
       const wrap = document.getElementById("shareLinkWrap");
       document.getElementById("shareLinkInput").value = url;
@@ -4739,8 +4745,11 @@
 
     // ── Embed & view mode init ────────────────────────────────────────────────
     const _params = new URLSearchParams(location.search);
-    const _viewParam = _params.get("view");
     const _embedMode = _params.get("embed") === "1";
+
+    // Support both clean URLs (/tree/userId/treeName) and legacy (?view=userId/treeName)
+    const _pathMatch = location.pathname.match(/^\/tree\/(.+)/);
+    const _viewParam = _pathMatch ? _pathMatch[1] : _params.get("view");
 
     if (_embedMode) {
       document.body.classList.add("embed-mode");
@@ -4761,6 +4770,9 @@
           const tree = payload && payload.tree ? payload.tree : payload;
           currentRoot = buildTreeFromJsonNode(tree, null);
           selectedNode = currentRoot;
+          // Update page title to tree name for SEO
+          const treeName = (name || "").replace(/\.json$/i, "").replace(/[-_]/g, " ");
+          if (treeName) document.title = `${treeName} — Tree Studio`;
           updateSelectedInfo();
           syncJsonFromTree();
           run(currentRoot, true);

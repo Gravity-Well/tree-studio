@@ -29,6 +29,10 @@
       "route": "/api/share/*"
     },
     {
+      "route": "/tree/*",
+      "rewrite": "/app.html"
+    },
+    {
       "route": "/api/contact",
       "allowedRoles": ["anonymous"]
     },
