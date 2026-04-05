@@ -1420,7 +1420,7 @@
       display: none;
       flex-wrap: wrap;
       gap: 6px;
-      width: 168px;
+      width: 174px;
       z-index: 300;
     }
     #colorPalette.visible { display: flex; }
@@ -3405,13 +3405,22 @@
       "#ef4444", "#f59e0b", "#6366f1", "#84cc16"
     ];
 
+    function setAllNodeColors(color) {
+      // Walk every node in the tree and set (or clear) color
+      function walk(node) {
+        node.color = color;
+        for (const c of node.children) walk(c);
+      }
+      if (currentRoot) walk(currentRoot);
+    }
+
     (function buildColorPalette() {
       const palette = document.getElementById("colorPalette");
 
-      // Reset swatch
+      // Reset swatch (this node only)
       const reset = document.createElement("div");
       reset.className = "color-swatch-reset";
-      reset.title = "Reset to default";
+      reset.title = "Reset this node to default";
       reset.textContent = "✕";
       reset.addEventListener("click", () => {
         if (!selectedNode) return;
@@ -3432,13 +3441,54 @@
           if (!selectedNode) return;
           pushUndo();
           selectedNode.color = color;
+          _lastPickedColor = color;
           syncJsonFromTree();
           run(currentRoot, false);
           closeColorPalette();
         });
         palette.appendChild(swatch);
       }
+
+      // Divider + bulk action buttons
+      const divider = document.createElement("div");
+      divider.style.cssText = "width:100%;border-top:1px solid #e4ebf2;margin:2px 0;";
+      palette.appendChild(divider);
+
+      const applyAll = document.createElement("button");
+      applyAll.id = "colorApplyAll";
+      applyAll.textContent = "Apply to all nodes";
+      applyAll.style.cssText = "width:100%;font-size:11px;padding:5px 6px;border:none;background:#f0f5fa;border-radius:6px;cursor:pointer;color:var(--ink);text-align:left;";
+      applyAll.title = "Set every node in the tree to the last picked color";
+      applyAll.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const lastColor = _lastPickedColor;
+        if (!lastColor) { toast("Pick a color first", "error"); return; }
+        pushUndo();
+        setAllNodeColors(lastColor);
+        syncJsonFromTree();
+        run(currentRoot, false);
+        closeColorPalette();
+        toast("Color applied to all nodes");
+      });
+      palette.appendChild(applyAll);
+
+      const resetAll = document.createElement("button");
+      resetAll.textContent = "Reset all to default";
+      resetAll.style.cssText = "width:100%;font-size:11px;padding:5px 6px;border:none;background:#f0f5fa;border-radius:6px;cursor:pointer;color:var(--ink);text-align:left;margin-top:3px;";
+      resetAll.title = "Remove custom colors from every node";
+      resetAll.addEventListener("click", (e) => {
+        e.stopPropagation();
+        pushUndo();
+        setAllNodeColors(null);
+        syncJsonFromTree();
+        run(currentRoot, false);
+        closeColorPalette();
+        toast("All node colors reset");
+      });
+      palette.appendChild(resetAll);
     })();
+
+    let _lastPickedColor = null;
 
     function openColorPalette() {
       if (!selectedNode) return;
