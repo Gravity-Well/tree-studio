@@ -1726,6 +1726,132 @@
       .plan-modal-inner { padding: 24px 18px 20px; }
       .plan-modal h2 { font-size: 20px; }
     }
+
+    /* ── Profile modal ── */
+    .profile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,30,50,0.35);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .profile-overlay.open { display: flex; }
+    .profile-modal {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(17,50,74,0.18);
+      width: 100%;
+      max-width: 400px;
+      overflow: hidden;
+      margin: 16px;
+    }
+    .profile-header {
+      background: linear-gradient(135deg, #1a3a52 0%, #0f766e 100%);
+      padding: 28px 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+    .profile-avatar-lg {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.4);
+    }
+    .profile-header-info { flex: 1; min-width: 0; }
+    .profile-header-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .profile-header-provider {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 2px;
+    }
+    .profile-close-btn {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .profile-close-btn:hover { background: rgba(255,255,255,0.3); }
+    .profile-body { padding: 20px 24px 24px; }
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #edf2f7;
+      font-size: 13px;
+    }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-row-label { color: var(--muted); }
+    .profile-row-value { font-weight: 600; color: var(--ink); }
+    .profile-plan-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
+    .profile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .profile-actions a, .profile-actions button {
+      display: block;
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      box-sizing: border-box;
+    }
+    .profile-btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+    }
+    .profile-btn-primary:hover { background: var(--accent-dark); }
+    .profile-btn-outline {
+      background: #fff;
+      color: var(--btn-muted);
+      border: 1px solid #ccd8e4;
+    }
+    .profile-btn-outline:hover { background: #f0f6fa; }
+    .profile-btn-danger {
+      background: #fff;
+      color: #b42318;
+      border: 1px solid #f5c6c3;
+    }
+    .profile-btn-danger:hover { background: #fff5f5; }
   </style>
 </head>
 <body>
@@ -4726,14 +4852,18 @@
           const upgradePill = document.getElementById("upgradePill");
           if (upgradePill) upgradePill.style.display = isPaid ? "none" : "";
 
+          const providerLabel = (principal.identityProvider || "").toLowerCase() === "github" ? "GitHub"
+            : (principal.identityProvider || "").toLowerCase() === "aad" ? "Microsoft"
+            : (principal.identityProvider || "");
           authBar.innerHTML = `
             <div class="auth-avatar" id="authAvatar" title="${name}">${initial}</div>
             <div class="auth-dropdown" id="authDropdown">
               <div class="auth-dropdown-header">
                 <strong>${name}</strong>
-                Signed in via GitHub
+                Signed in via ${providerLabel}
                 <span style="display:inline-block;margin-top:4px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:0.3px;${planBadgeColor(currentPlan)}">${planLabel(currentPlan)} PLAN</span>
               </div>
+              <a href="#" id="profileBtn">My Profile</a>
               ${isPaid
                 ? `<a href="#" id="billingPortalBtn">Manage subscription</a>`
                 : `<a href="#" id="upgradeProBtn" style="color:var(--accent);font-weight:600;">Upgrade to Pro →</a>`
@@ -4746,6 +4876,12 @@
           document.getElementById("authAvatar").addEventListener("click", (e) => {
             e.stopPropagation();
             document.getElementById("authDropdown").classList.toggle("open");
+          });
+
+          document.getElementById("profileBtn").addEventListener("click", (e) => {
+            e.preventDefault();
+            document.getElementById("authDropdown").classList.remove("open");
+            openProfileModal();
           });
 
           document.addEventListener("click", () => {
@@ -4934,6 +5070,93 @@
     });
 
     initAuth();
+
+    // ── Profile modal ──────────────────────────────────────────────────────────
+    function openProfileModal() {
+      if (!currentUser) return;
+      const name = currentUser.userDetails || currentUser.userId;
+      const initial = name.charAt(0).toUpperCase();
+      const provider = (currentUser.identityProvider || "").toLowerCase();
+      const providerLabel = provider === "github" ? "GitHub" : provider === "aad" ? "Microsoft" : provider;
+
+      document.getElementById("profileAvatarLg").textContent = initial;
+      document.getElementById("profileName").textContent = name;
+      document.getElementById("profileProvider").textContent = `Signed in via ${providerLabel}`;
+
+      // Plan badge
+      const badge = document.getElementById("profilePlanBadge");
+      badge.textContent = planLabel(currentPlan) + " PLAN";
+      badge.style.cssText = `font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.3px;${planBadgeColor(currentPlan)}`;
+
+      // Tree count
+      const countEl = document.getElementById("profileTreeCount");
+      countEl.textContent = "…";
+      fetch("/api/trees").then(r => r.json()).then(d => {
+        const count = Array.isArray(d.items) ? d.items.length : "—";
+        const isPaid = currentPlan === "pro" || currentPlan === "business";
+        countEl.textContent = isPaid ? count : `${count} / 5`;
+      }).catch(() => { countEl.textContent = "—"; });
+
+      // Action buttons
+      const actions = document.getElementById("profileActions");
+      actions.innerHTML = "";
+      const isPaid = currentPlan === "pro" || currentPlan === "business";
+      if (isPaid) {
+        const manageBtn = document.createElement("button");
+        manageBtn.className = "profile-btn-outline";
+        manageBtn.textContent = "Manage subscription";
+        manageBtn.addEventListener("click", () => { closeProfileModal(); openBillingPortal(); });
+        actions.appendChild(manageBtn);
+      } else {
+        const upgradeBtn = document.createElement("button");
+        upgradeBtn.className = "profile-btn-primary";
+        upgradeBtn.textContent = "Upgrade to Pro →";
+        upgradeBtn.addEventListener("click", () => { closeProfileModal(); openPlanModal(); });
+        actions.appendChild(upgradeBtn);
+      }
+      const signOutLink = document.createElement("a");
+      signOutLink.href = "/logout";
+      signOutLink.className = "profile-btn-danger";
+      signOutLink.textContent = "Sign out";
+      actions.appendChild(signOutLink);
+
+      document.getElementById("profileOverlay").classList.add("open");
+    }
+
+    function closeProfileModal() {
+      document.getElementById("profileOverlay").classList.remove("open");
+    }
+
+    document.getElementById("profileOverlay").addEventListener("click", (e) => {
+      if (e.target === document.getElementById("profileOverlay")) closeProfileModal();
+    });
+
   </script>
+
+  <!-- Profile modal -->
+  <div class="profile-overlay" id="profileOverlay">
+    <div class="profile-modal">
+      <div class="profile-header">
+        <div class="profile-avatar-lg" id="profileAvatarLg"></div>
+        <div class="profile-header-info">
+          <div class="profile-header-name" id="profileName"></div>
+          <div class="profile-header-provider" id="profileProvider"></div>
+        </div>
+        <button class="profile-close-btn" onclick="closeProfileModal()">✕</button>
+      </div>
+      <div class="profile-body">
+        <div class="profile-row">
+          <span class="profile-row-label">Plan</span>
+          <span id="profilePlanBadge" class="profile-plan-badge"></span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-row-label">Saved trees</span>
+          <span class="profile-row-value" id="profileTreeCount">…</span>
+        </div>
+        <div class="profile-actions" id="profileActions"></div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
