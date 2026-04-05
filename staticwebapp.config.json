@@ -45,6 +45,10 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/deleteAccount",
+      "allowedRoles": ["authenticated"]
+    },
+    {
       "route": "/api/*",
       "allowedRoles": ["authenticated"]
     },
@@ -65,5 +69,10 @@
       "redirect": "/.auth/logout"
     }
   ],
-  "responseOverrides": {}
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/404.html",
+      "statusCode": 404
+    }
+  }
 }

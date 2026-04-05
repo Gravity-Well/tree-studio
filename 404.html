@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Page Not Found — Tree Studio</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    :root {
+      --ink: #13273a;
+      --muted: #4a6170;
+      --accent: #0f766e;
+      --accent-dark: #0b5f5d;
+      --bg: #f7fbfd;
+      --panel: #ffffff;
+      --border: #d2dde8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    nav {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    nav a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .code {
+      font-size: 96px;
+      font-weight: 800;
+      color: #d2dde8;
+      line-height: 1;
+      letter-spacing: -4px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 16px 0 10px;
+    }
+    p {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 380px;
+      line-height: 1.6;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+    }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-ghost {
+      background: var(--panel);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+    }
+    .btn-ghost:hover { background: #f0f5fa; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">
+      <img src="/favicon.svg" width="22" height="22" alt="" style="border-radius:5px;" />
+      Tree Studio
+    </a>
+  </nav>
+  <main>
+    <div class="code">404</div>
+    <h1>Page not found</h1>
+    <p>The page you're looking for doesn't exist or may have been moved.</p>
+    <div class="actions">
+      <a href="/app" class="btn-primary">Open the app</a>
+      <a href="/" class="btn-ghost">Go home</a>
+    </div>
+  </main>
+</body>
+</html>
