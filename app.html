@@ -5293,6 +5293,7 @@
       }, 0);
     }
 
+    window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("profileSaveBtn").addEventListener("click", async () => {
       const saveBtn = document.getElementById("profileSaveBtn");
       const errEl   = document.getElementById("profileEditError");
@@ -5331,6 +5332,7 @@
     });
 
     document.getElementById("profileCancelBtn").addEventListener("click", showProfileView);
+    }); // end DOMContentLoaded
 
     async function deleteAccount() {
       const confirmBtn = document.getElementById("profileDeleteConfirmBtn");
