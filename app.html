@@ -3417,21 +3417,18 @@
     (function buildColorPalette() {
       const palette = document.getElementById("colorPalette");
 
-      // Reset swatch (this node only)
-      const reset = document.createElement("div");
-      reset.className = "color-swatch-reset";
-      reset.title = "Reset this node to default";
-      reset.textContent = "✕";
-      reset.addEventListener("click", () => {
-        if (!selectedNode) return;
-        pushUndo();
-        selectedNode.color = null;
-        syncJsonFromTree();
-        run(currentRoot, false);
-        closeColorPalette();
-      });
-      palette.appendChild(reset);
+      // "Apply to all" checkbox row at top
+      const checkRow = document.createElement("label");
+      checkRow.style.cssText = "width:100%;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink);cursor:pointer;padding:2px 0 6px;border-bottom:1px solid #e4ebf2;margin-bottom:2px;user-select:none;";
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.id = "colorApplyAllChk";
+      chk.style.cssText = "cursor:pointer;accent-color:var(--accent);";
+      checkRow.appendChild(chk);
+      checkRow.appendChild(document.createTextNode("Apply to all nodes"));
+      palette.appendChild(checkRow);
 
+      // Swatches
       for (const color of NODE_COLORS) {
         const swatch = document.createElement("div");
         swatch.className = "color-swatch";
@@ -3440,55 +3437,54 @@
         swatch.addEventListener("click", () => {
           if (!selectedNode) return;
           pushUndo();
-          selectedNode.color = color;
-          _lastPickedColor = color;
+          if (chk.checked) {
+            setAllNodeColors(color);
+          } else {
+            selectedNode.color = color;
+          }
+          // Update active state
+          palette.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
+          swatch.classList.add("active");
           syncJsonFromTree();
           run(currentRoot, false);
-          closeColorPalette();
+          // Stay open so user can see result / pick another
         });
         palette.appendChild(swatch);
       }
 
-      // Divider + bulk action buttons
+      // Divider + reset buttons
       const divider = document.createElement("div");
-      divider.style.cssText = "width:100%;border-top:1px solid #e4ebf2;margin:2px 0;";
+      divider.style.cssText = "width:100%;border-top:1px solid #e4ebf2;margin:4px 0 2px;";
       palette.appendChild(divider);
 
-      const applyAll = document.createElement("button");
-      applyAll.id = "colorApplyAll";
-      applyAll.textContent = "Apply to all nodes";
-      applyAll.style.cssText = "width:100%;font-size:11px;padding:5px 6px;border:none;background:#f0f5fa;border-radius:6px;cursor:pointer;color:var(--ink);text-align:left;";
-      applyAll.title = "Set every node in the tree to the last picked color";
-      applyAll.addEventListener("click", (e) => {
+      const resetOne = document.createElement("button");
+      resetOne.textContent = "Reset this node";
+      resetOne.style.cssText = "width:100%;font-size:11px;padding:5px 6px;border:none;background:#f0f5fa;border-radius:6px;cursor:pointer;color:var(--ink);text-align:left;";
+      resetOne.addEventListener("click", (e) => {
         e.stopPropagation();
-        const lastColor = _lastPickedColor;
-        if (!lastColor) { toast("Pick a color first", "error"); return; }
+        if (!selectedNode) return;
         pushUndo();
-        setAllNodeColors(lastColor);
+        selectedNode.color = null;
+        palette.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
         syncJsonFromTree();
         run(currentRoot, false);
-        closeColorPalette();
-        toast("Color applied to all nodes");
       });
-      palette.appendChild(applyAll);
+      palette.appendChild(resetOne);
 
       const resetAll = document.createElement("button");
-      resetAll.textContent = "Reset all to default";
+      resetAll.textContent = "Reset all nodes";
       resetAll.style.cssText = "width:100%;font-size:11px;padding:5px 6px;border:none;background:#f0f5fa;border-radius:6px;cursor:pointer;color:var(--ink);text-align:left;margin-top:3px;";
-      resetAll.title = "Remove custom colors from every node";
       resetAll.addEventListener("click", (e) => {
         e.stopPropagation();
         pushUndo();
         setAllNodeColors(null);
+        palette.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
         syncJsonFromTree();
         run(currentRoot, false);
-        closeColorPalette();
         toast("All node colors reset");
       });
       palette.appendChild(resetAll);
     })();
-
-    let _lastPickedColor = null;
 
     function openColorPalette() {
       if (!selectedNode) return;
@@ -3497,11 +3493,12 @@
       const rect = btn.getBoundingClientRect();
       palette.style.left = rect.left + "px";
       palette.style.top = (rect.bottom + 6) + "px";
-      // Mark active swatch
+      // Mark active swatch for current node color
       palette.querySelectorAll(".color-swatch").forEach(s => {
-        s.classList.toggle("active", s.style.background === selectedNode.color ||
-          s.title === selectedNode.color);
+        s.classList.toggle("active", s.title === selectedNode.color);
       });
+      // Reset checkbox state
+      document.getElementById("colorApplyAllChk").checked = false;
       palette.classList.add("visible");
     }
 
