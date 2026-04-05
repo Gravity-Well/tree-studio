@@ -2975,6 +2975,10 @@
       try {
         data = text ? JSON.parse(text) : {};
       } catch (_) {
+        // 401 with non-JSON body = SWA intercepted the request (session expired)
+        if (res.status === 401) {
+          throw new Error("Session expired. Please sign in again.");
+        }
         const preview = text.slice(0, 80).replace(/\s+/g, " ");
         throw new Error(`${contextLabel} returned non-JSON response (${res.status}): ${preview}`);
       }
@@ -3046,8 +3050,14 @@
         await refreshCloudList();
         toast(`"${name}" saved`);
       } catch (err) {
-        setError(err.message || "Cloud save failed.");
-        toast(err.message || "Save failed", "error");
+        const msg = err.message || "Cloud save failed.";
+        setError(msg);
+        if (msg.includes("Session expired")) {
+          toast("Session expired — sign in again to save.", "error");
+          setTimeout(() => { window.location.href = "/login?post_login_redirect=/app"; }, 1800);
+        } else {
+          toast(msg, "error");
+        }
       }
     }
 
