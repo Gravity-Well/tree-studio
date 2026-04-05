@@ -45,12 +45,12 @@ module.exports = async function (context, req) {
     }
 
     if (!emailSent) {
-      return json(context, 502, { error: `Could not send your message (${emailError}). Please email us directly at hello@nusoftva.com.` });
+      return json(context, 502, { error: `Could not send your message (${emailError}). Please email us directly at contact@nusoftva.com.` });
     }
     return json(context, 200, { ok: true });
   } catch (err) {
     context.log.error("[contact] Handler error:", err);
-    return json(context, 500, { error: "Could not send your message. Please email us directly at hello@nusoftva.com." });
+    return json(context, 500, { error: "Could not send your message. Please email us directly at contact@nusoftva.com." });
   }
 };
 

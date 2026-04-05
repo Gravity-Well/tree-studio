@@ -854,7 +854,7 @@
 
       </div>
       <p style="text-align:center;margin-top:32px;font-size:14px;color:var(--muted);">
-        Need white-label, SSO, or a custom SLA? <a href="mailto:hello@nusoftva.com" style="color:var(--accent);font-weight:600;">Contact us</a>
+        Need white-label, SSO, or a custom SLA? <a href="mailto:contact@nusoftva.com" style="color:var(--accent);font-weight:600;">Contact us</a>
       </p>
     </div>
   </section>
@@ -863,7 +863,7 @@
   <section class="capture-section" id="waitlist">
     <div class="section-inner">
       <h2>Questions? We're here.</h2>
-      <p>Reach out anytime at <a href="mailto:hello@nusoftva.com" style="color:var(--accent);font-weight:600;">hello@nusoftva.com</a> — feature requests, enterprise plans, or just to say hi.</p>
+      <p>Reach out anytime at <a href="mailto:contact@nusoftva.com" style="color:var(--accent);font-weight:600;">contact@nusoftva.com</a> — feature requests, enterprise plans, or just to say hi.</p>
       <div style="margin-top:24px;">
         <a href="/app" class="pricing-cta pricing-cta-primary" style="display:inline-block;text-decoration:none;padding:14px 32px;font-size:16px;">Start building — it's free</a>
       </div>
@@ -881,7 +881,7 @@
       btn.textContent = "Submitting...";
       fetch("/.auth/me").catch(() => {}).finally(() => {
         // Simple mailto fallback — swap for a real endpoint when backend is ready
-        window.location.href = `mailto:hello@nusoftva.com?subject=Tree+Studio+waitlist&body=Please+add+me+to+the+Pro+waitlist:+${encodeURIComponent(email)}`;
+        window.location.href = `mailto:contact@nusoftva.com?subject=Tree+Studio+waitlist&body=Please+add+me+to+the+Pro+waitlist:+${encodeURIComponent(email)}`;
         msg.textContent = "Thanks! We'll be in touch.";
         msg.style.color = "#4db8ae";
         btn.textContent = "Notify me";
@@ -899,7 +899,7 @@
       <a href="#embed">Embed</a>
       <a href="#pricing">Pricing</a>
       <a href="https://nusoftva.com" target="_blank">NuSoftVA</a>
-      <a href="mailto:hello@nusoftva.com">Contact</a>
+      <a href="mailto:contact@nusoftva.com">Contact</a>
       <a href="/terms">Terms</a>
       <a href="/privacy">Privacy</a>
     </div>
