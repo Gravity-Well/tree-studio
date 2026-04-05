@@ -1409,6 +1409,43 @@
       cursor: not-allowed;
     }
 
+    /* ── Node color palette popup ── */
+    #colorPalette {
+      position: fixed;
+      background: #fff;
+      border: 1px solid #d2dde8;
+      border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(17,50,74,0.15);
+      padding: 8px;
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      width: 174px;
+      z-index: 300;
+    }
+    #colorPalette.visible { display: flex; }
+    .color-swatch {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.1s;
+      flex-shrink: 0;
+    }
+    .color-swatch:hover { transform: scale(1.15); border-color: #666; }
+    .color-swatch.active { border-color: #333; }
+    .color-swatch-reset {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      border: 2px dashed #aaa;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      color: #888;
+      flex-shrink: 0;
+    }
+    .color-swatch-reset:hover { border-color: #555; color: #333; }
+
     /* ── Floating zoom controls ── */
     #zoomFloat {
       position: absolute;
@@ -1689,6 +1726,132 @@
       .plan-modal-inner { padding: 24px 18px 20px; }
       .plan-modal h2 { font-size: 20px; }
     }
+
+    /* ── Profile modal ── */
+    .profile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,30,50,0.35);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .profile-overlay.open { display: flex; }
+    .profile-modal {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(17,50,74,0.18);
+      width: 100%;
+      max-width: 400px;
+      overflow: hidden;
+      margin: 16px;
+    }
+    .profile-header {
+      background: linear-gradient(135deg, #1a3a52 0%, #0f766e 100%);
+      padding: 28px 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+    .profile-avatar-lg {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.4);
+    }
+    .profile-header-info { flex: 1; min-width: 0; }
+    .profile-header-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .profile-header-provider {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 2px;
+    }
+    .profile-close-btn {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .profile-close-btn:hover { background: rgba(255,255,255,0.3); }
+    .profile-body { padding: 20px 24px 24px; }
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #edf2f7;
+      font-size: 13px;
+    }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-row-label { color: var(--muted); }
+    .profile-row-value { font-weight: 600; color: var(--ink); }
+    .profile-plan-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
+    .profile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .profile-actions a, .profile-actions button {
+      display: block;
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      box-sizing: border-box;
+    }
+    .profile-btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+    }
+    .profile-btn-primary:hover { background: var(--accent-dark); }
+    .profile-btn-outline {
+      background: #fff;
+      color: var(--btn-muted);
+      border: 1px solid #ccd8e4;
+    }
+    .profile-btn-outline:hover { background: #f0f6fa; }
+    .profile-btn-danger {
+      background: #fff;
+      color: #b42318;
+      border: 1px solid #f5c6c3;
+    }
+    .profile-btn-danger:hover { background: #fff5f5; }
   </style>
 </head>
 <body>
@@ -1807,10 +1970,16 @@
       <div id="nodeContextBar">
         <button id="ctxAddChild" title="Add child (Tab)">+ Child</button>
         <button id="ctxExpand" title="Expand with AI">✦ Expand</button>
+        <button id="ctxCopy" title="Copy subtree (Ctrl+C)">Copy</button>
+        <button id="ctxCut" title="Cut subtree (Ctrl+X)">Cut</button>
+        <button id="ctxPaste" title="Paste subtree as child (Ctrl+V)" disabled>Paste</button>
+        <button id="ctxColor" title="Change node color">🎨</button>
         <button id="ctxUndo" title="Undo (Ctrl+Z)" disabled>↩</button>
         <button id="ctxRedo" title="Redo (Ctrl+Y)" disabled>↪</button>
         <button id="ctxDelete" title="Delete node" style="color:#b42318;">🗑</button>
       </div>
+      <!-- Color palette popup -->
+      <div id="colorPalette"></div>
       <!-- Floating zoom controls -->
       <div id="zoomFloat">
         <button id="zoomOutBtn" title="Zoom out (Ctrl+scroll)">−</button>
@@ -1905,6 +2074,7 @@
         this.position = { x: 0, y: 0 };
         this.width = 100;
         this.height = 50;
+        this.color = null; // null = use depth palette; string = user-chosen hex
       }
     }
 
@@ -2161,6 +2331,7 @@
       if (Number.isInteger(data.width) && data.width > 0) node.width = data.width;
       if (Number.isInteger(data.height) && data.height > 0) node.height = data.height;
       if (typeof data.expanded === "boolean") node.expanded = data.expanded;
+      if (typeof data.color === "string" && /^#[0-9a-fA-F]{3,6}$/.test(data.color)) node.color = data.color;
 
       if (data.children !== undefined) {
         if (!Array.isArray(data.children)) {
@@ -2395,11 +2566,13 @@
 
     function serializeTree(node) {
       if (!node) return null;
-      return {
+      const obj = {
         label: node.label,
         expanded: node.expanded !== false,
         children: node.children.map((child) => serializeTree(child))
       };
+      if (node.color) obj.color = node.color;
+      return obj;
     }
 
     function getVisibleChildren(node) {
@@ -2458,6 +2631,16 @@
         current = current.parent;
       }
       return d;
+    }
+
+    function darkenHex(hex, amount) {
+      // Darken a hex color by reducing each channel by `amount`
+      const h = hex.replace("#", "");
+      const full = h.length === 3 ? h.split("").map(c => c + c).join("") : h;
+      const r = Math.max(0, parseInt(full.slice(0, 2), 16) - amount);
+      const g = Math.max(0, parseInt(full.slice(2, 4), 16) - amount);
+      const b = Math.max(0, parseInt(full.slice(4, 6), 16) - amount);
+      return `#${r.toString(16).padStart(2,"0")}${g.toString(16).padStart(2,"0")}${b.toString(16).padStart(2,"0")}`;
     }
 
     function getNodeFillByDepth(node) {
@@ -2540,6 +2723,7 @@
     }
 
     function onNodeSelected(node) {
+      updateClipboardButtons();
       window.dispatchEvent(new CustomEvent("tree-node-selected", {
         detail: { node }
       }));
@@ -2605,8 +2789,8 @@
         rect.setAttribute("width", String(node.width));
         rect.setAttribute("height", String(node.height));
 
-        let fill = node === selectedNode ? "#ffe2a6" : getNodeFillByDepth(node);
-        let stroke = node === selectedNode ? "#8a5a14" : "var(--node-border)";
+        let fill = node === selectedNode ? "#ffe2a6" : (node.color || getNodeFillByDepth(node));
+        let stroke = node === selectedNode ? "#8a5a14" : (node.color ? darkenHex(node.color, 40) : "var(--node-border)");
         let strokeWidth = node === selectedNode ? "3" : "2";
 
         if (isActiveMatch) {
@@ -2975,6 +3159,10 @@
       try {
         data = text ? JSON.parse(text) : {};
       } catch (_) {
+        // 401 with non-JSON body = SWA intercepted the request (session expired)
+        if (res.status === 401) {
+          throw new Error("Session expired. Please sign in again.");
+        }
         const preview = text.slice(0, 80).replace(/\s+/g, " ");
         throw new Error(`${contextLabel} returned non-JSON response (${res.status}): ${preview}`);
       }
@@ -3046,8 +3234,14 @@
         await refreshCloudList();
         toast(`"${name}" saved`);
       } catch (err) {
-        setError(err.message || "Cloud save failed.");
-        toast(err.message || "Save failed", "error");
+        const msg = err.message || "Cloud save failed.";
+        setError(msg);
+        if (msg.includes("Session expired")) {
+          toast("Session expired — sign in again to save.", "error");
+          setTimeout(() => { window.location.href = "/login?post_login_redirect=/app"; }, 1800);
+        } else {
+          toast(msg, "error");
+        }
       }
     }
 
@@ -3270,6 +3464,191 @@
       syncJsonFromTree();
       run(currentRoot, false);
     }
+
+    // ── Clipboard (copy / cut / paste subtree) ────────────────────────────────
+    let _clipboard = null; // serialized subtree JSON
+
+    function isAncestorOf(ancestor, node) {
+      let n = node;
+      while (n) { if (n === ancestor) return true; n = n.parent; }
+      return false;
+    }
+
+    function copySubtree() {
+      if (!selectedNode) return;
+      _clipboard = serializeTree(selectedNode);
+      updateClipboardButtons();
+      toast("Copied");
+    }
+
+    function cutSubtree() {
+      if (!selectedNode || !selectedNode.parent) {
+        toast("Can't cut the root node", "error");
+        return;
+      }
+      _clipboard = serializeTree(selectedNode);
+      updateClipboardButtons();
+      deleteNode(selectedNode); // handles pushUndo internally
+      toast("Cut");
+    }
+
+    function pasteSubtree() {
+      if (!_clipboard || !selectedNode) return;
+      try {
+        const pasted = buildTreeFromJsonNode(_clipboard, selectedNode);
+        if (isAncestorOf(pasted, selectedNode)) {
+          toast("Can't paste onto itself", "error");
+          return;
+        }
+        pushUndo();
+        selectedNode.children.push(pasted);
+        selectedNode.expanded = true;
+        syncJsonFromTree();
+        run(currentRoot, false);
+        toast("Pasted");
+      } catch (err) {
+        toast("Paste failed: " + err.message, "error");
+      }
+    }
+
+    function updateClipboardButtons() {
+      const hasSel = !!selectedNode;
+      const hasClip = !!_clipboard;
+      document.getElementById("ctxCopy").disabled = !hasSel;
+      document.getElementById("ctxCut").disabled = !hasSel || !selectedNode.parent;
+      document.getElementById("ctxPaste").disabled = !hasClip || !hasSel;
+    }
+
+    document.getElementById("ctxCopy").addEventListener("click", copySubtree);
+    document.getElementById("ctxCut").addEventListener("click", cutSubtree);
+    document.getElementById("ctxPaste").addEventListener("click", pasteSubtree);
+
+    // ── Node color palette ─────────────────────────────────────────────────────
+    const NODE_COLORS = [
+      "#d7ecfa", "#dff4ec", "#f6ecd8", "#eadff7", "#f9e0e0", "#dfeaf8",
+      "#fef9c3", "#d1fae5", "#fce7f3", "#e0e7ff",
+      "#f97316", "#22c55e", "#3b82f6", "#a855f7", "#ec4899", "#14b8a6",
+      "#ef4444", "#f59e0b", "#6366f1", "#84cc16"
+    ];
+
+    function setAllNodeColors(color) {
+      // Walk every node in the tree and set (or clear) color
+      function walk(node) {
+        node.color = color;
+        for (const c of node.children) walk(c);
+      }
+      if (currentRoot) walk(currentRoot);
+    }
+
+    (function buildColorPalette() {
+      const palette = document.getElementById("colorPalette");
+
+      // "Apply to all" checkbox row at top
+      const checkRow = document.createElement("label");
+      checkRow.style.cssText = "width:100%;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink);cursor:pointer;padding:2px 0 6px;border-bottom:1px solid #e4ebf2;margin-bottom:2px;user-select:none;";
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.id = "colorApplyAllChk";
+      chk.style.cssText = "cursor:pointer;accent-color:var(--accent);";
+      checkRow.appendChild(chk);
+      checkRow.appendChild(document.createTextNode("Apply to all nodes"));
+      palette.appendChild(checkRow);
+
+      // Swatches
+      for (const color of NODE_COLORS) {
+        const swatch = document.createElement("div");
+        swatch.className = "color-swatch";
+        swatch.style.background = color;
+        swatch.title = color;
+        swatch.addEventListener("click", () => {
+          if (!selectedNode) return;
+          pushUndo();
+          if (chk.checked) {
+            setAllNodeColors(color);
+          } else {
+            selectedNode.color = color;
+          }
+          // Update active state
+          palette.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
+          swatch.classList.add("active");
+          syncJsonFromTree();
+          run(currentRoot, false);
+          // Stay open so user can see result / pick another
+        });
+        palette.appendChild(swatch);
+      }
+
+      // Divider + reset buttons
+      const divider = document.createElement("div");
+      divider.style.cssText = "width:100%;border-top:1px solid #e4ebf2;margin:4px 0 2px;";
+      palette.appendChild(divider);
+
+      const resetOne = document.createElement("button");
+      resetOne.textContent = "Reset this node";
+      resetOne.style.cssText = "width:100%;font-size:11px;padding:5px 6px;border:none;background:#f0f5fa;border-radius:6px;cursor:pointer;color:var(--ink);text-align:left;";
+      resetOne.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (!selectedNode) return;
+        pushUndo();
+        selectedNode.color = null;
+        palette.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
+        syncJsonFromTree();
+        run(currentRoot, false);
+      });
+      palette.appendChild(resetOne);
+
+      const resetAll = document.createElement("button");
+      resetAll.textContent = "Reset all nodes";
+      resetAll.style.cssText = "width:100%;font-size:11px;padding:5px 6px;border:none;background:#f0f5fa;border-radius:6px;cursor:pointer;color:var(--ink);text-align:left;margin-top:3px;";
+      resetAll.addEventListener("click", (e) => {
+        e.stopPropagation();
+        pushUndo();
+        setAllNodeColors(null);
+        palette.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
+        syncJsonFromTree();
+        run(currentRoot, false);
+        toast("All node colors reset");
+      });
+      palette.appendChild(resetAll);
+    })();
+
+    function openColorPalette() {
+      if (!selectedNode) return;
+      const palette = document.getElementById("colorPalette");
+      const btn = document.getElementById("ctxColor");
+      const rect = btn.getBoundingClientRect();
+      palette.style.left = rect.left + "px";
+      palette.style.top = (rect.bottom + 6) + "px";
+      // Mark active swatch for current node color
+      palette.querySelectorAll(".color-swatch").forEach(s => {
+        s.classList.toggle("active", s.title === selectedNode.color);
+      });
+      // Reset checkbox state
+      document.getElementById("colorApplyAllChk").checked = false;
+      palette.classList.add("visible");
+    }
+
+    function closeColorPalette() {
+      document.getElementById("colorPalette").classList.remove("visible");
+    }
+
+    document.getElementById("ctxColor").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const palette = document.getElementById("colorPalette");
+      if (palette.classList.contains("visible")) {
+        closeColorPalette();
+      } else {
+        openColorPalette();
+      }
+    });
+
+    // Close palette on click outside
+    document.addEventListener("click", (e) => {
+      const palette = document.getElementById("colorPalette");
+      if (!palette.contains(e.target) && e.target.id !== "ctxColor") {
+        closeColorPalette();
+      }
+    });
 
     function setExpandedRecursive(node, expanded) {
       if (!node) return;
@@ -4127,6 +4506,22 @@
       }
       if (editingNode) return;
 
+      if ((e.ctrlKey || e.metaKey) && e.key === "c" && !e.shiftKey && selectedNode) {
+        e.preventDefault();
+        copySubtree();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "x" && !e.shiftKey && selectedNode) {
+        e.preventDefault();
+        cutSubtree();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "v" && !e.shiftKey && selectedNode) {
+        e.preventDefault();
+        pasteSubtree();
+        return;
+      }
+
       if (e.key === "Tab" && !e.ctrlKey && !e.altKey && selectedNode) {
         e.preventDefault();
         addChildToNode(selectedNode);
@@ -4457,14 +4852,18 @@
           const upgradePill = document.getElementById("upgradePill");
           if (upgradePill) upgradePill.style.display = isPaid ? "none" : "";
 
+          const providerLabel = (principal.identityProvider || "").toLowerCase() === "github" ? "GitHub"
+            : (principal.identityProvider || "").toLowerCase() === "aad" ? "Microsoft"
+            : (principal.identityProvider || "");
           authBar.innerHTML = `
             <div class="auth-avatar" id="authAvatar" title="${name}">${initial}</div>
             <div class="auth-dropdown" id="authDropdown">
               <div class="auth-dropdown-header">
                 <strong>${name}</strong>
-                Signed in via GitHub
+                Signed in via ${providerLabel}
                 <span style="display:inline-block;margin-top:4px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:0.3px;${planBadgeColor(currentPlan)}">${planLabel(currentPlan)} PLAN</span>
               </div>
+              <a href="#" id="profileBtn">My Profile</a>
               ${isPaid
                 ? `<a href="#" id="billingPortalBtn">Manage subscription</a>`
                 : `<a href="#" id="upgradeProBtn" style="color:var(--accent);font-weight:600;">Upgrade to Pro →</a>`
@@ -4477,6 +4876,12 @@
           document.getElementById("authAvatar").addEventListener("click", (e) => {
             e.stopPropagation();
             document.getElementById("authDropdown").classList.toggle("open");
+          });
+
+          document.getElementById("profileBtn").addEventListener("click", (e) => {
+            e.preventDefault();
+            document.getElementById("authDropdown").classList.remove("open");
+            openProfileModal();
           });
 
           document.addEventListener("click", () => {
@@ -4665,6 +5070,93 @@
     });
 
     initAuth();
+
+    // ── Profile modal ──────────────────────────────────────────────────────────
+    function openProfileModal() {
+      if (!currentUser) return;
+      const name = currentUser.userDetails || currentUser.userId;
+      const initial = name.charAt(0).toUpperCase();
+      const provider = (currentUser.identityProvider || "").toLowerCase();
+      const providerLabel = provider === "github" ? "GitHub" : provider === "aad" ? "Microsoft" : provider;
+
+      document.getElementById("profileAvatarLg").textContent = initial;
+      document.getElementById("profileName").textContent = name;
+      document.getElementById("profileProvider").textContent = `Signed in via ${providerLabel}`;
+
+      // Plan badge
+      const badge = document.getElementById("profilePlanBadge");
+      badge.textContent = planLabel(currentPlan) + " PLAN";
+      badge.style.cssText = `font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.3px;${planBadgeColor(currentPlan)}`;
+
+      // Tree count
+      const countEl = document.getElementById("profileTreeCount");
+      countEl.textContent = "…";
+      fetch("/api/trees").then(r => r.json()).then(d => {
+        const count = Array.isArray(d.items) ? d.items.length : "—";
+        const isPaid = currentPlan === "pro" || currentPlan === "business";
+        countEl.textContent = isPaid ? count : `${count} / 5`;
+      }).catch(() => { countEl.textContent = "—"; });
+
+      // Action buttons
+      const actions = document.getElementById("profileActions");
+      actions.innerHTML = "";
+      const isPaid = currentPlan === "pro" || currentPlan === "business";
+      if (isPaid) {
+        const manageBtn = document.createElement("button");
+        manageBtn.className = "profile-btn-outline";
+        manageBtn.textContent = "Manage subscription";
+        manageBtn.addEventListener("click", () => { closeProfileModal(); openBillingPortal(); });
+        actions.appendChild(manageBtn);
+      } else {
+        const upgradeBtn = document.createElement("button");
+        upgradeBtn.className = "profile-btn-primary";
+        upgradeBtn.textContent = "Upgrade to Pro →";
+        upgradeBtn.addEventListener("click", () => { closeProfileModal(); openPlanModal(); });
+        actions.appendChild(upgradeBtn);
+      }
+      const signOutLink = document.createElement("a");
+      signOutLink.href = "/logout";
+      signOutLink.className = "profile-btn-danger";
+      signOutLink.textContent = "Sign out";
+      actions.appendChild(signOutLink);
+
+      document.getElementById("profileOverlay").classList.add("open");
+    }
+
+    function closeProfileModal() {
+      document.getElementById("profileOverlay").classList.remove("open");
+    }
+
+    document.getElementById("profileOverlay").addEventListener("click", (e) => {
+      if (e.target === document.getElementById("profileOverlay")) closeProfileModal();
+    });
+
   </script>
+
+  <!-- Profile modal -->
+  <div class="profile-overlay" id="profileOverlay">
+    <div class="profile-modal">
+      <div class="profile-header">
+        <div class="profile-avatar-lg" id="profileAvatarLg"></div>
+        <div class="profile-header-info">
+          <div class="profile-header-name" id="profileName"></div>
+          <div class="profile-header-provider" id="profileProvider"></div>
+        </div>
+        <button class="profile-close-btn" onclick="closeProfileModal()">✕</button>
+      </div>
+      <div class="profile-body">
+        <div class="profile-row">
+          <span class="profile-row-label">Plan</span>
+          <span id="profilePlanBadge" class="profile-plan-badge"></span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-row-label">Saved trees</span>
+          <span class="profile-row-value" id="profileTreeCount">…</span>
+        </div>
+        <div class="profile-actions" id="profileActions"></div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

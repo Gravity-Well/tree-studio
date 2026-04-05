@@ -22,7 +22,7 @@ jobs:
       - name: Stamp version
         run: |
           VER=$(date -u +"%Y.%m.%d-%H%M")
-          sed -i "s/content=\"[^\"]*\"/content=\"$VER\"/" app.html
+          sed -i "s/name=\"app-version\" content=\"[^\"]*\"/name=\"app-version\" content=\"$VER\"/" app.html
           sed -i "s/>v[0-9][^<]*<\/span>/>$VER<\/span>/" app.html
       - name: Build And Deploy
         id: builddeploy
