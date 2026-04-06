@@ -962,42 +962,8 @@
 
     /* ── Print ── */
     @media print {
-      .toolbar,
-      .cloud-panel,
-      .json-panel,
-      .meta,
-      .copyright,
-      .view-banner {
-        display: none !important;
-      }
-
-      body {
-        background: #ffffff;
-      }
-
-      .layout {
-        margin: 0;
-        padding: 0;
-        max-width: 100%;
-      }
-
-      .canvas-wrap {
-        border: none;
-        border-radius: 0;
-        height: auto !important;
-        overflow: visible !important;
-      }
-
-      svg {
-        width: 100% !important;
-        height: auto !important;
-      }
-
-      .node-plus,
-      .node-delete,
-      .node-toggle {
-        display: none;
-      }
+      /* Print is handled by the dedicated print window — hide everything in main app */
+      body { display: none !important; }
     }
 
     /* ── Toast notifications ── */
@@ -1850,7 +1816,6 @@
       display: flex; align-items: center; justify-content: center;
     }
     .profile-close-btn:hover { background: rgba(255,255,255,0.3); }
-    .profile-body { padding: 20px 24px 24px; }
     .profile-row {
       display: flex;
       justify-content: space-between;
@@ -1869,17 +1834,22 @@
       border-radius: 20px;
       letter-spacing: 0.3px;
     }
+    .profile-body { padding: 18px 24px 22px; }
+    .profile-section-divider {
+      height: 1px;
+      background: #edf2f7;
+      margin: 4px 0 12px;
+    }
     .profile-actions {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 16px;
+      gap: 7px;
     }
     .profile-actions a, .profile-actions button {
       display: block;
       width: 100%;
-      padding: 10px 14px;
-      border-radius: 8px;
+      padding: 10px 16px;
+      border-radius: 24px;
       font-size: 13px;
       font-weight: 600;
       text-align: center;
@@ -1887,47 +1857,62 @@
       text-decoration: none;
       font-family: "Segoe UI", Tahoma, sans-serif;
       box-sizing: border-box;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+      letter-spacing: 0.1px;
     }
+    .profile-actions a:active, .profile-actions button:active { transform: scale(0.98); }
     .profile-btn-primary {
       background: var(--accent);
       color: #fff;
       border: none;
+      box-shadow: 0 2px 8px rgba(30,136,229,0.25);
     }
-    .profile-btn-primary:hover { background: var(--accent-dark); }
+    .profile-btn-primary:hover { background: var(--accent-dark); box-shadow: 0 4px 12px rgba(30,136,229,0.3); }
     .profile-btn-outline {
-      background: #fff;
-      color: var(--btn-muted);
-      border: 1px solid #ccd8e4;
+      background: #f4f7fb;
+      color: #2d4a5e;
+      border: 1px solid #dce6f0;
     }
-    .profile-btn-outline:hover { background: #f0f6fa; }
+    .profile-btn-outline:hover { background: #e8f0f8; border-color: #b8cfe0; }
     .profile-btn-danger {
       background: #fff;
       color: #b42318;
       border: 1px solid #f5c6c3;
+      margin-top: 2px;
     }
-    .profile-btn-danger:hover { background: #fff5f5; }
+    .profile-btn-danger:hover { background: #fff5f5; border-color: #e8a9a4; }
+    .profile-btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
     .profile-field-label {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.5px;
     }
     .profile-field-input {
-      padding: 7px 10px;
-      border: 1px solid #d2dde8;
-      border-radius: 7px;
+      padding: 9px 12px;
+      border: 1.5px solid #d2dde8;
+      border-radius: 10px;
       font-size: 13px;
       font-family: "Segoe UI", Tahoma, sans-serif;
       color: var(--ink);
       background: #fafcff;
       outline: none;
-      transition: border-color 0.15s;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .profile-field-input:focus { border-color: var(--accent); }
+    .profile-field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(30,136,229,0.1); }
+    #profileSaveBtn, #profileCancelBtn {
+      padding: 10px 16px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
   </style>
 </head>
 <body>
@@ -4256,31 +4241,149 @@
 
     // ── Print ─────────────────────────────────────────────────────────────────
     document.getElementById("printBtn").addEventListener("click", () => {
+      if (!currentRoot) { showToast("Nothing to print."); return; }
+
       const svg = document.getElementById("treeSvg");
-      const viewport = document.getElementById("treeViewport");
-      const wasClean = svg.classList.contains("clean-view");
+      const bounds = getTreeBounds(currentRoot);
 
-      // Save inline styles that zoom sets
-      const savedWidth = svg.style.width;
-      const savedHeight = svg.style.height;
-      const savedVpOverflow = viewport.style.overflow;
-      const savedVpHeight = viewport.style.height;
+      // --- Tree content in SVG coordinate space ---
+      // currentOffsetX = panPadding - bounds.minX, so node.x + offsetX = SVG x
+      const MARGIN = 60; // SVG units of padding around tree content
+      const svgX = bounds.minX + currentOffsetX - MARGIN;
+      const svgY = bounds.minY + currentOffsetY - MARGIN;
+      const contentW = (bounds.maxX - bounds.minX) + MARGIN * 2;
+      const contentH = (bounds.maxY - bounds.minY) + MARGIN * 2;
 
-      // Reset so print CSS can take over
-      svg.classList.add("clean-view");
-      svg.style.width = "";
-      svg.style.height = "";
-      viewport.style.overflow = "visible";
-      viewport.style.height = "auto";
+      // --- Page dimensions ---
+      // Letter paper, 0.5" margins all sides: 7.5" x 10" printable = 720 x 960 CSS px
+      const PAGE_W = 720;
+      const PAGE_H = 960;
+      // Reserve top strip for page label on multi-page prints
+      const HEADER_H = 18;
 
-      window.print();
+      // How many SVG units fit on one page at current zoom
+      // At zoomScale=1, 1 SVG unit = 1 CSS px. At zoomScale=0.5, 1 SVG unit = 0.5px.
+      const tileW = PAGE_W / zoomScale;
+      const tileH = (PAGE_H - HEADER_H) / zoomScale;
 
-      // Restore
-      svg.style.width = savedWidth;
-      svg.style.height = savedHeight;
-      viewport.style.overflow = savedVpOverflow;
-      viewport.style.height = savedVpHeight;
-      if (!wasClean) svg.classList.remove("clean-view");
+      const cols = Math.max(1, Math.ceil(contentW / tileW));
+      const rows = Math.max(1, Math.ceil(contentH / tileH));
+      const totalPages = cols * rows;
+
+      // --- Serialize SVG content, stripping interactive elements ---
+      const svgClone = svg.cloneNode(true);
+      svgClone.querySelectorAll(".node-plus, .node-delete, .node-toggle, foreignObject").forEach(el => el.remove());
+      // Tone down selected-node highlight for cleaner print
+      svgClone.querySelectorAll("rect[fill='#ffe2a6']").forEach(rect => {
+        rect.setAttribute("fill", "#d7ecfa");
+        rect.setAttribute("stroke", "var(--node-border)");
+        rect.setAttribute("stroke-width", "2");
+      });
+      const svgInner = svgClone.innerHTML;
+
+      // --- Build page HTML ---
+      const treeName = document.getElementById("cloudTreeName").value || document.title.replace(" — Tree Studio", "") || "Tree";
+      let pagesHtml = "";
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const pageNum = row * cols + col + 1;
+          const vbX = svgX + col * tileW;
+          const vbY = svgY + row * tileH;
+
+          let headerHtml = "";
+          if (totalPages > 1) {
+            const colLabel = cols > 1 ? ` · col ${col + 1}/${cols}` : "";
+            const rowLabel = rows > 1 ? ` · row ${row + 1}/${rows}` : "";
+            headerHtml = `<div class="page-header"><span>${treeName}</span><span>Page ${pageNum} of ${totalPages}${colLabel}${rowLabel}</span></div>`;
+          }
+
+          const svgH = PAGE_H - HEADER_H;
+          pagesHtml += `
+<div class="print-page">
+  ${headerHtml}
+  <svg xmlns="http://www.w3.org/2000/svg"
+       viewBox="${vbX} ${vbY} ${tileW} ${tileH}"
+       width="${PAGE_W}" height="${svgH}"
+       style="display:block;overflow:hidden;">
+    ${svgInner}
+  </svg>
+</div>`;
+        }
+      }
+
+      // --- Open print window ---
+      const printWin = window.open("", "_blank", "width=900,height=700,menubar=no,toolbar=yes,location=no,status=no");
+      if (!printWin) {
+        showToast("Popup blocked — please allow popups for this site to print.", 5000);
+        return;
+      }
+
+      const printHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>${treeName} — Tree Studio</title>
+<style>
+:root { --ink:#13273a; --line:#7b8fa3; --node-border:#2e5f87; --accent:#0f766e; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #f5f5f5; font-family: "Segoe UI", Tahoma, sans-serif; }
+.print-page {
+  width: ${PAGE_W}px;
+  background: white;
+  margin: 16px auto;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+.page-header {
+  height: ${HEADER_H}px;
+  padding: 2px 8px;
+  background: #f8f8f8;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 9px;
+  color: #888;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+svg text { font-family: "Segoe UI", Tahoma, sans-serif; }
+.no-print-btn {
+  position: fixed; top: 12px; right: 12px;
+  background: #1a3a52; color: white;
+  border: none; border-radius: 24px;
+  padding: 9px 20px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: "Segoe UI", Tahoma, sans-serif;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 999;
+}
+.no-print-btn:hover { background: #0f766e; }
+.print-info {
+  position: fixed; top: 12px; left: 12px;
+  background: white; border: 1px solid #ddd; border-radius: 8px;
+  padding: 8px 12px; font-size: 11px; color: #555;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  z-index: 999;
+}
+@media print {
+  @page { size: letter; margin: 0.5in; }
+  body { background: white; }
+  .print-page { margin: 0; box-shadow: none; page-break-after: always; }
+  .print-page:last-child { page-break-after: avoid; }
+  .no-print-btn, .print-info { display: none !important; }
+}
+</style>
+</head>
+<body>
+<button class="no-print-btn" onclick="window.print()">🖨 Print</button>
+<div class="print-info">${totalPages} page${totalPages > 1 ? "s" : ""} · zoom ${Math.round(zoomScale * 100)}%</div>
+${pagesHtml}
+</body>
+</html>`;
+
+      printWin.document.open();
+      printWin.document.write(printHtml);
+      printWin.document.close();
     });
 
     // ── Keyboard Shortcuts ────────────────────────────────────────────────────
@@ -5283,11 +5386,11 @@
 
       const confirmRow = document.createElement("div");
       confirmRow.id = "profileDeleteConfirm";
-      confirmRow.style.cssText = "display:none;background:#fff5f5;border:1px solid #f5c6c3;border-radius:8px;padding:10px 12px;font-size:12px;color:#b42318;";
+      confirmRow.style.cssText = "display:none;background:#fff5f5;border:1px solid #f5c6c3;border-radius:12px;padding:12px 14px;font-size:12px;color:#b42318;";
       confirmRow.innerHTML = `<strong>Delete your account?</strong><br>All saved trees will be permanently removed. This cannot be undone.
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <button id="profileDeleteConfirmBtn" style="flex:1;padding:7px;background:#b42318;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;">Yes, delete</button>
-          <button id="profileDeleteCancelBtn" style="flex:1;padding:7px;background:#fff;border:1px solid #d2dde8;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;">Cancel</button>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button id="profileDeleteConfirmBtn" style="flex:1;padding:8px;background:#b42318;color:#fff;border:none;border-radius:20px;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;">Yes, delete</button>
+          <button id="profileDeleteCancelBtn" style="flex:1;padding:8px;background:#fff;border:1px solid #d2dde8;border-radius:20px;cursor:pointer;font-size:12px;font-family:inherit;">Cancel</button>
         </div>`;
       actions.appendChild(confirmRow);
 
@@ -5420,6 +5523,7 @@
           <span class="profile-row-label">Bio</span>
           <span class="profile-row-value" id="profileBioVal" style="font-weight:400;font-size:12px;max-width:220px;text-align:right;"></span>
         </div>
+        <div class="profile-section-divider"></div>
         <div class="profile-actions" id="profileActions"></div>
       </div>
       <!-- Edit mode -->
