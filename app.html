@@ -98,7 +98,12 @@
       position: relative;
     }
     .tb-btn:hover:not(:disabled) { background: #cddff0; }
-    .tb-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+    .tb-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+    /* Node-action buttons light up more when enabled */
+    #tbAddChild:not(:disabled), #tbColor:not(:disabled),
+    #tbCopy:not(:disabled), #tbCut:not(:disabled), #tbPaste:not(:disabled) {
+      color: #1a4a6e;
+    }
     .tb-btn.active { background: #d7ecfa; color: var(--accent); }
     .tb-btn.tb-txt { font-size: 10px; font-weight: 700; letter-spacing: 0.2px; width: auto; padding: 0 6px; min-width: 30px; }
     .tb-sep { width: 1px; height: 20px; background: #d8e4ed; margin: 0 4px; flex-shrink: 0; }
@@ -1982,6 +1987,14 @@
       <button id="printBtn" class="tb-btn tb-mobile-hide" title="Print">⎙</button>
       <div class="tb-sep"></div>
 
+      <!-- Node group — enabled when a node is selected -->
+      <button id="tbAddChild" class="tb-btn" title="Add child node (Tab)" disabled>＋</button>
+      <button id="tbColor"    class="tb-btn" title="Node color" disabled>◉</button>
+      <button id="tbCopy"     class="tb-btn" title="Copy subtree (Ctrl+C)" disabled>⎘</button>
+      <button id="tbCut"      class="tb-btn" title="Cut subtree (Ctrl+X)" disabled>✂</button>
+      <button id="tbPaste"    class="tb-btn" title="Paste as child (Ctrl+V)" disabled>⎗</button>
+      <div class="tb-sep"></div>
+
       <!-- Tools group -->
       <button id="cleanViewBtn" class="tb-btn" title="Clean View — hide +/× buttons">◻</button>
       <button id="searchBtn" class="tb-btn" title="Find (Ctrl+F)">⌕</button>
@@ -3653,11 +3666,22 @@
       document.getElementById("ctxCopy").disabled = !hasSel;
       document.getElementById("ctxCut").disabled = !hasSel || !selectedNode.parent;
       document.getElementById("ctxPaste").disabled = !hasClip || !hasSel;
+      document.getElementById("tbCopy").disabled = !hasSel;
+      document.getElementById("tbCut").disabled = !hasSel || !selectedNode.parent;
+      document.getElementById("tbPaste").disabled = !hasClip || !hasSel;
     }
 
     document.getElementById("ctxCopy").addEventListener("click", copySubtree);
     document.getElementById("ctxCut").addEventListener("click", cutSubtree);
     document.getElementById("ctxPaste").addEventListener("click", pasteSubtree);
+    document.getElementById("tbCopy").addEventListener("click", copySubtree);
+    document.getElementById("tbCut").addEventListener("click", cutSubtree);
+    document.getElementById("tbPaste").addEventListener("click", pasteSubtree);
+    document.getElementById("tbAddChild").addEventListener("click", addChildBelowSelected);
+    document.getElementById("tbColor").addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.getElementById("ctxColor").click();
+    });
 
     // ── Node color palette ─────────────────────────────────────────────────────
     const NODE_COLORS = [
@@ -4640,6 +4664,9 @@ ${pagesHtml}
       if (aiExpand) aiExpand.disabled = !hasNode;
       if (ctxExpand) ctxExpand.disabled = !hasNode;
       if (ctxAddChild) ctxAddChild.disabled = !hasNode;
+      document.getElementById("tbAddChild").disabled = !hasNode;
+      document.getElementById("tbColor").disabled = !hasNode;
+      updateClipboardButtons();
       positionContextBar();
     });
 
