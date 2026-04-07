@@ -49,66 +49,94 @@
       padding: 0 16px;
     }
 
+    /* ── Slim icon toolbar ── */
     .toolbar {
       background: var(--panel);
       border: 1px solid #d2dde8;
       border-radius: 14px;
-      padding: 14px;
+      padding: 0 10px;
       display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 12px;
-      box-shadow: 0 6px 20px rgba(17, 50, 74, 0.08);
-    }
-
-    .toolbar-main {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
+      flex-direction: row;
       align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      gap: 1px;
+      height: 46px;
+      margin-bottom: 6px;
+      box-shadow: 0 4px 14px rgba(17,50,74,0.08);
       flex-shrink: 0;
+      overflow: visible;
     }
-
-    .brand h1 {
-      margin: 0;
-      font-size: 20px;
-      letter-spacing: 0.2px;
-    }
-
-    .brand p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .brand .algorithm-note {
-      margin-top: 2px;
-      color: #2f546f;
-      font-size: 12px;
-      font-style: italic;
-    }
-
-    .toolbar-actions,
-    .toolbar-secondary {
+    .tb-brand {
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
       align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 4px 7px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      margin-right: 2px;
     }
-
-    .toolbar-secondary {
+    .tb-brand:hover { background: #f0f6fa; }
+    .tb-brand img { border-radius: 4px; flex-shrink: 0; }
+    .tb-btn {
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: transparent;
+      border-radius: 7px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: var(--ink);
+      transition: background 0.12s, color 0.12s;
+      flex-shrink: 0;
+      padding: 0;
+      position: relative;
+    }
+    .tb-btn:hover:not(:disabled) { background: #e8f0f8; }
+    .tb-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+    .tb-btn.active { background: #d7ecfa; color: var(--accent); }
+    .tb-btn.tb-txt { font-size: 10px; font-weight: 700; letter-spacing: 0.2px; width: auto; padding: 0 6px; min-width: 30px; }
+    .tb-sep { width: 1px; height: 20px; background: #d8e4ed; margin: 0 4px; flex-shrink: 0; }
+    .tb-spacer { flex: 1; }
+    .tb-version { font-size: 10px; color: var(--muted); opacity: 0.5; user-select: none; margin: 0 4px; flex-shrink: 0; }
+    /* Templates dropdown */
+    .tb-templates-wrap { position: relative; }
+    .tb-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: #fff;
+      border: 1px solid #d2dde8;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(17,50,74,0.14);
+      z-index: 500;
+      min-width: 150px;
+      padding: 4px;
+      display: none;
+    }
+    .tb-dropdown.open { display: block; }
+    .tb-dd-item {
+      display: block;
       width: 100%;
-      border-top: 1px solid #e4ebf2;
-      padding-top: 10px;
+      padding: 7px 12px;
+      text-align: left;
+      background: none;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      color: var(--ink);
+      cursor: pointer;
+      font-family: "Segoe UI", Tahoma, sans-serif;
     }
+    .tb-dd-item:hover { background: #f0f6fa; }
+    /* Keep old toolbar-main/secondary selectors harmless */
+    .toolbar-main, .toolbar-secondary, .toolbar-actions { display: contents; }
+    .brand { display: none; }
 
     .json-panel {
       background: var(--panel);
@@ -956,8 +984,8 @@
     }
 
     #cleanViewBtn.active {
-      background: var(--accent);
-      color: #fff;
+      background: #d7ecfa;
+      color: var(--accent);
     }
 
     /* ── Print ── */
@@ -1144,21 +1172,23 @@
         overflow: hidden !important;
       }
 
-      /* Toolbar: slim, no radius, flush top */
+      /* Toolbar: flush top, hide some groups */
       .toolbar {
         flex-shrink: 0;
         border-radius: 0;
         border-left: none;
         border-right: none;
         border-top: none;
-        padding: 8px 12px;
+        padding: 0 8px;
         margin-bottom: 0;
         box-shadow: 0 2px 6px rgba(17,50,74,0.10);
+        overflow-x: auto;
+        overflow-y: visible;
       }
-      .brand h1 { font-size: 18px; }
-      .brand p, .brand .algorithm-note { display: none; }
-      .toolbar-main { gap: 10px; }
-      .btn-ai, .btn-subtle, .btn-primary { font-size: 15px; padding: 10px 16px; }
+      /* Hide view/export groups on mobile to save space */
+      .tb-mobile-hide { display: none !important; }
+      .tb-brand span { display: none; }
+      .btn-ai { font-size: 13px; padding: 7px 12px; }
 
       /* Title bar */
       .doc-titlebar { flex-shrink: 0; padding: 6px 14px 8px; }
@@ -1918,21 +1948,58 @@
 <body>
   <div class="layout">
     <div class="toolbar">
-      <div class="toolbar-main">
-        <div class="brand">
-          <h1><a href="/" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:8px;"><img src="/favicon.svg" width="22" height="22" alt="" style="border-radius:5px;" />Tree Studio</a></h1>
-          <p>Build and explore logic trees visually.</p>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button id="aiToolbarGenerateBtn" class="btn-ai" title="Generate a new tree with AI" style="padding:6px 12px;font-size:13px;">✦ Use AI</button>
-          <span style="font-size:10px;color:var(--muted);opacity:0.5;user-select:none;" title="App version">v1.0.3</span>
-          <button id="upgradePill" class="upgrade-pill" style="display:none">Upgrade ✦</button>
-          <div class="auth-bar" id="authBar">
-            <span id="authStatus"></span>
-          </div>
+      <!-- Brand -->
+      <a href="/" class="tb-brand" title="Tree Studio home">
+        <img src="/favicon.svg" width="18" height="18" alt="" />
+        <span>Tree Studio</span>
+      </a>
+      <div class="tb-sep"></div>
+
+      <!-- File group -->
+      <button id="newTreeBtn" class="tb-btn" title="New Tree">⊕</button>
+      <button id="cloudPanelToggleBtn" class="tb-btn" title="My Trees">☁</button>
+      <div class="tb-templates-wrap">
+        <button id="templatesBtn" class="tb-btn" title="Templates">≡</button>
+        <div id="templatesDropdown" class="tb-dropdown">
+          <button id="loadSample" class="tb-dd-item">Sample Tree</button>
+          <button id="loadPackedSample" class="tb-dd-item">Deep Tree</button>
+          <button id="loadTaxonomy" class="tb-dd-item">Taxonomy</button>
+          <button id="loadLineage" class="tb-dd-item">Human Lineage</button>
         </div>
       </div>
-      <!-- Hidden compatibility elements (preserve IDs for JS listeners) -->
+      <div class="tb-sep tb-mobile-hide"></div>
+
+      <!-- View group -->
+      <button id="expandAllBtn" class="tb-btn tb-mobile-hide" title="Expand All">⊞</button>
+      <button id="collapseAllBtn" class="tb-btn tb-mobile-hide" title="Collapse All">⊟</button>
+      <button id="expandLevelBtn" class="tb-btn tb-txt tb-mobile-hide" title="+1 Level">+L</button>
+      <button id="collapseLevelBtn" class="tb-btn tb-txt tb-mobile-hide" title="−1 Level">−L</button>
+      <div class="tb-sep tb-mobile-hide"></div>
+
+      <!-- Export group -->
+      <button id="exportSvgBtn" class="tb-btn tb-txt tb-mobile-hide" title="Export SVG">SVG</button>
+      <button id="exportPngBtn" class="tb-btn tb-txt tb-mobile-hide" title="Export PNG">PNG</button>
+      <button id="printBtn" class="tb-btn tb-mobile-hide" title="Print">⎙</button>
+      <div class="tb-sep"></div>
+
+      <!-- Tools group -->
+      <button id="cleanViewBtn" class="tb-btn" title="Clean View — hide +/× buttons">◻</button>
+      <button id="searchBtn" class="tb-btn" title="Find (Ctrl+F)">⌕</button>
+      <button id="undoBtn" class="tb-btn" title="Undo (Ctrl+Z)" disabled>↩</button>
+      <button id="redoBtn" class="tb-btn" title="Redo (Ctrl+Y)" disabled>↪</button>
+
+      <!-- Spacer -->
+      <div class="tb-spacer"></div>
+
+      <!-- AI + meta + auth -->
+      <button id="aiToolbarGenerateBtn" class="btn-ai" title="Generate a new tree with AI" style="padding:6px 12px;font-size:13px;">✦ AI</button>
+      <span class="tb-version" title="App version">v1.0.3</span>
+      <button id="upgradePill" class="upgrade-pill" style="display:none">Upgrade ✦</button>
+      <div class="auth-bar" id="authBar">
+        <span id="authStatus"></span>
+      </div>
+
+      <!-- Hidden compatibility elements -->
       <button id="addChildBtn" style="display:none"></button>
       <button id="aiExpandBtn" style="display:none" disabled></button>
       <span id="selectedInfo" style="display:none"></span>
@@ -1987,29 +2054,29 @@
             <img src="/favicon.svg" width="16" height="16" alt="" style="border-radius:3px;opacity:0.7;" />
             Menu
           </div>
-          <button id="newTreeBtn" class="drawer-btn">New Tree</button>
-          <button id="templatesBtn" class="drawer-btn" style="display:flex;justify-content:space-between;align-items:center;">Templates <span>▾</span></button>
-          <div id="templatesDropdown" class="drawer-sub-group" style="display:none;">
-            <button id="loadSample" class="drawer-btn drawer-sub">Sample Tree</button>
-            <button id="loadPackedSample" class="drawer-btn drawer-sub">Deep Tree</button>
-            <button id="loadTaxonomy" class="drawer-btn drawer-sub">Taxonomy</button>
-            <button id="loadLineage" class="drawer-btn drawer-sub">Human Lineage</button>
+          <button class="drawer-btn" onclick="document.getElementById('newTreeBtn').click()">New Tree</button>
+          <button class="drawer-btn" style="display:flex;justify-content:space-between;align-items:center;" onclick="document.getElementById('templatesBtn').click()">Templates <span>▾</span></button>
+          <div class="drawer-sub-group" id="drawerTemplatesSub" style="display:none;">
+            <button class="drawer-btn drawer-sub" onclick="document.getElementById('loadSample').click()">Sample Tree</button>
+            <button class="drawer-btn drawer-sub" onclick="document.getElementById('loadPackedSample').click()">Deep Tree</button>
+            <button class="drawer-btn drawer-sub" onclick="document.getElementById('loadTaxonomy').click()">Taxonomy</button>
+            <button class="drawer-btn drawer-sub" onclick="document.getElementById('loadLineage').click()">Human Lineage</button>
           </div>
-          <button id="cloudPanelToggleBtn" class="drawer-btn">My Trees</button>
+          <button class="drawer-btn" onclick="document.getElementById('cloudPanelToggleBtn').click()">My Trees</button>
           <div class="drawer-divider"></div>
-          <button id="expandAllBtn" class="drawer-btn">Expand All</button>
-          <button id="collapseAllBtn" class="drawer-btn">Collapse All</button>
-          <button id="expandLevelBtn" class="drawer-btn">+1 Level</button>
-          <button id="collapseLevelBtn" class="drawer-btn">−1 Level</button>
+          <button class="drawer-btn" onclick="document.getElementById('expandAllBtn').click()">Expand All</button>
+          <button class="drawer-btn" onclick="document.getElementById('collapseAllBtn').click()">Collapse All</button>
+          <button class="drawer-btn" onclick="document.getElementById('expandLevelBtn').click()">+1 Level</button>
+          <button class="drawer-btn" onclick="document.getElementById('collapseLevelBtn').click()">−1 Level</button>
           <div class="drawer-divider"></div>
-          <button id="exportSvgBtn" class="drawer-btn">SVG</button>
-          <button id="exportPngBtn" class="drawer-btn">PNG</button>
-          <button id="printBtn" class="drawer-btn">Print</button>
-          <button id="cleanViewBtn" class="drawer-btn">Clean View</button>
-          <button id="searchBtn" class="drawer-btn">⌕ Find</button>
+          <button class="drawer-btn" onclick="document.getElementById('exportSvgBtn').click()">SVG</button>
+          <button class="drawer-btn" onclick="document.getElementById('exportPngBtn').click()">PNG</button>
+          <button class="drawer-btn" onclick="document.getElementById('printBtn').click()">Print</button>
+          <button class="drawer-btn" onclick="document.getElementById('cleanViewBtn').click()">Clean View</button>
+          <button class="drawer-btn" onclick="document.getElementById('searchBtn').click()">⌕ Find</button>
           <div class="drawer-divider"></div>
-          <button id="undoBtn" class="drawer-btn" disabled>↩ Undo</button>
-          <button id="redoBtn" class="drawer-btn" disabled>↪ Redo</button>
+          <button class="drawer-btn" onclick="document.getElementById('undoBtn').click()">↩ Undo</button>
+          <button class="drawer-btn" onclick="document.getElementById('redoBtn').click()">↪ Redo</button>
         </div>
       </div>
       <!-- Drawer tab trigger -->
@@ -4236,7 +4303,7 @@
       const btn = document.getElementById("cleanViewBtn");
       svg.classList.toggle("clean-view", cleanViewActive);
       btn.classList.toggle("active", cleanViewActive);
-      btn.textContent = cleanViewActive ? "Edit View" : "Clean View";
+      btn.title = cleanViewActive ? "Edit View (show +/× buttons)" : "Clean View (hide +/× buttons)";
     });
 
     // ── Print ─────────────────────────────────────────────────────────────────
@@ -5232,7 +5299,20 @@ ${pagesHtml}
     document.getElementById("templatesBtn").addEventListener("click", (e) => {
       e.stopPropagation();
       const td = document.getElementById("templatesDropdown");
-      td.style.display = td.style.display === "none" || td.style.display === "" ? "block" : "none";
+      const ds = document.getElementById("drawerTemplatesSub");
+      const isOpen = td.classList.contains("open");
+      if (isOpen) {
+        td.classList.remove("open");
+        if (ds) ds.style.display = "none";
+      } else {
+        td.classList.add("open");
+        if (ds) ds.style.display = "block";
+      }
+    });
+    // Close toolbar dropdown when clicking elsewhere
+    document.addEventListener("click", () => {
+      const td = document.getElementById("templatesDropdown");
+      if (td) td.classList.remove("open");
     });
 
     // ── Contextual bar button wiring ──────────────────────────────────────────
