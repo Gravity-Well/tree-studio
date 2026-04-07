@@ -97,7 +97,7 @@
       padding: 0;
       position: relative;
     }
-    .tb-btn:hover:not(:disabled) { background: #e8f0f8; }
+    .tb-btn:hover:not(:disabled) { background: #cddff0; }
     .tb-btn:disabled { opacity: 0.32; cursor: not-allowed; }
     .tb-btn.active { background: #d7ecfa; color: var(--accent); }
     .tb-btn.tb-txt { font-size: 10px; font-weight: 700; letter-spacing: 0.2px; width: auto; padding: 0 6px; min-width: 30px; }
@@ -3179,7 +3179,7 @@
       const treeCenterX = ((bounds.minX + bounds.maxX) / 2) + offsetX;
       const treeTopY = bounds.minY + offsetY;
       preferredInitialScrollLeft = Math.floor(treeCenterX * zoomScale - (viewport.clientWidth / 2));
-      preferredInitialScrollTop = Math.floor(treeTopY * zoomScale - 20);
+      preferredInitialScrollTop = Math.floor(treeTopY * zoomScale - 40);
 
       svg.setAttribute("viewBox", `0 0 ${canvasWidth} ${canvasHeight}`);
       svg.style.width = `${Math.floor(canvasWidth * zoomScale)}px`;
