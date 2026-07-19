@@ -1,15 +1,15 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tree Studio — Hierarchical Tree Diagram Editor</title>
+  <title>Tree Studio â€” Hierarchical Tree Diagram Editor</title>
   <meta name="app-version" content="1.0.2" />
   <meta name="description" content="Build, share, and embed hierarchical tree diagrams online. AI-powered generation, cloud save, SVG/PNG export." />
   <link rel="canonical" href="https://treestudio.nusoftva.com/app" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Tree Studio" />
-  <meta property="og:title" content="Tree Studio — Hierarchical Tree Diagram Editor" />
+  <meta property="og:title" content="Tree Studio â€” Hierarchical Tree Diagram Editor" />
   <meta property="og:description" content="Build, share, and embed hierarchical tree diagrams online. AI-powered generation, cloud save, SVG/PNG export." />
   <meta property="og:url" content="https://treestudio.nusoftva.com/app" />
   <meta property="og:image" content="https://treestudio.nusoftva.com/og-image.png" />
@@ -49,7 +49,7 @@
       padding: 0 16px;
     }
 
-    /* ── Slim icon toolbar ── */
+    /* â”€â”€ Slim icon toolbar â”€â”€ */
     .toolbar {
       background: var(--panel);
       border: 1px solid #d2dde8;
@@ -191,7 +191,7 @@
     .panel-close-btn:hover { background: #f0f5fa; color: var(--ink); }
 
     .cloud-panel summary::before {
-      content: "▸";
+      content: "â–¸";
       font-size: 11px;
       color: var(--muted);
       transition: transform 0.15s;
@@ -340,7 +340,7 @@
     .tree-btn-delete:hover { background: #fee2e2; }
     .tree-btn-delete.confirming { background: #b42318 !important; color: #fff !important; }
 
-    /* ── Toolbar groups ── */
+    /* â”€â”€ Toolbar groups â”€â”€ */
     .tb-group {
       display: flex;
       align-items: center;
@@ -501,7 +501,7 @@
       background: #1a1f24;
     }
 
-    /* ── Templates dropdown ── */
+    /* â”€â”€ Templates dropdown â”€â”€ */
     .templates-wrap {
       position: relative;
     }
@@ -575,7 +575,7 @@
 
     .share-link-wrap button:hover { background: #1d3753; }
 
-    /* ── View mode banner ── */
+    /* â”€â”€ View mode banner â”€â”€ */
     .view-banner {
       background: #fffbe6;
       border: 1px solid #e6c84a;
@@ -591,7 +591,7 @@
       font-weight: 600;
     }
 
-    /* ── Embed mode ── */
+    /* â”€â”€ Embed mode â”€â”€ */
     body.embed-mode .layout {
       margin: 0;
       padding: 0;
@@ -616,7 +616,7 @@
       background: #ffffff;
     }
 
-    /* ── Embed watermark ── */
+    /* â”€â”€ Embed watermark â”€â”€ */
     .embed-watermark {
       display: none;
       position: absolute;
@@ -645,7 +645,7 @@
     }
 
 
-    /* ── Document title bar ── */
+    /* â”€â”€ Document title bar â”€â”€ */
     .doc-titlebar {
       display: flex;
       align-items: center;
@@ -708,7 +708,7 @@
     body.embed-mode .doc-titlebar,
     body.view-mode .doc-titlebar { display: none !important; }
 
-    /* ── JSON panel — de-emphasised ── */
+    /* â”€â”€ JSON panel â€” de-emphasised â”€â”€ */
     .json-panel > summary {
       font-size: 12px !important;
       font-weight: 600 !important;
@@ -716,7 +716,7 @@
       letter-spacing: 0.2px;
     }
 
-    /* ── View-only (read-only) mode ── */
+    /* â”€â”€ View-only (read-only) mode â”€â”€ */
     body.view-mode .toolbar-secondary {
       display: none;
     }
@@ -981,7 +981,7 @@
       cursor: pointer;
     }
 
-    /* ── Clean View ── */
+    /* â”€â”€ Clean View â”€â”€ */
     .clean-view .node-plus,
     .clean-view .node-delete,
     .clean-view .node-toggle {
@@ -993,13 +993,13 @@
       color: var(--accent);
     }
 
-    /* ── Print ── */
+    /* â”€â”€ Print â”€â”€ */
     @media print {
-      /* Print is handled by the dedicated print window — hide everything in main app */
+      /* Print is handled by the dedicated print window â€” hide everything in main app */
       body { display: none !important; }
     }
 
-    /* ── Toast notifications ── */
+    /* â”€â”€ Toast notifications â”€â”€ */
     .toast-container {
       position: fixed;
       bottom: 24px;
@@ -1037,7 +1037,7 @@
     .toast.error   { border-left: 3px solid #b42318; }
     .toast.info    { border-left: 3px solid #3b82f6; }
 
-    /* ── Empty state ── */
+    /* â”€â”€ Empty state â”€â”€ */
     .canvas-wrap {
       position: relative;
     }
@@ -1154,7 +1154,7 @@
       overflow: hidden;
     }
 
-    /* ── Mobile ── */
+    /* â”€â”€ Mobile â”€â”€ */
     @media (max-width: 640px) {
       /* Prevent body from scrolling behind the fixed layout */
       html, body {
@@ -1164,7 +1164,7 @@
         height: 100%;
       }
 
-      /* Fixed full-screen layout — most reliable cross-browser approach */
+      /* Fixed full-screen layout â€” most reliable cross-browser approach */
       .layout {
         position: fixed !important;
         inset: 0 !important;
@@ -1208,7 +1208,7 @@
         margin: 0;
       }
 
-      /* Canvas outer fills all remaining vertical space — no JS needed */
+      /* Canvas outer fills all remaining vertical space â€” no JS needed */
       .canvas-outer { border-radius: 0; overflow: hidden; flex: 1; min-height: 0; position: relative; }
       .canvas-wrap  { border-radius: 0; border: none; }
       #treeViewport { position: absolute; inset: 0; width: auto; height: auto; overflow: auto; }
@@ -1241,7 +1241,7 @@
       .toast { max-width: 100%; font-size: 13px; }
     }
 
-    /* ── Left drawer ── */
+    /* â”€â”€ Left drawer â”€â”€ */
     .canvas-outer {
       position: relative;
       overflow: hidden;
@@ -1376,7 +1376,7 @@
       display: block;
     }
 
-    /* ── Contextual node toolbar ── */
+    /* â”€â”€ Contextual node toolbar â”€â”€ */
     #nodeContextBar {
       position: fixed;
       background: #ffffff;
@@ -1453,7 +1453,7 @@
     #nodeContextBar.expanded .ctx-overflow { display: inline-flex !important; }
     #nodeContextBar.expanded .ctx-divider  { display: block; }
 
-    /* Separator between primary group and ••• */
+    /* Separator between primary group and â€¢â€¢â€¢ */
     #ctxMore::before {
       content: '';
       display: inline-block;
@@ -1464,7 +1464,7 @@
       margin-right: 8px;
     }
 
-    /* ── Node color palette popup ── */
+    /* â”€â”€ Node color palette popup â”€â”€ */
     #colorPalette {
       position: fixed;
       background: #fff;
@@ -1501,7 +1501,7 @@
     }
     .color-swatch-reset:hover { border-color: #555; color: #333; }
 
-    /* ── Floating zoom controls ── */
+    /* â”€â”€ Floating zoom controls â”€â”€ */
     #zoomFloat {
       position: absolute;
       bottom: 16px;
@@ -1549,7 +1549,7 @@
       color: var(--ink);
     }
 
-    /* ── Plan comparison modal ── */
+    /* â”€â”€ Plan comparison modal â”€â”€ */
     .plan-overlay {
       display: none;
       position: fixed;
@@ -1669,7 +1669,7 @@
     }
 
     .plan-card-features li::before {
-      content: "✓";
+      content: "âœ“";
       color: var(--accent);
       font-weight: 700;
       flex-shrink: 0;
@@ -1754,7 +1754,7 @@
       min-height: 200px;
     }
 
-    /* ── Upgrade pill ── */
+    /* â”€â”€ Upgrade pill â”€â”€ */
     @keyframes pill-pulse {
       0%, 100% { box-shadow: 0 0 0 0 rgba(15,118,110,0.45); }
       60%       { box-shadow: 0 0 0 6px rgba(15,118,110,0); }
@@ -1782,7 +1782,7 @@
       .plan-modal h2 { font-size: 20px; }
     }
 
-    /* ── Profile modal ── */
+    /* â”€â”€ Profile modal â”€â”€ */
     .profile-overlay {
       display: none;
       position: fixed;
@@ -1961,10 +1961,10 @@
       <div class="tb-sep"></div>
 
       <!-- File group -->
-      <button id="newTreeBtn" class="tb-btn" title="New Tree">⊕</button>
-      <button id="cloudPanelToggleBtn" class="tb-btn" title="My Trees">☁</button>
+      <button id="newTreeBtn" class="tb-btn" title="New Tree">âŠ•</button>
+      <button id="cloudPanelToggleBtn" class="tb-btn" title="My Trees">â˜</button>
       <div class="tb-templates-wrap">
-        <button id="templatesBtn" class="tb-btn" title="Templates">≡</button>
+        <button id="templatesBtn" class="tb-btn" title="Templates">â‰¡</button>
         <div id="templatesDropdown" class="tb-dropdown">
           <button id="loadSample" class="tb-dd-item">Sample Tree</button>
           <button id="loadPackedSample" class="tb-dd-item">Deep Tree</button>
@@ -1975,39 +1975,42 @@
       <div class="tb-sep tb-mobile-hide"></div>
 
       <!-- View group -->
-      <button id="expandAllBtn" class="tb-btn tb-mobile-hide" title="Expand All">⊞</button>
-      <button id="collapseAllBtn" class="tb-btn tb-mobile-hide" title="Collapse All">⊟</button>
+      <button id="expandAllBtn" class="tb-btn tb-mobile-hide" title="Expand All">âŠž</button>
+      <button id="collapseAllBtn" class="tb-btn tb-mobile-hide" title="Collapse All">âŠŸ</button>
       <button id="expandLevelBtn" class="tb-btn tb-txt tb-mobile-hide" title="+1 Level">+L</button>
-      <button id="collapseLevelBtn" class="tb-btn tb-txt tb-mobile-hide" title="−1 Level">−L</button>
+      <button id="collapseLevelBtn" class="tb-btn tb-txt tb-mobile-hide" title="âˆ’1 Level">âˆ’L</button>
       <div class="tb-sep tb-mobile-hide"></div>
 
       <!-- Export group -->
+      <button id="exportJsonBtn" class="tb-btn tb-txt tb-mobile-hide" title="Export JSON">JSON&#8595;</button>
+      <button id="importJsonBtn" class="tb-btn tb-txt tb-mobile-hide" title="Import JSON">JSON&#8593;</button>
+      <input id="importJsonFile" type="file" accept=".json,application/json" style="display:none" />
       <button id="exportSvgBtn" class="tb-btn tb-txt tb-mobile-hide" title="Export SVG">SVG</button>
       <button id="exportPngBtn" class="tb-btn tb-txt tb-mobile-hide" title="Export PNG">PNG</button>
-      <button id="printBtn" class="tb-btn tb-mobile-hide" title="Print">⎙</button>
+      <button id="printBtn" class="tb-btn tb-mobile-hide" title="Print">âŽ™</button>
       <div class="tb-sep"></div>
 
-      <!-- Node group — enabled when a node is selected -->
-      <button id="tbAddChild" class="tb-btn" title="Add child node (Tab)" disabled>＋</button>
-      <button id="tbColor"    class="tb-btn" title="Node color" disabled>◉</button>
-      <button id="tbCopy"     class="tb-btn" title="Copy subtree (Ctrl+C)" disabled>⎘</button>
-      <button id="tbCut"      class="tb-btn" title="Cut subtree (Ctrl+X)" disabled>✂</button>
-      <button id="tbPaste"    class="tb-btn" title="Paste as child (Ctrl+V)" disabled>⎗</button>
+      <!-- Node group â€” enabled when a node is selected -->
+      <button id="tbAddChild" class="tb-btn" title="Add child node (Tab)" disabled>ï¼‹</button>
+      <button id="tbColor"    class="tb-btn" title="Node color" disabled>â—‰</button>
+      <button id="tbCopy"     class="tb-btn" title="Copy subtree (Ctrl+C)" disabled>âŽ˜</button>
+      <button id="tbCut"      class="tb-btn" title="Cut subtree (Ctrl+X)" disabled>âœ‚</button>
+      <button id="tbPaste"    class="tb-btn" title="Paste as child (Ctrl+V)" disabled>âŽ—</button>
       <div class="tb-sep"></div>
 
       <!-- Tools group -->
-      <button id="cleanViewBtn" class="tb-btn" title="Clean View — hide +/× buttons">◻</button>
-      <button id="searchBtn" class="tb-btn" title="Find (Ctrl+F)">⌕</button>
-      <button id="undoBtn" class="tb-btn" title="Undo (Ctrl+Z)" disabled>↩</button>
-      <button id="redoBtn" class="tb-btn" title="Redo (Ctrl+Y)" disabled>↪</button>
+      <button id="cleanViewBtn" class="tb-btn" title="Clean View â€” hide +/Ã— buttons">â—»</button>
+      <button id="searchBtn" class="tb-btn" title="Find (Ctrl+F)">âŒ•</button>
+      <button id="undoBtn" class="tb-btn" title="Undo (Ctrl+Z)" disabled>â†©</button>
+      <button id="redoBtn" class="tb-btn" title="Redo (Ctrl+Y)" disabled>â†ª</button>
 
       <!-- Spacer -->
       <div class="tb-spacer"></div>
 
       <!-- AI + meta + auth -->
-      <button id="aiToolbarGenerateBtn" class="btn-ai" title="Generate a new tree with AI" style="padding:6px 12px;font-size:13px;">✦ AI</button>
+      <button id="aiToolbarGenerateBtn" class="btn-ai" title="Generate a new tree with AI" style="padding:6px 12px;font-size:13px;">âœ¦ AI</button>
       <span class="tb-version" title="App version">v1.0.3</span>
-      <button id="upgradePill" class="upgrade-pill" style="display:none">Upgrade ✦</button>
+      <button id="upgradePill" class="upgrade-pill" style="display:none">Upgrade âœ¦</button>
       <div class="auth-bar" id="authBar">
         <span id="authStatus"></span>
       </div>
@@ -2021,12 +2024,12 @@
     </div>
 
     <div id="viewBanner" class="view-banner" style="display:none">
-      Viewing a shared tree — <a href="/login">Sign in</a> to build and save your own
+      Viewing a shared tree â€” <a href="/login">Sign in</a> to build and save your own
     </div>
 
     <details id="cloudPanel" class="cloud-panel" style="display:none">
       <summary>My Trees <span id="cloudTreeCount" class="cloud-tree-count" style="display:none"></span></summary>
-      <button class="panel-close-btn" onclick="document.getElementById('cloudPanel').style.display='none';" title="Close" style="position:absolute;top:10px;right:10px;">✕</button>
+      <button class="panel-close-btn" onclick="document.getElementById('cloudPanel').style.display='none';" title="Close" style="position:absolute;top:10px;right:10px;">âœ•</button>
       <input id="cloudTreeName" type="text" style="display:none" />
       <button id="saveCloudBtn" style="display:none"></button>
       <div id="cloudTreeList" class="cloud-tree-list"></div>
@@ -2043,7 +2046,7 @@
 
     <details class="json-panel" style="display:none">
       <summary>Advanced</summary>
-      <button class="panel-close-btn" onclick="this.closest('details').style.display='none';" title="Close" style="position:absolute;top:10px;right:10px;">✕</button>
+      <button class="panel-close-btn" onclick="this.closest('details').style.display='none';" title="Close" style="position:absolute;top:10px;right:10px;">âœ•</button>
       <div class="row">
         <label>Horizontal <input id="xOffset" type="number" min="0" value="30" /></label>
         <label>Vertical <input id="yOffset" type="number" min="50" value="70" /></label>
@@ -2068,7 +2071,7 @@
             Menu
           </div>
           <button class="drawer-btn" onclick="document.getElementById('newTreeBtn').click()">New Tree</button>
-          <button class="drawer-btn" style="display:flex;justify-content:space-between;align-items:center;" onclick="document.getElementById('templatesBtn').click()">Templates <span>▾</span></button>
+          <button class="drawer-btn" style="display:flex;justify-content:space-between;align-items:center;" onclick="document.getElementById('templatesBtn').click()">Templates <span>â–¾</span></button>
           <div class="drawer-sub-group" id="drawerTemplatesSub" style="display:none;">
             <button class="drawer-btn drawer-sub" onclick="document.getElementById('loadSample').click()">Sample Tree</button>
             <button class="drawer-btn drawer-sub" onclick="document.getElementById('loadPackedSample').click()">Deep Tree</button>
@@ -2080,57 +2083,59 @@
           <button class="drawer-btn" onclick="document.getElementById('expandAllBtn').click()">Expand All</button>
           <button class="drawer-btn" onclick="document.getElementById('collapseAllBtn').click()">Collapse All</button>
           <button class="drawer-btn" onclick="document.getElementById('expandLevelBtn').click()">+1 Level</button>
-          <button class="drawer-btn" onclick="document.getElementById('collapseLevelBtn').click()">−1 Level</button>
+          <button class="drawer-btn" onclick="document.getElementById('collapseLevelBtn').click()">âˆ’1 Level</button>
           <div class="drawer-divider"></div>
+          <button class="drawer-btn" onclick="document.getElementById('exportJsonBtn').click()">Export JSON</button>
+          <button class="drawer-btn" onclick="document.getElementById('importJsonBtn').click()">Import JSON</button>
           <button class="drawer-btn" onclick="document.getElementById('exportSvgBtn').click()">SVG</button>
           <button class="drawer-btn" onclick="document.getElementById('exportPngBtn').click()">PNG</button>
           <button class="drawer-btn" onclick="document.getElementById('printBtn').click()">Print</button>
           <button class="drawer-btn" onclick="document.getElementById('cleanViewBtn').click()">Clean View</button>
-          <button class="drawer-btn" onclick="document.getElementById('searchBtn').click()">⌕ Find</button>
+          <button class="drawer-btn" onclick="document.getElementById('searchBtn').click()">âŒ• Find</button>
           <div class="drawer-divider"></div>
-          <button class="drawer-btn" onclick="document.getElementById('undoBtn').click()">↩ Undo</button>
-          <button class="drawer-btn" onclick="document.getElementById('redoBtn').click()">↪ Redo</button>
+          <button class="drawer-btn" onclick="document.getElementById('undoBtn').click()">â†© Undo</button>
+          <button class="drawer-btn" onclick="document.getElementById('redoBtn').click()">â†ª Redo</button>
         </div>
       </div>
       <!-- Drawer tab trigger -->
-      <div id="drawerTab" title="Toggle menu">›</div>
+      <div id="drawerTab" title="Toggle menu">â€º</div>
       <div id="treeViewport" class="canvas-wrap">
       <div id="aiGenerateBar" class="node-search-bar" style="display:none;min-width:360px;">
-        <span style="font-size:12px;color:var(--muted);white-space:nowrap;">✦ AI:</span>
-        <input id="aiBarInput" type="text" placeholder="Describe your tree…" autocomplete="off" spellcheck="false" maxlength="200" />
+        <span style="font-size:12px;color:var(--muted);white-space:nowrap;">âœ¦ AI:</span>
+        <input id="aiBarInput" type="text" placeholder="Describe your treeâ€¦" autocomplete="off" spellcheck="false" maxlength="200" />
         <button id="aiBarGoBtn" class="btn-ai" style="padding:3px 10px;font-size:12px;white-space:nowrap;">Generate</button>
-        <button id="aiBarCloseBtn" class="node-search-close" title="Close (Esc)">✕</button>
+        <button id="aiBarCloseBtn" class="node-search-close" title="Close (Esc)">âœ•</button>
       </div>
       <div id="nodeSearchBar" class="node-search-bar" style="display:none">
-        <input id="nodeSearchInput" type="text" placeholder="Search nodes…" autocomplete="off" spellcheck="false" />
+        <input id="nodeSearchInput" type="text" placeholder="Search nodesâ€¦" autocomplete="off" spellcheck="false" />
         <span id="nodeSearchCount" class="node-search-count"></span>
-        <button id="nodeSearchPrev" class="node-search-nav" title="Previous (Shift+Enter)">↑</button>
-        <button id="nodeSearchNext" class="node-search-nav" title="Next (Enter)">↓</button>
-        <button id="nodeSearchClose" class="node-search-close" title="Close (Esc)">✕</button>
+        <button id="nodeSearchPrev" class="node-search-nav" title="Previous (Shift+Enter)">â†‘</button>
+        <button id="nodeSearchNext" class="node-search-nav" title="Next (Enter)">â†“</button>
+        <button id="nodeSearchClose" class="node-search-close" title="Close (Esc)">âœ•</button>
       </div>
       <svg id="treeSvg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMin meet"></svg>
       <!-- Contextual node toolbar -->
       <div id="nodeContextBar">
-        <!-- Primary tools — always visible -->
-        <button id="ctxAddChild" title="Add child (Tab)">＋ Child</button>
-        <button id="ctxColor" title="Change node color">● Color</button>
-        <button id="ctxUndo" title="Undo (Ctrl+Z)" disabled>↩</button>
-        <button id="ctxRedo" title="Redo (Ctrl+Y)" disabled>↪</button>
-        <button id="ctxDelete" title="Delete node">⌫ Delete</button>
+        <!-- Primary tools â€” always visible -->
+        <button id="ctxAddChild" title="Add child (Tab)">ï¼‹ Child</button>
+        <button id="ctxColor" title="Change node color">â— Color</button>
+        <button id="ctxUndo" title="Undo (Ctrl+Z)" disabled>â†©</button>
+        <button id="ctxRedo" title="Redo (Ctrl+Y)" disabled>â†ª</button>
+        <button id="ctxDelete" title="Delete node">âŒ« Delete</button>
         <!-- Overflow toggle -->
-        <button id="ctxMore" title="More options">•••</button>
-        <!-- Overflow tools — hidden until expanded -->
+        <button id="ctxMore" title="More options">â€¢â€¢â€¢</button>
+        <!-- Overflow tools â€” hidden until expanded -->
         <span class="ctx-divider"></span>
-        <button id="ctxExpand" class="ctx-overflow" title="Expand with AI">✦ AI Expand</button>
-        <button id="ctxCopy" class="ctx-overflow" title="Copy subtree (Ctrl+C)">⎘ Copy</button>
-        <button id="ctxCut" class="ctx-overflow" title="Cut subtree (Ctrl+X)">✂ Cut</button>
-        <button id="ctxPaste" class="ctx-overflow" title="Paste subtree as child (Ctrl+V)" disabled>⎗ Paste</button>
+        <button id="ctxExpand" class="ctx-overflow" title="Expand with AI">âœ¦ AI Expand</button>
+        <button id="ctxCopy" class="ctx-overflow" title="Copy subtree (Ctrl+C)">âŽ˜ Copy</button>
+        <button id="ctxCut" class="ctx-overflow" title="Cut subtree (Ctrl+X)">âœ‚ Cut</button>
+        <button id="ctxPaste" class="ctx-overflow" title="Paste subtree as child (Ctrl+V)" disabled>âŽ— Paste</button>
       </div>
       <!-- Color palette popup -->
       <div id="colorPalette"></div>
       <!-- Floating zoom controls -->
       <div id="zoomFloat">
-        <button id="zoomOutBtn" title="Zoom out (Ctrl+scroll)">−</button>
+        <button id="zoomOutBtn" title="Zoom out (Ctrl+scroll)">âˆ’</button>
         <span id="zoomInfo">100%</span>
         <button id="zoomInBtn" title="Zoom in (Ctrl+scroll)">+</button>
       </div>
@@ -2140,10 +2145,10 @@
       </a>
       <div id="emptyState" class="empty-state">
         <h2>What would you like to map?</h2>
-        <p>Describe a topic and AI will build the tree — or start manually.</p>
+        <p>Describe a topic and AI will build the tree â€” or start manually.</p>
         <div class="ai-prompt-row">
           <input id="aiPromptInput" type="text" placeholder="e.g. product roadmap for a SaaS startup" autocomplete="off" spellcheck="false" maxlength="200" />
-          <button id="aiGenerateBtn" class="btn-ai">✦ Generate</button>
+          <button id="aiGenerateBtn" class="btn-ai">âœ¦ Generate</button>
         </div>
         <div class="empty-actions">
           <button id="emptyNewBtn" class="btn-ghost-sm">Blank tree</button>
@@ -2189,7 +2194,7 @@
                 <li>JSON import &amp; export</li>
                 <li>Embed on your site</li>
               </ul>
-              <button class="btn-plan-select primary" onclick="selectCheckoutPlan('pro')">Get Pro — $9/mo</button>
+              <button class="btn-plan-select primary" onclick="selectCheckoutPlan('pro')">Get Pro â€” $9/mo</button>
             </div>
             <!-- Business -->
             <div class="plan-card">
@@ -2201,7 +2206,7 @@
                 <li>Priority support</li>
                 <li>Dedicated onboarding</li>
               </ul>
-              <button class="btn-plan-select outlined" onclick="selectCheckoutPlan('business')">Get Business — $29/mo</button>
+              <button class="btn-plan-select outlined" onclick="selectCheckoutPlan('business')">Get Business â€” $29/mo</button>
             </div>
           </div>
           <p class="plan-modal-close" onclick="closePlanModal()">No thanks, stay on Free</p>
@@ -3094,7 +3099,7 @@
           deleteText.setAttribute("font-weight", "700");
           deleteText.setAttribute("text-anchor", "middle");
           deleteText.setAttribute("fill", "#b42318");
-          deleteText.textContent = "×";
+          deleteText.textContent = "Ã—";
           group.appendChild(deleteText);
 
           const deleteFromNode = (e) => {
@@ -3244,7 +3249,7 @@
       const padding = 60;
       const isMobile = window.innerWidth <= 640;
       const rawZoom = Math.min((vw - padding) / treeW, (vh - padding) / treeH, 1.2);
-      // On mobile, never zoom below 0.6 — keep text readable; user can pinch to zoom out
+      // On mobile, never zoom below 0.6 â€” keep text readable; user can pinch to zoom out
       const minFit = isMobile ? 0.6 : 0.3;
       setZoom(Math.max(minFit, rawZoom));
       run(currentRoot, true);
@@ -3326,8 +3331,8 @@
       const container = document.getElementById("toastContainer");
       const el = document.createElement("div");
       el.className = `toast ${type}`;
-      const icons = { success: "✓", error: "✕", info: "ℹ" };
-      el.innerHTML = `<span>${icons[type] || "·"}</span> ${msg}`;
+      const icons = { success: "âœ“", error: "âœ•", info: "â„¹" };
+      el.innerHTML = `<span>${icons[type] || "Â·"}</span> ${msg}`;
       container.appendChild(el);
       requestAnimationFrame(() => { requestAnimationFrame(() => { el.classList.add("show"); }); });
       setTimeout(() => {
@@ -3370,7 +3375,7 @@
         if (res.status === 403) {
           const data = await res.json().catch(() => ({}));
           if (data && data.error === "FREE_TIER_LIMIT") {
-            toast("Free plan limit reached — upgrade to save unlimited trees.", "info");
+            toast("Free plan limit reached â€” upgrade to save unlimited trees.", "info");
             openPlanModal();
             return;
           }
@@ -3386,7 +3391,7 @@
         const msg = err.message || "Cloud save failed.";
         setError(msg);
         if (msg.includes("Session expired")) {
-          toast("Session expired — sign in again to save.", "error");
+          toast("Session expired â€” sign in again to save.", "error");
           setTimeout(() => { window.location.href = "/login?post_login_redirect=/app"; }, 1800);
         } else {
           toast(msg, "error");
@@ -3418,7 +3423,7 @@
         if (items.length === 0) {
           const msg = document.createElement("div");
           msg.className = "cloud-empty-msg";
-          msg.textContent = "No saved trees yet — type a name above and click Save.";
+          msg.textContent = "No saved trees yet â€” type a name above and click Save.";
           list.appendChild(msg);
           return;
         }
@@ -3614,7 +3619,7 @@
       run(currentRoot, false);
     }
 
-    // ── Clipboard (copy / cut / paste subtree) ────────────────────────────────
+    // â”€â”€ Clipboard (copy / cut / paste subtree) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     let _clipboard = null; // serialized subtree JSON
 
     function isAncestorOf(ancestor, node) {
@@ -3683,7 +3688,7 @@
       document.getElementById("ctxColor").click();
     });
 
-    // ── Node color palette ─────────────────────────────────────────────────────
+    // â”€â”€ Node color palette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const NODE_COLORS = [
       "#d7ecfa", "#dff4ec", "#f6ecd8", "#eadff7", "#f9e0e0", "#dfeaf8",
       "#fef9c3", "#d1fae5", "#fce7f3", "#e0e7ff",
@@ -3865,7 +3870,7 @@
       }
       walk(currentRoot, 0);
       if (!expanded) {
-        // All nodes already expanded — nothing to do
+        // All nodes already expanded â€” nothing to do
         return;
       }
       syncJsonFromTree();
@@ -3916,7 +3921,7 @@
     document.getElementById("loadJson").addEventListener("click", loadJsonTree);
     document.getElementById("saveCloudBtn").addEventListener("click", saveTreeToCloud);
 
-    // ── Document title bar ────────────────────────────────────────────────────
+    // â”€â”€ Document title bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     document.getElementById("docTitle").addEventListener("input", () => {
       const title = getDocTitle();
       if (title) document.getElementById("cloudTreeName").value = title;
@@ -3956,7 +3961,7 @@
       loadJsonTree();
     });
 
-    /* ── Taxonomy Sample ── */
+    /* â”€â”€ Taxonomy Sample â”€â”€ */
 
     function taxonomyTreeJson() {
       return JSON.stringify({
@@ -4041,7 +4046,7 @@
       }, null, 2);
     }
 
-    /* ── Human Lineage Sample ── */
+    /* â”€â”€ Human Lineage Sample â”€â”€ */
 
     function humanLineageTreeJson() {
       return JSON.stringify({
@@ -4101,7 +4106,7 @@
       document.getElementById("templatesDropdown").style.display = "none";
     });
 
-    // ── Templates dropdown (legacy close handlers) ───────────────────────────
+    // â”€â”€ Templates dropdown (legacy close handlers) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     ["loadSample", "loadPackedSample"].forEach((id) => {
       const btn = document.getElementById(id);
       if (btn) btn.addEventListener("click", () => {
@@ -4116,7 +4121,7 @@
     if (currentRoot) run(currentRoot, true);
     refreshCloudList();
 
-    // ── Empty state buttons ───────────────────────────────────────────────────
+    // â”€â”€ Empty state buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     document.getElementById("emptyNewBtn").addEventListener("click", newTree);
     document.getElementById("emptyTemplateBtn").addEventListener("click", () => {
       openDrawer();
@@ -4124,7 +4129,7 @@
       if (td) td.style.display = "block";
     });
 
-    // ── Undo / Redo ──────────────────────────────────────────────────────────
+    // â”€â”€ Undo / Redo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     const undoStack = [];
     const redoStack = [];
@@ -4136,7 +4141,7 @@
       const status = document.getElementById("saveStatus");
       const btn = document.getElementById("titleSaveBtn");
       if (!status || !btn) return;
-      status.textContent = "● Unsaved changes";
+      status.textContent = "â— Unsaved changes";
       status.className = "save-status visible unsaved";
       btn.classList.add("visible");
       clearTimeout(_saveStatusTimer);
@@ -4146,7 +4151,7 @@
       const status = document.getElementById("saveStatus");
       const btn = document.getElementById("titleSaveBtn");
       if (!status || !btn) return;
-      status.textContent = "✓ Saved";
+      status.textContent = "âœ“ Saved";
       status.className = "save-status visible saved";
       btn.classList.remove("visible");
       clearTimeout(_saveStatusTimer);
@@ -4216,7 +4221,7 @@
       if (cr) cr.disabled = redoStack.length === 0;
     }
 
-    // ── Export ────────────────────────────────────────────────────────────────
+    // â”€â”€ Export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     function getExportFilename(ext) {
       const name = (currentRoot ? currentRoot.label : "tree")
@@ -4307,7 +4312,7 @@
       };
       img.onerror = () => {
         URL.revokeObjectURL(url);
-        setError("PNG export failed — try Export SVG instead.");
+        setError("PNG export failed â€” try Export SVG instead.");
       };
       img.src = url;
     }
@@ -4318,7 +4323,53 @@
     document.getElementById("exportSvgBtn").addEventListener("click", exportSvg);
     document.getElementById("exportPngBtn").addEventListener("click", exportPng);
 
-    // ── Clean View ────────────────────────────────────────────────────────────
+    // -- JSON Export / Import --
+    function exportJson() {
+      if (!currentRoot) return;
+      const json = JSON.stringify(serializeTree(currentRoot), null, 2);
+      const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = getExportFilename("json");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importJsonFromFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          pushUndo();
+          currentRoot = buildTreeFromJsonNode(parsed, null);
+          selectedNode = currentRoot;
+          updateSelectedInfo();
+          syncJsonFromTree();
+          run(currentRoot, true);
+          toast("Tree imported successfully.", "success");
+        } catch (err) {
+          setError("Invalid JSON file: " + (err.message || "parse error"));
+        }
+      };
+      reader.onerror = () => setError("Could not read file.");
+      reader.readAsText(file);
+    }
+
+    document.getElementById("exportJsonBtn").addEventListener("click", exportJson);
+    document.getElementById("importJsonBtn").addEventListener("click", () => {
+      document.getElementById("importJsonFile").click();
+    });
+    document.getElementById("importJsonFile").addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) importJsonFromFile(file);
+      e.target.value = "";
+    });
+
+    // â”€â”€ Clean View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     let cleanViewActive = false;
 
     document.getElementById("cleanViewBtn").addEventListener("click", () => {
@@ -4327,10 +4378,10 @@
       const btn = document.getElementById("cleanViewBtn");
       svg.classList.toggle("clean-view", cleanViewActive);
       btn.classList.toggle("active", cleanViewActive);
-      btn.title = cleanViewActive ? "Edit View (show +/× buttons)" : "Clean View (hide +/× buttons)";
+      btn.title = cleanViewActive ? "Edit View (show +/Ã— buttons)" : "Clean View (hide +/Ã— buttons)";
     });
 
-    // ── Print ─────────────────────────────────────────────────────────────────
+    // â”€â”€ Print â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     document.getElementById("printBtn").addEventListener("click", () => {
       if (!currentRoot) { showToast("Nothing to print."); return; }
 
@@ -4373,7 +4424,7 @@
       const svgInner = svgClone.innerHTML;
 
       // --- Build page HTML ---
-      const treeName = document.getElementById("cloudTreeName").value || document.title.replace(" — Tree Studio", "") || "Tree";
+      const treeName = document.getElementById("cloudTreeName").value || document.title.replace(" â€” Tree Studio", "") || "Tree";
       let pagesHtml = "";
 
       for (let row = 0; row < rows; row++) {
@@ -4384,8 +4435,8 @@
 
           let headerHtml = "";
           if (totalPages > 1) {
-            const colLabel = cols > 1 ? ` · col ${col + 1}/${cols}` : "";
-            const rowLabel = rows > 1 ? ` · row ${row + 1}/${rows}` : "";
+            const colLabel = cols > 1 ? ` Â· col ${col + 1}/${cols}` : "";
+            const rowLabel = rows > 1 ? ` Â· row ${row + 1}/${rows}` : "";
             headerHtml = `<div class="page-header"><span>${treeName}</span><span>Page ${pageNum} of ${totalPages}${colLabel}${rowLabel}</span></div>`;
           }
 
@@ -4406,7 +4457,7 @@
       // --- Open print window ---
       const printWin = window.open("", "_blank", "width=900,height=700,menubar=no,toolbar=yes,location=no,status=no");
       if (!printWin) {
-        showToast("Popup blocked — please allow popups for this site to print.", 5000);
+        showToast("Popup blocked â€” please allow popups for this site to print.", 5000);
         return;
       }
 
@@ -4414,7 +4465,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>${treeName} — Tree Studio</title>
+<title>${treeName} â€” Tree Studio</title>
 <style>
 :root { --ink:#13273a; --line:#7b8fa3; --node-border:#2e5f87; --accent:#0f766e; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -4466,8 +4517,8 @@ svg text { font-family: "Segoe UI", Tahoma, sans-serif; }
 </style>
 </head>
 <body>
-<button class="no-print-btn" onclick="window.print()">🖨 Print</button>
-<div class="print-info">${totalPages} page${totalPages > 1 ? "s" : ""} · zoom ${Math.round(zoomScale * 100)}%</div>
+<button class="no-print-btn" onclick="window.print()">ðŸ–¨ Print</button>
+<div class="print-info">${totalPages} page${totalPages > 1 ? "s" : ""} Â· zoom ${Math.round(zoomScale * 100)}%</div>
 ${pagesHtml}
 </body>
 </html>`;
@@ -4477,9 +4528,9 @@ ${pagesHtml}
       printWin.document.close();
     });
 
-    // ── Keyboard Shortcuts ────────────────────────────────────────────────────
+    // â”€â”€ Keyboard Shortcuts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    // ── AI Generation ────────────────────────────────────────────────────────
+    // â”€â”€ AI Generation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     function getNodePath(node) {
       const path = [];
@@ -4528,7 +4579,7 @@ ${pagesHtml}
       }
 
       btn.disabled = true;
-      btn.textContent = "Generating…";
+      btn.textContent = "Generatingâ€¦";
       try {
         const result = await callAiGenerate({ mode: "tree", prompt });
         const newRoot = buildTreeFromJsonNode(result);
@@ -4549,7 +4600,7 @@ ${pagesHtml}
         toast(err.message || "AI generation failed.");
       } finally {
         btn.disabled = false;
-        btn.textContent = "✦ Generate";
+        btn.textContent = "âœ¦ Generate";
       }
     }
 
@@ -4561,8 +4612,8 @@ ${pagesHtml}
       }
       const btn = document.getElementById("aiExpandBtn");
       const ctxBtn = document.getElementById("ctxExpand");
-      if (btn) { btn.disabled = true; btn.textContent = "…"; }
-      if (ctxBtn) { ctxBtn.disabled = true; ctxBtn.textContent = "…"; }
+      if (btn) { btn.disabled = true; btn.textContent = "â€¦"; }
+      if (ctxBtn) { ctxBtn.disabled = true; ctxBtn.textContent = "â€¦"; }
       try {
         const children = await callAiGenerate({
           mode: "expand",
@@ -4582,8 +4633,8 @@ ${pagesHtml}
       } catch (err) {
         toast(err.message || "AI expand failed.");
       } finally {
-        if (btn) { btn.disabled = !selectedNode; btn.textContent = "✦ Expand"; }
-        if (ctxBtn) { ctxBtn.disabled = !selectedNode; ctxBtn.textContent = "✦ Expand"; }
+        if (btn) { btn.disabled = !selectedNode; btn.textContent = "âœ¦ Expand"; }
+        if (ctxBtn) { ctxBtn.disabled = !selectedNode; ctxBtn.textContent = "âœ¦ Expand"; }
       }
     }
 
@@ -4593,7 +4644,7 @@ ${pagesHtml}
     });
     document.getElementById("aiExpandBtn").addEventListener("click", aiExpandNode);
 
-    // ── AI toolbar bar ────────────────────────────────────────────────────────
+    // â”€â”€ AI toolbar bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function openAiBar() {
       const bar = document.getElementById("aiGenerateBar");
       bar.style.display = "flex";
@@ -4620,7 +4671,7 @@ ${pagesHtml}
       }
 
       goBtn.disabled = true;
-      goBtn.textContent = "…";
+      goBtn.textContent = "â€¦";
       toolbarBtn.disabled = true;
       try {
         const result = await callAiGenerate({ mode: "tree", prompt });
@@ -4670,7 +4721,7 @@ ${pagesHtml}
       positionContextBar();
     });
 
-    // ── Node Search ──────────────────────────────────────────────────────────
+    // â”€â”€ Node Search â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     function openSearch() {
       if (!currentRoot) return;
@@ -4867,7 +4918,7 @@ ${pagesHtml}
         applyZoom(zoomScale + (direction * zoomStep), e.clientX, e.clientY);
       }, { passive: false });
 
-      // ── Touch: pan + pinch-to-zoom ──────────────────────────────────────────
+      // â”€â”€ Touch: pan + pinch-to-zoom â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       let touchStartX = 0, touchStartY = 0;
       let touchScrollLeft = 0, touchScrollTop = 0;
       let pinchStartDist = 0, pinchStartZoom = 1;
@@ -4918,9 +4969,9 @@ ${pagesHtml}
       }, { passive: true });
     })();
 
-    // ── Auth ─────────────────────────────────────────────────────────────────
+    // â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    // ── Share link ────────────────────────────────────────────────────────────
+    // â”€â”€ Share link â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     document.getElementById("copyLinkBtn").addEventListener("click", () => {
       const input = document.getElementById("shareLinkInput");
@@ -4940,7 +4991,7 @@ ${pagesHtml}
       });
     });
 
-    // ── Embed & view mode init ────────────────────────────────────────────────
+    // â”€â”€ Embed & view mode init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const _params = new URLSearchParams(location.search);
     const _embedMode = _params.get("embed") === "1";
 
@@ -4969,7 +5020,7 @@ ${pagesHtml}
           selectedNode = currentRoot;
           // Update page title to tree name for SEO
           const treeName = (name || "").replace(/\.json$/i, "").replace(/[-_]/g, " ");
-          if (treeName) document.title = `${treeName} — Tree Studio`;
+          if (treeName) document.title = `${treeName} â€” Tree Studio`;
           updateSelectedInfo();
           syncJsonFromTree();
           run(currentRoot, true);
@@ -5009,7 +5060,7 @@ ${pagesHtml}
 
     function openPlanModal(tier) {
       // If a specific tier is already chosen (e.g. from pricing page), skip the
-      // cards view and go straight to checkout — no modal flash.
+      // cards view and go straight to checkout â€” no modal flash.
       if (tier) {
         selectCheckoutPlan(tier);
         return;
@@ -5050,8 +5101,8 @@ ${pagesHtml}
       // Disable the button to prevent double-clicks; keep modal open until we
       // have a Stripe URL so there's no flash of nothing.
       const btn = document.querySelector(`button[onclick="selectCheckoutPlan('${tier}')"]`);
-      if (btn) { btn.disabled = true; btn.textContent = "Loading…"; }
-      toast("Opening checkout…", "info");
+      if (btn) { btn.disabled = true; btn.textContent = "Loadingâ€¦"; }
+      toast("Opening checkoutâ€¦", "info");
 
       try {
         const res = await fetch("/api/createCheckout", {
@@ -5067,7 +5118,7 @@ ${pagesHtml}
         // Restore button so user can retry
         if (btn) {
           btn.disabled = false;
-          btn.textContent = tier === "pro" ? "Get Pro — $9/mo" : "Get Business — $29/mo";
+          btn.textContent = tier === "pro" ? "Get Pro â€” $9/mo" : "Get Business â€” $29/mo";
         }
         toast(err.message || "Checkout failed. Please try again.", "error");
       }
@@ -5107,7 +5158,7 @@ ${pagesHtml}
       const urlParams = new URLSearchParams(location.search);
       const checkoutTier = urlParams.get("checkout");
       if (urlParams.get("upgraded") === "1") {
-        toast("🎉 Welcome to your new plan! It may take a moment to activate.", "info");
+        toast("ðŸŽ‰ Welcome to your new plan! It may take a moment to activate.", "info");
         history.replaceState({}, "", "/app");
       }
       if (urlParams.get("upgrade_cancelled") === "1") {
@@ -5153,7 +5204,7 @@ ${pagesHtml}
               <a href="#" id="profileBtn">My Profile</a>
               ${isPaid
                 ? `<a href="#" id="billingPortalBtn">Manage subscription</a>`
-                : `<a href="#" id="upgradeProBtn" style="color:var(--accent);font-weight:600;">Upgrade to Pro →</a>`
+                : `<a href="#" id="upgradeProBtn" style="color:var(--accent);font-weight:600;">Upgrade to Pro â†’</a>`
               }
               <a href="/help">Help Center</a>
               <a href="/logout">Sign out</a>
@@ -5214,17 +5265,17 @@ ${pagesHtml}
           const panel = document.getElementById("cloudPanel");
           if (panel) panel.open = false;
 
-          // Not signed in — store intent and redirect to login immediately.
+          // Not signed in â€” store intent and redirect to login immediately.
           if (checkoutTier && (checkoutTier === "pro" || checkoutTier === "business")) {
             sessionStorage.setItem("pendingCheckoutTier", checkoutTier);
             history.replaceState({}, "", "/app");
             window.location.href = `/login?post_login_redirect=/app?checkout=${checkoutTier}`;
           }
         }
-      } catch (_) { /* silent — auth unavailable locally */ }
+      } catch (_) { /* silent â€” auth unavailable locally */ }
     }
 
-    // ── Contextual node bar positioning ──────────────────────────────────────
+    // â”€â”€ Contextual node bar positioning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     function positionContextBar() {
       const bar = document.getElementById("nodeContextBar");
@@ -5270,18 +5321,18 @@ ${pagesHtml}
       // positionContextBar will be called after selectNode(null)
     });
 
-    // ── Left drawer wiring ──────────────────────────────────────────────────
+    // â”€â”€ Left drawer wiring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     function openDrawer() {
       document.getElementById("leftDrawer").classList.add("open");
       document.getElementById("drawerTab").classList.add("open");
-      document.getElementById("drawerTab").textContent = "‹";
+      document.getElementById("drawerTab").textContent = "â€¹";
     }
 
     function closeDrawer() {
       document.getElementById("leftDrawer").classList.remove("open");
       document.getElementById("drawerTab").classList.remove("open");
-      document.getElementById("drawerTab").textContent = "›";
+      document.getElementById("drawerTab").textContent = "â€º";
       document.getElementById("templatesDropdown").style.display = "none";
     }
 
@@ -5342,7 +5393,7 @@ ${pagesHtml}
       if (td) td.classList.remove("open");
     });
 
-    // ── Contextual bar button wiring ──────────────────────────────────────────
+    // â”€â”€ Contextual bar button wiring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     document.getElementById("ctxAddChild").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -5369,7 +5420,7 @@ ${pagesHtml}
       if (selectedNode) deleteNode(selectedNode);
     });
 
-    // ── Context bar overflow toggle ────────────────────────────────────────────
+    // â”€â”€ Context bar overflow toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     document.getElementById("ctxMore").addEventListener("click", (e) => {
       e.stopPropagation();
       document.getElementById("nodeContextBar").classList.toggle("expanded");
@@ -5382,7 +5433,7 @@ ${pagesHtml}
 
     initAuth();
 
-    // ── Profile modal ──────────────────────────────────────────────────────────
+    // â”€â”€ Profile modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     let _profileData = {};
 
     function showProfileView() {
@@ -5437,12 +5488,12 @@ ${pagesHtml}
 
       // Tree count
       const countEl = document.getElementById("profileTreeCount");
-      countEl.textContent = "…";
+      countEl.textContent = "â€¦";
       fetch("/api/trees").then(r => r.json()).then(d => {
-        const count = Array.isArray(d.items) ? d.items.length : "—";
+        const count = Array.isArray(d.items) ? d.items.length : "â€”";
         const isPaid = currentPlan === "pro" || currentPlan === "business";
         countEl.textContent = isPaid ? count : `${count} / 5`;
-      }).catch(() => { countEl.textContent = "—"; });
+      }).catch(() => { countEl.textContent = "â€”"; });
 
       // Load profile data
       renderProfileFields({});
@@ -5468,7 +5519,7 @@ ${pagesHtml}
       } else {
         const upgradeBtn = document.createElement("button");
         upgradeBtn.className = "profile-btn-primary";
-        upgradeBtn.textContent = "Upgrade to Pro →";
+        upgradeBtn.textContent = "Upgrade to Pro â†’";
         upgradeBtn.addEventListener("click", () => { closeProfileModal(); openPlanModal(); });
         actions.appendChild(upgradeBtn);
       }
@@ -5520,7 +5571,7 @@ ${pagesHtml}
       const saveBtn = document.getElementById("profileSaveBtn");
       const errEl   = document.getElementById("profileEditError");
       saveBtn.disabled = true;
-      saveBtn.textContent = "Saving…";
+      saveBtn.textContent = "Savingâ€¦";
       errEl.style.display = "none";
       try {
         const payload = {
@@ -5558,7 +5609,7 @@ ${pagesHtml}
 
     async function deleteAccount() {
       const confirmBtn = document.getElementById("profileDeleteConfirmBtn");
-      if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = "Deleting…"; }
+      if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = "Deletingâ€¦"; }
       try {
         const res = await fetch("/api/deleteAccount", { method: "DELETE" });
         const data = await res.json().catch(() => ({}));
@@ -5571,7 +5622,7 @@ ${pagesHtml}
           if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = "Yes, delete"; }
           return;
         }
-        toast("Account deleted. Signing you out…", "info");
+        toast("Account deleted. Signing you outâ€¦", "info");
         setTimeout(() => { window.location.href = "/logout"; }, 1800);
       } catch (err) {
         toast("Delete failed. Please try again.", "error");
@@ -5598,7 +5649,7 @@ ${pagesHtml}
           <div class="profile-header-name" id="profileName"></div>
           <div class="profile-header-provider" id="profileProvider"></div>
         </div>
-        <button class="profile-close-btn" onclick="closeProfileModal()">✕</button>
+        <button class="profile-close-btn" onclick="closeProfileModal()">âœ•</button>
       </div>
       <!-- View mode -->
       <div class="profile-body" id="profileView">
@@ -5608,7 +5659,7 @@ ${pagesHtml}
         </div>
         <div class="profile-row">
           <span class="profile-row-label">Saved trees</span>
-          <span class="profile-row-value" id="profileTreeCount">…</span>
+          <span class="profile-row-value" id="profileTreeCount">â€¦</span>
         </div>
         <div class="profile-row" id="profileDisplayNameRow" style="display:none">
           <span class="profile-row-label">Name</span>
@@ -5649,7 +5700,7 @@ ${pagesHtml}
             <input id="pfWebsite" type="url" maxlength="200" placeholder="https://yoursite.com" class="profile-field-input" />
           </label>
           <label class="profile-field-label">Bio
-            <textarea id="pfBio" maxlength="300" placeholder="A short bio…" class="profile-field-input" rows="2" style="resize:vertical;"></textarea>
+            <textarea id="pfBio" maxlength="300" placeholder="A short bioâ€¦" class="profile-field-input" rows="2" style="resize:vertical;"></textarea>
           </label>
         </div>
         <div style="display:flex;gap:8px;margin-top:14px;">
