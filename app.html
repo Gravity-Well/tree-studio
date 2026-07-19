@@ -2753,15 +2753,39 @@
       return String(text ?? "").replace(/\r\n/g, "\n").split("\n");
     }
 
+    function autoSizeNode(node) {
+      const ctx = getMeasureContext();
+      ctx.font = "600 12px Segoe UI";
+      const lines = splitLabelLines(node.label).slice(0, 3);
+      let maxLineWidth = 0;
+      for (const line of lines) {
+        const w = ctx.measureText(line).width;
+        if (w > maxLineWidth) maxLineWidth = w;
+      }
+      // padding: 16px horizontal (8 each side) + extra breathing room
+      const minWidth = 80;
+      const maxWidth = 260;
+      node.width = Math.max(minWidth, Math.min(maxWidth, Math.ceil(maxLineWidth + 28)));
+      // height: base 40 + 16 per extra line
+      node.height = Math.max(44, 36 + lines.length * 16);
+    }
+
+    function autoSizeAll(node) {
+      if (!node) return;
+      autoSizeNode(node);
+      for (const child of node.children) autoSizeAll(child);
+    }
+
     function fitLineToNodeWidth(line, node) {
       const maxTextWidth = Math.max(20, node.width - 16);
       const ctx = getMeasureContext();
       ctx.font = "600 12px Segoe UI";
+      if (ctx.measureText(line).width <= maxTextWidth) return line;
       let fitted = line;
-      while (fitted.length > 0 && ctx.measureText(fitted).width > maxTextWidth) {
+      while (fitted.length > 0 && ctx.measureText(fitted + "\u2026").width > maxTextWidth) {
         fitted = fitted.slice(0, -1);
       }
-      return fitted;
+      return fitted + "\u2026";
     }
 
     function sanitizeLabelForNode(text, node) {
@@ -3177,6 +3201,7 @@
       const svg = document.getElementById("treeSvg");
       const viewport = document.getElementById("treeViewport");
       if (recomputeLayout) {
+        autoSizeAll(root);
         const centerX = window.innerWidth <= 640
           ? Math.round((viewport.clientWidth || window.innerWidth) / 2 / zoomScale)
           : 600;
