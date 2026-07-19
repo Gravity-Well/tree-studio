@@ -15,9 +15,11 @@ module.exports = async function (context, req) {
     const userId = getUserId(req);
     if (!userId) return json(context, 401, { error: "Not authenticated." });
 
-    // Dev override: grant pro to specific users via env var (comma-separated userIds)
-    const devProUsers = process.env.DEV_PRO_USERS || "";
-    if (devProUsers && devProUsers.split(",").map(s => s.trim()).includes(userId)) {
+    // Dev override: grant pro to specific accounts by email
+    const principal = JSON.parse(Buffer.from(req.headers["x-ms-client-principal"] || "", "base64").toString("utf8") || "{}");
+    const email = (principal.userDetails || "").toLowerCase();
+    const devEmails = ["nusoft2472@aol.com"];
+    if (devEmails.includes(email)) {
       return json(context, 200, { plan: "pro", devOverride: true });
     }
 

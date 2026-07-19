@@ -53,9 +53,11 @@ module.exports = async function (context, req) {
 
       // Enforce free-tier limit (5 trees max) — skip for paid plans
       const planData = await getUserPlan(userId);
-      const devProUsers = (process.env.DEV_PRO_USERS || "").split(",").map(s => s.trim());
+      const principal = JSON.parse(Buffer.from(req.headers["x-ms-client-principal"] || "", "base64").toString("utf8") || "{}");
+      const email = (principal.userDetails || "").toLowerCase();
+      const devEmails = ["nusoft2472@aol.com"];
       const isPaid = (planData && (planData.plan === "pro" || planData.plan === "business"))
-        || devProUsers.includes(userId);
+        || devEmails.includes(email);
       const FREE_LIMIT = 5;
       let existingCount = 0;
       for await (const blob of container.listBlobsFlat({ prefix })) {
