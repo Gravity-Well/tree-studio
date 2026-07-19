@@ -3930,7 +3930,10 @@
       const panel = document.getElementById("cloudPanel");
       const isHidden = panel.style.display === "none";
       panel.style.display = isHidden ? "" : "none";
-      if (isHidden) panel.open = true;
+      if (isHidden) {
+        panel.open = true;
+        refreshCloudList();
+      }
     });
     document.getElementById("expandAllBtn").addEventListener("click", expandAll);
     document.getElementById("collapseAllBtn").addEventListener("click", collapseAll);
@@ -5267,6 +5270,7 @@ ${pagesHtml}
 
           cloudBtn.disabled = false;
           cloudBtn.title = "";
+          refreshCloudList();
 
           // Auto-trigger checkout if coming from pricing page (URL param OR
           // sessionStorage fallback in case post_login_redirect dropped params).
