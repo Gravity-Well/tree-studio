@@ -15,6 +15,12 @@ module.exports = async function (context, req) {
     const userId = getUserId(req);
     if (!userId) return json(context, 401, { error: "Not authenticated." });
 
+    // Dev override: grant pro to specific users via env var (comma-separated userIds)
+    const devProUsers = process.env.DEV_PRO_USERS || "";
+    if (devProUsers && devProUsers.split(",").map(s => s.trim()).includes(userId)) {
+      return json(context, 200, { plan: "pro", devOverride: true });
+    }
+
     const planData = await getUserPlan(userId);
     return json(context, 200, planData);
   } catch (err) {

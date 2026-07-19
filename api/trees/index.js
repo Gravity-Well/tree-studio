@@ -53,7 +53,9 @@ module.exports = async function (context, req) {
 
       // Enforce free-tier limit (5 trees max) — skip for paid plans
       const planData = await getUserPlan(userId);
-      const isPaid = planData && (planData.plan === "pro" || planData.plan === "business");
+      const devProUsers = (process.env.DEV_PRO_USERS || "").split(",").map(s => s.trim());
+      const isPaid = (planData && (planData.plan === "pro" || planData.plan === "business"))
+        || devProUsers.includes(userId);
       const FREE_LIMIT = 5;
       let existingCount = 0;
       for await (const blob of container.listBlobsFlat({ prefix })) {
